@@ -121,6 +121,12 @@ def strip_chars( sequence, strip_chars ):
     compiled_pattern = re.compile( pattern )
     return compiled_pattern.sub( '', sequence )
 
+def fix_name( seq_name ):
+    """ Remove everything after a period and change - to _ """
+    # Replace - with _
+    seq_name_fixed = re.sub( '-', '_', seq_name.strip() )
+    return re.sub( '\..*', '', seq_name_fixed )
+
 def read_fasta_file( fasta_dir, fasta_file ):
     """ Reads a fasta file and outputs a dictionary where the key is the sequence name and the value is the sequence """
     global strip_chars
@@ -136,7 +142,7 @@ def read_fasta_file( fasta_dir, fasta_file ):
     for line in fh.readlines():
         log( "Line being read: %s" % line, DEBUG )
         if line[0] == '>':
-            last_name = line[1:].strip()
+            last_name = fix_name( line[1:] )
             log( "Starting new sequence name: %s" % last_name, DEBUG )
             name_line = True
             genes[last_name] = ''
