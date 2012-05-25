@@ -56,6 +56,7 @@ import os
 from optparse import OptionParser,OptionGroup
 import datetime
 import sys
+import re
 
 #==================== Variables =========================
 # The fast files that are to be read
@@ -85,6 +86,7 @@ def set_opts( ):
 
     parser.add_option( "-d", "--fasta_dir", dest="fasta_dir", help="The fasta directory of the sequences to merge" )
     parser.add_option( "--debug", action="store", dest="debug", default=0, help="Set debug level. Normal(default) = 0, Warn = 1, Info = 2, Debug = 3" )
+    parser.add_option( "--strip", dest="strip_chars", default="-", help="List of characters to strip from the sequences. Default is '-'" )
     options,args = parser.parse_args()
     if not options.fasta_dir:
         parser.print_help()
@@ -113,8 +115,15 @@ def read_fasta_dir( dir_path ):
     log( "%s" % fasta_files, DEBUG )
     return fasta_files
 
+def strip_chars( sequence, strip_chars ):
+    global options
+    pattern = "|".join( [c for c in strip_chars] )
+    compiled_pattern = re.compile( pattern )
+    return compiled_pattern.sub( '', sequence )
+
 def read_fasta_file( fasta_dir, fasta_file ):
     """ Reads a fasta file and outputs a dictionary where the key is the sequence name and the value is the sequence """
+    global strip_chars
     genes = {}
     fasta_file_path = os.path.join( fasta_dir, fasta_file )
     lines = []
@@ -125,15 +134,15 @@ def read_fasta_file( fasta_dir, fasta_file ):
     name_line = True
     last_name = ''
     for line in fh.readlines():
-        log( line, DEBUG )
+        log( "Line being read: %s" % line, DEBUG )
         if line[0] == '>':
-            log( "Setting name: %s" % last_name, DEBUG )
             last_name = line[1:].strip()
+            log( "Starting new sequence name: %s" % last_name, DEBUG )
             name_line = True
             genes[last_name] = ''
         else:
-            log( "Appending sequence to %s" % last_name, DEBUG )
-            genes[last_name] += line.strip()
+            log( "Appending sequence %s to %s" % (line, last_name), DEBUG )
+            genes[last_name] += strip_chars( line.strip(), options.strip_chars )
     return genes
 
 def all_files( dir_path ):
@@ -171,14 +180,12 @@ def merge_files( files_dict ):
         missing = False
         # Go through each of the other files [1:] and append each sequence to it's cooresponding sequence(merge) in order
         for file_name in sorted( files_dict.keys() ):
-            # The gene name
-            gene = files_dict[file_name]
             # First check to see if the name exists in this file
             #  Append if it does exist
             #  Log if it does not
-            if name in gene:
+            if name in files_dict[file_name]:
                 log( "Merging %s from %s" % (name,file_name), DEBUG )
-                merged_files[name] += seq
+                merged_files[name] += files_dict[file_name][name]
             else:
                 log( "%s not fund in %s" % (name, file_name), WARN )
                 last_name = name
@@ -192,7 +199,7 @@ def merged_fasta( merged_files ):
     """ Print out the fasta format for the merged files """
     ret_string = ""
     for name,seq in merged_files.iteritems():
-        ret_string = ">%s\r\n%s" % (name,seq)
+        ret_string += ">%s\r\n%s\r\n" % (name,seq)
     return ret_string
         
 #---------------------------------------------------------
