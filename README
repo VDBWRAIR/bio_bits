@@ -1,0 +1,22 @@
+sequence_concat.py
+
++++++++++++++++++ Intro ++++++++++++++++
+When you have many fasta files that need to be concatenated into one file it can be a daunting task.
+sequence_conat.py will take in all the fasta files in a directory and output a single concatenated file
+using all of those files.
+
+++++++++++++++++++ Usage +++++++++++++++++
+./sequence_concat.py -h
+Shows you the help message
+
+Options Supported:
+-d or --fasta_dir tells the script which directory to search in for fasta files. The files must end in fna or fas
+--strip <chars> tells the script to strip out characters that you supply. By default the script removes all '-' characters(dashes)
+--debug <level> tells the script to output debugging information from a scale of 0 = Normal to 3 = Debug(lots of output)
+
+++++++++++++++++ Examples ++++++++++++++++
+This will run the sequence_concat.py on the test directory and output the concatenated sequences to the screen
+./sequence_concat.py -d test
+
+This will run the sequence_concat.py on the test directory and also strip all of the 'R' out of the sequences
+./sequence_concat.py -d test --strip R
