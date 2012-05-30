@@ -1,4 +1,4 @@
-sequence_concat.py
+sequence_files_concat.py
 
 +++++++++++++++++ Intro ++++++++++++++++
 When you have many fasta files that need to be concatenated into one file it can be a daunting task.
@@ -6,7 +6,7 @@ sequence_conat.py will take in all the fasta files in a directory and output a s
 using all of those files.
 
 ++++++++++++++++++ Usage +++++++++++++++++
-./sequence_concat.py -h
+./sequence_files_concat.py -h
 Shows you the help message
 
 Options Supported:
@@ -16,7 +16,11 @@ Options Supported:
 
 ++++++++++++++++ Examples ++++++++++++++++
 This will run the sequence_concat.py on the test directory and output the concatenated sequences to the screen
-./sequence_concat.py -d test
+./sequence_files_concat.py -d test
 
 This will run the sequence_concat.py on the test directory and also strip all of the 'R' out of the sequences
-./sequence_concat.py -d test --strip R
+./sequence_files_concat.py -d test --strip R
+
++++++++++++++++ Notes +++++++++++++++++++
+For now you need to make sure that you have access to /home/EIDRUdata/Tyghe/Repos as the scripts here reference
+pyWrairLib which is in that path
