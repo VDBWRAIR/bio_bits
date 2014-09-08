@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python
 
 ##########################################################################
 ##                       Sequence Concat
@@ -39,14 +39,8 @@ from optparse import OptionParser,OptionGroup
 import sys
 import cStringIO
 
-try:
-    from pyWrairLib.parser import fasta
-    from pyWrairLib.parser.exceptions import *
-except ImportError:
-    print "Please ensure you have set your python path to include the underlying directory for pyWrairLib"
-    print "Probably export PYTHONPATH=$PYTHONPATH:/home/EIDRUdata/Tyghe/Repos"
-    print "Exiting..."
-    sys.exit( -1 )
+import fasta
+from fasta import UnknownIdentifierLineException
 
 class SequenceConcat:
     _fasta_file_path = None

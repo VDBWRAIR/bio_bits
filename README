@@ -1,57 +1,49 @@
 ================= Contents ======================
-1. Module usage
-2. Sequence Files Concatenation Script
-3. Fasta Sequence Merger
+1. Sequence Files Concatenation Script
+2. Fasta Sequence Merger
 
-1. Module Usage
-===================================================
-For both scripts to ensure you can import the pyWrairLib you need to add the path to the directory that contains
-pyWrairLib
-
-Example
-    export PYTHONPATH=/home/EIDRUdata/Tyghe/Repos
-
-2. Sequence Files Concatenation
+1. Sequence Files Concatenation
 ===================================================
 sequence_files_concat.py
 
-2.1  Intro 
+1.1  Intro 
 =================================
 When you have many fasta files that need to be concatenated into one file it can be a daunting task.
 sequence_conat.py will take in all the fasta files in a directory and output a single concatenated file
 using all of those files.
 
-
-2.2 Usage
+1.2 Usage
 =================================
 Shows you the help message
 ./sequence_files_concat.py -h
 
+Arguments:
+fasta_dir - tells the script which directory to search in for fasta files. The files must end in fna or fas
+
 Options Supported:
--d or --fasta_dir tells the script which directory to search in for fasta files. The files must end in fna or fas
 --strip <chars> tells the script to strip out characters that you supply. By default the script removes all '-' characters(dashes)
 --debug <level> tells the script to output debugging information from a scale of 0 = Normal to 3 = Debug(lots of output)
 
-2.3 Examples
+1.3 Examples
 ================================
 This will run the sequence_concat.py on the test directory and output the concatenated sequences to the screen
-./sequence_files_concat.py -d test
+./sequence_files_concat.py test
 
 This will run the sequence_concat.py on the test directory and also strip all of the 'R' out of the sequences
-./sequence_files_concat.py -d test --strip R
+./sequence_files_concat.py test --strip R
 
-3. Sequence Merger
+2. Sequence Merger
 ===================================================
 sequence_concat.py
 
-3.1 Intro
+2.1 Intro
 =================================
 Genbank and GISAid output fasta files so that they come in segments instead of different files.
 sequence_concat.py will read a single fasta file from either and will merge all of the segments(in order)
 and output a fasta file with the merged sequence data
 
 
-3.2 Usage
+2.2 Usage
 ================================
 Show help message
 ./sequence_concat.py -h
@@ -74,14 +66,14 @@ Options Supported:
                         Required segments per sequence. See README for
                         examples. Default: 1,2,3,4,5,6,7,8
 
-3.2.1 Option Usage
+2.2.1 Option Usage
 ========================
 
 -t supports only genbank or gisaid
 
 if you specify -t gisaid you will probably be also specifying --segments_required PB2,PB1,PA,HA,NP,NA,MP,NS
 
-3.3 Examples
+2.3 Examples
 ================================
 
 By default the script will prune out any sequences that have missing segments. That is, if a sequence

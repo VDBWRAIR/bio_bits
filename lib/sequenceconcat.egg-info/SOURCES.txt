@@ -1,0 +1,9 @@
+README
+setup.py
+bin/sequence_concat.py
+bin/sequence_files_concat.py
+lib/sequenceconcat.egg-info/PKG-INFO
+lib/sequenceconcat.egg-info/SOURCES.txt
+lib/sequenceconcat.egg-info/dependency_links.txt
+lib/sequenceconcat.egg-info/requires.txt
+lib/sequenceconcat.egg-info/top_level.txt

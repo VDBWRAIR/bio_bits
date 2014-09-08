@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python
 
 ##########################################################################
 ##                             Sequence Files Concate   				##
@@ -54,13 +54,14 @@
 ##########################################################################
 import os
 from optparse import OptionParser,OptionGroup
+import argparse
 import datetime
 import sys
 import re
+from glob import glob
+from Bio import SeqIO
 
-# This is not good with the hard path, but a hack it will be for now
-sys.path.append( "/home/EIDRUdata/Tyghe/Repos" )
-from pyWrairLib.parser import fasta
+import fasta
 
 #==================== Variables =========================
 # The fast files that are to be read
@@ -73,14 +74,17 @@ options = None
 date_fmt = "%Y-%m-%d %H:%M:%S"
 
 # Our argument parser
-parser = OptionParser()
+parser = argparse.ArgumentParser(
+    description='''Concat multiple sequence files with same identifiers into
+one fasta file'''
+)
+
 
 # Output types
-NORMAL = 0
+INFO = 0
 WARN = 1
-INFO = 2
-DEBUG = 3
-debug_types = ( 'Normal', 'Warn', 'Info', 'Debug' )
+DEBUG = 2
+debug_types = ( 'Info', 'Warn', 'Debug' )
 #---------------------------------------------------------
 
 #==================== Functions =========================
@@ -88,33 +92,43 @@ def set_opts( ):
     global parser
     global options
 
-    parser.add_option( "-d", "--fasta_dir", dest="fasta_dir", help="The fasta directory of the sequences to merge" )
-    parser.add_option( "--debug", action="store", dest="debug", default=0, help="Set debug level. Normal(default) = 0, Warn = 1, Info = 2, Debug = 3" )
-    parser.add_option( "--strip", dest="strip_chars", default="-", help="List of characters to strip from the sequences. Default is '-'" )
-    options,args = parser.parse_args()
-    if not options.fasta_dir:
-        parser.print_help()
-        parser.error( "Need to specify the fasta directory" )
+    parser.add_argument(
+        dest="fasta_dir",
+        help="The fasta directory of the sequences to merge"
+    )
+    parser.add_argument(
+        "--debug",
+        action="store",
+        dest="debug",
+        default=0,
+        help="Set debug level. Normal(default) = 0, Warn = 1, Info = 2, Debug = 3"
+    )
+    parser.add_argument(
+        "--strip",
+        dest="strip_chars",
+        default="-",
+        help="List of characters to strip from the sequences. Default is '-'"
+    )
 
-def log( msg, type=NORMAL ):
+    options = parser.parse_args()
+
+def log( msg, type=INFO ):
     global date_fmt
     global options
     global debug_types
     nowdate = datetime.datetime.now().strftime( date_fmt )
     if type <= int( options.debug ):
-        print "[%s] [%s] %s" % (nowdate, debug_types[type], msg)
+        sys.stderr.write( "[{}] [{}] {}\n".format(nowdate, debug_types[type], msg) )
 
 def read_fasta_dir( dir_path ):
     """ Gathers the file names of the fasta files in a directory """
-    valid_ext = ('.fna', '.fas')
+    valid_ext = ('.fna', '.fas','.fasta')
     fasta_files = []
     if not os.path.isdir( dir_path ):
-        print( "Invalid directory given(Not found) %s" % dir_path )
+        sys.stderr.write( "Invalid directory given(Not found) {}\n".format(dir_path) )
         sys.exit( -1 )
-    for file in os.listdir( dir_path ):
-        name,ext = os.path.splitext( file )
-        if ext in valid_ext:
-            fasta_files.append( file )
+    for ext in valid_ext:
+        fasta_files += glob( os.path.join( dir_path, '*{}'.format( ext ) ) )
     fasta_files.sort()
     log( "%s" % fasta_files, DEBUG )
     return fasta_files
@@ -131,30 +145,6 @@ def fix_name( seq_name ):
     seq_name_fixed = re.sub( '-', '_', seq_name.strip() )
     return re.sub( '\..*', '', seq_name_fixed )
 
-def read_fasta_file( fasta_dir, fasta_file ):
-    """ Reads a fasta file and outputs a dictionary where the key is the sequence name and the value is the sequence """
-    global strip_chars
-    genes = {}
-    fasta_file_path = os.path.join( fasta_dir, fasta_file )
-    lines = []
-    if not os.path.isfile( fasta_file_path ):
-        print( "Invalid file path given(Not found) %s" % fasta_file_path )
-        sys.exit( -1 )
-    fh = open( fasta_file_path, 'r' )
-    name_line = True
-    last_name = ''
-    for line in fh.readlines():
-        log( "Line being read: %s" % line, DEBUG )
-        if line[0] == '>':
-            last_name = fix_name( line[1:] )
-            log( "Starting new sequence name: %s" % last_name, DEBUG )
-            name_line = True
-            genes[last_name] = ''
-        else:
-            log( "Appending sequence %s to %s" % (line, last_name), DEBUG )
-            genes[last_name] += strip_chars( line.strip(), options.strip_chars )
-    return genes
-
 def all_files( dir_path ):
     """
         Given a fasta directory read all the files in that directory into one big dictionary keyed by the file name and the values are
@@ -163,7 +153,7 @@ def all_files( dir_path ):
     all_files = {}
     fasta_files = read_fasta_dir( dir_path )
     for file in fasta_files:
-        all_files[file] = fasta.read_fasta_file( dir_path, file, options.strip_chars )
+        all_files[file] = fasta.read_fasta_file( file, options.strip_chars )
     return all_files
 
 def pretty_print_files( files_dict ):
@@ -217,6 +207,7 @@ if __name__ == '__main__':
     # Set the arguments of the script
     set_opts()
     files = all_files( options.fasta_dir )
+    
     merged_files = merge_files( files )
 
     print merged_fasta( merged_files )

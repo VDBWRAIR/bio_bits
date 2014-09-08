@@ -1,0 +1,8 @@
+>ident1 | aaa_bbb_1234 | 1969-01-01 |  |  | PB2 | AA123456
+aaaaaaaaaaaaaaaaaaatttttttttttttttttttggggggggggggggggggggggccccccccccccccccccccc
+>ident1 | aaa_bbb_1234 | 1969-01-01 |  |  | NS | AA123456
+ccccccccccccccccccgggggggggggggggggtttttttttttttttaaaaaaaaaaaaaaaaa
+>ide/ a-b/asdf | ccc_ddd_1111 | 2012-05-11 | a-12as/11 test | 12345876 | PB2 | CC1234
+cccccccccccccgggggggggggggggggggaaaaaaaaaaaaaaaattttttttttttttt
+>ide/ a-b/asdf | ccc_ddd_1111 | 2012-05-11 | a-12as/11 test | 12345876 | NS | CC1234
+aaaaaaaaaaaaaaaaaaatttttttttttttttttttggggggggggggggggggggggccccccccccccccccccccc
