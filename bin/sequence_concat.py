@@ -39,8 +39,8 @@ from optparse import OptionParser,OptionGroup
 import sys
 import cStringIO
 
-import fasta
-from fasta import UnknownIdentifierLineException
+from sequenceconcat import fasta
+from sequenceconcat.fasta import UnknownIdentifierLineException
 
 class SequenceConcat:
     _fasta_file_path = None

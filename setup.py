@@ -4,8 +4,8 @@ from glob import glob
 setup(
     name = "sequenceconcat",
     version = "0.0.1",
+    packages = find_packages(),
     scripts = glob( 'bin/*.py' ),
-    package_dir = {'':'lib'},
     author = "Tyghe Vallard",
     author_email = "vallardt@gmail.com",
     description = "Handle concatting and splitting sequence files",
