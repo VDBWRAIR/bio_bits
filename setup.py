@@ -1,18 +1,22 @@
+# Bootstrap setuptools
+from ez_setup import use_setuptools
+use_setuptools()
+
 from setuptools import setup, find_packages
 from glob import glob
 
 setup(
-    name = "sequenceconcat",
+    name = "bio_pieces",
     version = "0.0.1",
     packages = find_packages(),
-    scripts = glob( 'bin/*.py' ),
     author = "Tyghe Vallard",
     author_email = "vallardt@gmail.com",
     description = "Handle concatting and splitting sequence files",
-    license = "PSF",
-    keywords = "",
+    license = "GPLv2",
+    keywords = "biopython split fasta concat",
     install_requires = [
-        'biopython'
+        'biopython',
+        'argparse',
     ],
     setup_requires = [
         'nose'
@@ -25,6 +29,7 @@ setup(
         'console_scripts': [
             'sequence_concat = bio_pieces.sequence_concat:main',
             'sequence_files_concat = bio_pieces.sequence_files_concat:main',
+            'sequence_split = bio_pieces.sequence_split:main',
         ],
     },
 )

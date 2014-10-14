@@ -88,7 +88,7 @@ class SequenceConcat:
             +++ Unit Test +++
             # Try an inhouse easy test
             >>> path = os.path.dirname( __file__ )
-            >>> s = SequenceConcat( os.path.join( path, 'example_files/example1.txt' ), 'genbank' )
+            >>> s = SequenceConcat( os.path.join( path, '../example_files/example1.txt' ), 'genbank' )
             >>> fasta = s.get_sequences()
             >>> pruned_fasta = s.prune_missing( fasta, range( 1, 4 ) )
             >>> print pruned_fasta
@@ -97,7 +97,7 @@ class SequenceConcat:
             True
             >>> len( fasta ) == 2
             True
-            >>> s = SequenceConcat( os.path.join( path, 'example_files/example2.txt' ), 'gisaid' )
+            >>> s = SequenceConcat( os.path.join( path, '../example_files/example2.txt' ), 'gisaid' )
             >>> fasta = s.get_sequences()
             >>> pruned_fasta = s.prune_missing( fasta, ['A','B','C'] )
             >>> print pruned_fasta
@@ -124,7 +124,7 @@ class SequenceConcat:
             Return unmodified fasta dictionary
             
             +++ Unit Tests +++
-            >>> s = SequenceConcat( 'example_files/example1.txt', 'genbank' )
+            >>> s = SequenceConcat( '../example_files/example1.txt', 'genbank' )
             >>> len( s.get_sequences() ) > 1
             True
         """
@@ -138,21 +138,21 @@ class SequenceConcat:
         
             +++ Unit Tests +++
             >>> path = os.path.dirname( __file__ )
-            >>> s = SequenceConcat( os.path.join( path, 'example_files/example1.txt' ), 'genbank' )
+            >>> s = SequenceConcat( os.path.join( path, '../example_files/example1.txt' ), 'genbank' )
             >>> print s.get_merged_sequences( True, range( 1, 4 ) )
             >ident1
             AAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCCCTTTTTTTTTTTTTTTTT
             >ident2
             AAAAAAAAAAAAAAAAATTTTTTTTTTTTTTTTTCCCCCCCCCCCCCCCCC
             <BLANKLINE>
-            >>> s = SequenceConcat( 'example_files/WR2848N.fasta', 'genbank' )
-            >>> fh = open( 'example_files/WR2848N_merged.fasta' )
+            >>> s = SequenceConcat( '../example_files/WR2848N.fasta', 'genbank' )
+            >>> fh = open( '../example_files/WR2848N_merged.fasta' )
             >>> WR2848N_manually_merged = fh.read()
             >>> fh.close()
             >>> s.get_merged_sequences( ) == WR2848N_manually_merged[:-1]
             True
             >>> path = os.path.dirname( __file__ )
-            >>> s = SequenceConcat( os.path.join( path, 'example_files/example2.txt' ), 'gisaid' )
+            >>> s = SequenceConcat( os.path.join( path, '../example_files/example2.txt' ), 'gisaid' )
             >>> print s.get_merged_sequences( True, ['A','B','C'] )
             >ident1
             AAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCCCTTTTTTTTTTTTTTTTT
