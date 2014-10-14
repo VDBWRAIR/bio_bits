@@ -11,7 +11,20 @@ setup(
     description = "Handle concatting and splitting sequence files",
     license = "PSF",
     keywords = "",
-    install_requires = ['biopython'],
-    setup_requires = ['nose'],
-    tests_require = ['nose','mock'],
+    install_requires = [
+        'biopython'
+    ],
+    setup_requires = [
+        'nose'
+    ],
+    tests_require = [
+        'nose',
+        'mock'
+    ],
+    entry_points = {
+        'console_scripts': [
+            'sequence_concat = bio_pieces.sequence_concat:main',
+            'sequence_files_concat = bio_pieces.sequence_files_concat:main',
+        ],
+    },
 )

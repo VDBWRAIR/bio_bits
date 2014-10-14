@@ -227,7 +227,7 @@ def set_opts( parser ):
     return options
 
 # Run The script if this script is executed
-if __name__ == '__main__':
+def main():
     parser = OptionParser()
     options = set_opts( parser )
     if options.test:

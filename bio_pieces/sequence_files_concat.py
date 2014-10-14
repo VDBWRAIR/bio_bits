@@ -203,7 +203,7 @@ def merged_fasta( merged_files ):
     return ret_string
         
 #---------------------------------------------------------
-if __name__ == '__main__':
+def main():
     # Set the arguments of the script
     set_opts()
     files = all_files( options.fasta_dir )
