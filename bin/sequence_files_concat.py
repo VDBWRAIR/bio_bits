@@ -61,7 +61,7 @@ import re
 from glob import glob
 from Bio import SeqIO
 
-from sequenceconcat import fasta
+from bio_pieces import fasta
 
 #==================== Variables =========================
 # The fast files that are to be read
