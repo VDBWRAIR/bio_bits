@@ -1,5 +1,6 @@
 import re
 from os.path import basename
+import sys
 
 import argparse
 
@@ -12,12 +13,11 @@ def main():
     args = parse_args()
     srpf = sort_seq_files(args.seqfiles, args.delimiter, args.sortkeys)
     records = combine_seqs_inorder(
-        srpf
-		args.seqfiles
-		args.delimiter
-		args.sortkeys
+        srpf,
+		args.delimiter,
+		args.sortkeys,
     )
-    Bio.SeqIO.write(records, sys.stdout, 'fasta')
+    SeqIO.write(records, sys.stdout, 'fasta')
 
 def parse_args():
     parser = argparse.ArgumentParser(
