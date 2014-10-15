@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-f = 'all.fasta'
-
 import re
 from Bio import SeqIO
 from collections import defaultdict
