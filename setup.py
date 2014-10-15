@@ -23,13 +23,15 @@ setup(
     ],
     tests_require = [
         'nose',
-        'mock'
+        'mock',
+        'tempdir',
     ],
     entry_points = {
         'console_scripts': [
             'sequence_concat = bio_pieces.sequence_concat:main',
             'sequence_files_concat = bio_pieces.sequence_files_concat:main',
             'sequence_split = bio_pieces.sequence_split:main',
+            'cat_sequences = bio_pieces.cat_sequences:main',
         ],
     },
 )
