@@ -48,6 +48,7 @@ def parse_args():
         '-k',
         default=[1,2],
         nargs='+',
+        type=int,
         help='Which columns in the sequence id to use after split using ' \
             'delmiter[Default: %(default)s]'
     )
