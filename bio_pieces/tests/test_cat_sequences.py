@@ -1,37 +1,42 @@
 from common import *
 
 class Base(BaseTester):
-    modulepath = 'bio_pieces.seqfile'
+    modulepath = 'bio_pieces.cat_sequences'
 
-    def _create_test_seqrecords(self):
-        import random
+    def setUp(self):
+        super(Base, self).setUp()
         self.idlist = [
             '1__1_0',
             '1__2_1',
             '2__1_2',
             '2__2_3',
         ]
+        self.seqrecs = []
+
+    def _create_test_seqrecords(self, idlist):
+        import random
         # Shuffle is in-place so copy first
-        shuffled = [i for i in self.idlist]
+        shuffled = [i for i in idlist]
         random.shuffle(shuffled)
         # Generate 10 random seqrecs
-        self.seqrecs = []
+        seqrecs = []
         for id in shuffled:
             rec = self.make_seqrec(
                 self.rand_seq(),
                 self.rand_quals(),
                 id
             )
-            self.seqrecs.append(rec)
+            seqrecs.append(rec)
+        return seqrecs
 
     def _check_sorted_seqs(self, seqrecs, idlist):
         for resultseq, expectid in zip(seqrecs, idlist):
             eq_( expectid, resultseq.id )
 
-    def _create_mock_seqfile(self, filepath):
+    def _create_mock_seqfile(self, seqrecs, filepath):
         from Bio import SeqIO
         with open(filepath,'w') as fh:
-            SeqIO.write(self.seqrecs, fh, 'fasta')
+            SeqIO.write(seqrecs, fh, 'fasta')
 
 class TestSplitSeqId(Base):
     functionname = 'split_seq_id'
@@ -47,12 +52,13 @@ class TestSplitSeqId(Base):
         r = self._C(randseqrec, '__')
         eq_( id, r, "Did not recombine id" )
 
+@attr('current')
 class TestSortSequences(Base):
     functionname = 'sort_sequences'
 
     def setUp(self):
         super(self.__class__, self).setUp()
-        self._create_test_seqrecords()
+        self.seqrecs = self._create_test_seqrecords(self.idlist)
 
     def test_sorts_seqrecords(self):
         print self.seqrecs
@@ -66,22 +72,44 @@ class TestSortSequences(Base):
         print self.seqrecs
         self._check_sorted_seqs(self.seqrecs, self.idlist)
 
-    @raises(IndexError)
-    def test_sortkeys_index_out_of_bounds_raises_exception(self):
-        self._C(self.seqrecs, '__', [5])
+    def test_sortkey_outofbounds_raises_invalidsortkey(self):
+        from bio_pieces.cat_sequences import InvalidSortKey
+        idlist = [
+            '1__1__1',
+            '1__1',
+        ]
+        seqrecs = self._create_test_seqrecords(idlist)
+        try:
+            self._C(seqrecs, '__', [3])
+            ok_(False, 'Did not raise InvalidSortKey')
+        except InvalidSortKey as e:
+            eq_(
+                '3 is an invalid sort key for the identifier 1__1',
+                e.message
+            )
+
+    def test_sorts_case_insensitive(self):
+        idlist = [
+            'Apple_1',
+            'Apple_2',
+            'APPLE_3'
+        ]
+        seqrecs = self._create_test_seqrecords(idlist)
+        self._C(seqrecs, '_', [1,2])
+        self._check_sorted_seqs(seqrecs, idlist)
 
 class TestSortSeqFiles(Base):
     functionname = 'sort_seq_files'
 
     def test_uses_basename_for_returned_dictionary_key(self):
         seqfiles = [abspath('seqfile1.fasta')]
-        self._create_test_seqrecords()
-        self._create_mock_seqfile(seqfiles[0])
+        seqrecs = self._create_test_seqrecords(self.idlist)
+        self._create_mock_seqfile(seqrecs, seqfiles[0])
         r = self._C(seqfiles, '__', [1,2])
         ok_( 'seqfile1.fasta' in r )
         self._check_sorted_seqs(r['seqfile1.fasta'], self.idlist)
 
-class TestCombineSeqsInorder(Base):
+class TestCatSeqRecords(Base):
     functionname = 'cat_seqrecords'
 
     def setUp(self):
@@ -124,10 +152,10 @@ class TestCombineSeqsInorder(Base):
 
     @raises(Exception)
     def test_raises_error_if_all_seqs_not_same_length(self):
-        self._create_test_seqrecords()
-        self._create_mock_seqfile('seqf1.fasta')
-        del self.seqrecs[-1]
-        self._create_mock_seqfile('seqf2.fasta')
+        seqrecs = self._create_test_seqrecords(self.idlist)
+        self._create_mock_seqfile(seqrecs, 'seqf1.fasta')
+        del seqrecs[-1]
+        self._create_mock_seqfile(seqrecs, 'seqf2.fasta')
 
         seqfiles = ['seqf1.fasta','seqf2.fasta']
         seqperfile = self._run_func(
@@ -144,15 +172,15 @@ class TestCombineSeqsInorder(Base):
             'seqfile1.fasta',
             'seqfile2.fasta'
         ]
-        self._create_test_seqrecords()
+        seqrecs = self._create_test_seqrecords(self.idlist)
         for s in seqfiles:
-            self._create_mock_seqfile(s)
+            self._create_mock_seqfile(seqrecs, s)
 
         # Sort sequences now to compare later
         self._run_func(
             self.modulepath,
             'sort_sequences',
-            self.seqrecs,   
+            seqrecs,   
             '__',
             [1,2]
         )
@@ -168,7 +196,7 @@ class TestCombineSeqsInorder(Base):
         r = self._C(seqperfile, '__', [1,2])
 
         # zip together expected, result
-        for eseqrec, rseqrec in zip(self.seqrecs,r):
+        for eseqrec, rseqrec in zip(seqrecs,r):
             expectedseq = ''
             # Join together expected sequences(essentially double, triple...)
             for i in range(len(seqfiles)):

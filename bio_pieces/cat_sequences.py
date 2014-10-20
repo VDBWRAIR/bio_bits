@@ -9,6 +9,9 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 
+# When the user supplies an invalid sort key
+class InvalidSortKey(Exception): pass
+
 def main():
     args = parse_args()
     srpf = sort_seq_files(args.seqfiles, args.delimiter, args.sortkeys)
@@ -154,8 +157,15 @@ def sort_sequences(seqs, delimiter, sortkeys):
         ids = split_seq_id(seqrec, delimiter)
         key = ''
         for k in sortkeys:
-            # sortkeys is 1-indexed not 0-indexed
-            key += ids[k-1]
+            try:
+                # sortkeys is 1-indexed not 0-indexed
+                key += ids[k-1].upper()
+            except IndexError as e:
+                raise InvalidSortKey(
+                    '{0} is an invalid sort key for the identifier {1}'.format(
+                        k, seqrec.id
+                    )
+                )
         return key
     seqs.sort(key=keyfunc)
 
