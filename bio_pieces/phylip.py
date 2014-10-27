@@ -20,6 +20,8 @@ def make_renamed_phylip(inputfasta):
     
     Returns the mapping of {originalname: Seq#_ name}, phylipfile
     '''
+    # Init var here in global scope
+    tmpfasta = None
     try:
         # Get input name and extension for later
         inputpath, extension = splitext(inputfasta)
@@ -48,9 +50,12 @@ def make_renamed_phylip(inputfasta):
         # Convert temp fasta to sequential phylip
         phylip_file = '{0}.phy'.format(inputpath)
         SeqIO.convert(tmpfasta, 'fasta', phylip_file, 'phylip')
+    except ValueError as e:
+        raise ValueError('{0} has identical sequence names in it({1})'.format(inputfasta,e.message))
     finally:
         # Remove tempfile
-        os.unlink(tmpfasta)
+        if tmpfasta is not None and isfile(tmpfasta):
+            os.unlink(tmpfasta)
     return mapping, phylip_file
 
 def rename_sequences(filepath, mapping):

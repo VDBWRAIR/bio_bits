@@ -25,7 +25,7 @@ class Base(BaseTester):
 
         # Sort the ids
         # This fetches either the keys(orig names) or values(new names)
-        ids = sorted(getattr(self.mapping,keyvalues)())
+        ids = sorted(getattr(mapping,keyvalues)())
 
         # Write the fasta
         with open(path,'w') as fh:
@@ -69,7 +69,6 @@ class TestMakeRenamedPhylip(Base):
 
         # Write a fasta with original names
         idseq = self.write_mapping_fasta(inputfasta, self.mapping, 'keys')
-
         # Run function
         mapping, phyfile = self._C(inputfasta)
 
@@ -77,6 +76,14 @@ class TestMakeRenamedPhylip(Base):
         for orig, new in mapping.items():
             # Original names are simply 0..9
             eq_( 'Seq{0}_'.format(orig), new )
+
+    @raises(ValueError)
+    def test_duplicate_seqids(self):
+        inputfasta = 'input.fasta'
+        with open(inputfasta,'w') as fh:
+            fh.write('>1\nATGC\n')
+            fh.write('>1\nATGC\n')
+        self._C(inputfasta)
 
     def test_phylip_is_correct(self):
         inputfasta = 'input.fasta'

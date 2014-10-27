@@ -7,7 +7,7 @@ from glob import glob
 
 setup(
     name = "bio_pieces",
-    version = "0.0.4",
+    version = "0.0.5",
     packages = find_packages(),
     author = "Tyghe Vallard",
     author_email = "vallardt@gmail.com",
@@ -33,6 +33,7 @@ setup(
             'sequence_split = bio_pieces.sequence_split:main',
             'cat_sequences = bio_pieces.cat_sequences:main',
             'phyml_seqrename = bio_pieces.phyml_seqrename:main',
+            'raxmlrunner = bio_pieces.raxmlrunner:main',
         ],
     },
 )
