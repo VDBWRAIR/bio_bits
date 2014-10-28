@@ -68,8 +68,14 @@ class TestMakeRenamedPhylip(Base):
         inputfasta = 'input.fasta'
 
         # Write a fasta with original names
+        # Fasta is sorted by original names
+        #   >0
+        #   ATGC
+        #   >1
+        #   ATGC
         idseq = self.write_mapping_fasta(inputfasta, self.mapping, 'keys')
         # Run function
+        # Mapping should be {'0':'Seq0_','1':'Seq1_',...}
         mapping, phyfile = self._C(inputfasta)
 
         # Mapping should be 0...9 and Seq0_...Seq9_
@@ -110,3 +116,77 @@ class TestMakeRenamedPhylip(Base):
                     orig = int(id.replace('Seq','').replace('_',''))
                     eq_( idseq[orig][1], seq )
                 lineno += 1
+
+class TestGetFastaSeqEnumerate(Base):
+    functionname = 'get_fasta_seq_enumerate'
+
+    def setUp(self):
+        import random
+        super(TestGetFastaSeqEnumerate,self).setUp()
+
+        self.inputfasta = 'input.fasta'
+        
+        # Shuffle seq ids
+        self.ids = [str(i) for i in range(10)]
+        random.shuffle(self.ids)
+        self.randseqs = [self.rand_seq() for i in range(self.numseqs)]
+        # Write fasta with random order
+        with open(self.inputfasta,'w') as fh:
+            self.make_fasta(fh, self.ids, self.randseqs)
+
+    def test_enumerates_from_start(self):
+        count = 0
+        for phyname, seqrec in self._C(self.inputfasta, start=0):
+            expectedid = self.ids[count]
+            expectedseq = self.randseqs[count]
+
+            eq_( 'Seq{0}_'.format(count), phyname )
+            eq_( expectedid, seqrec.id )
+            eq_( expectedseq, str(seqrec.seq) )
+            count += 1
+
+    def test_enumerates_from_start_not_0(self):
+        count = 10
+        for phyname, seqrec in self._C(self.inputfasta, start=10):
+            expectedid = self.ids[count-10]
+            expectedseq = self.randseqs[count-10]
+
+            eq_( 'Seq{0}_'.format(count), phyname )
+            eq_( expectedid, seqrec.id )
+            eq_( expectedseq, str(seqrec.seq) )
+            count += 1
+
+class TestGetSeqMapping(Base):
+    functionname = 'get_seqmapping'
+
+    def setUp(self):
+        import random
+        super(TestGetSeqMapping,self).setUp()
+
+        self.inputfasta = 'input.fasta'
+        
+        # In order sequences 0...10
+        self.ids = [str(i) for i in range(10)]
+        self.randseqs = [self.rand_seq() for i in range(self.numseqs)]
+        # Write fasta with random order
+        with open(self.inputfasta,'w') as fh:
+            self.make_fasta(fh, self.ids, self.randseqs)
+
+        # Expected mapping for fastafile generated
+        self.mapping = {'Seq{0}_'.format(id):id for id in self.ids}
+
+    def test_gets_mapping_same_order_as_inputfile(self):
+        r = self._C(self.inputfasta)
+
+        eq_(len(self.mapping), len(r) )
+
+        for expectnew, expectorig in self.mapping.items():
+            eq_( r[expectnew], expectorig )
+
+    @raises(ValueError)
+    def test_duplicate_ids_raises_exception(self):
+        inputfasta = 'input.fasta'
+        with open(inputfasta,'w') as fh:
+            fh.write('>1\nATGC\n')
+            fh.write('>1\nATGC\n')
+        self._C(inputfasta)

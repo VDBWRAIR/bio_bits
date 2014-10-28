@@ -7,7 +7,7 @@ from glob import glob
 
 setup(
     name = "bio_pieces",
-    version = "0.0.6",
+    version = "0.0.7",
     packages = find_packages(),
     author = "Tyghe Vallard",
     author_email = "vallardt@gmail.com",
