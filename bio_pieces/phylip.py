@@ -94,6 +94,8 @@ def rename_sequences(filepath, mapping):
     '''
     Rename file's contents such that all occurance of mapping's
     values are replaced with mapping's keys
+
+    mapping is {'origname':'Seq#_'}
     '''
     try:
         # Get a tempfile to put contents of renamed in
