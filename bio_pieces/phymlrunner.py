@@ -49,12 +49,11 @@ def run_phyml(phyml, phymloptions):
     phyml_cmd = 'phyml {0}'.format(phymloptions)
     print phyml_cmd
     try:
-        subprocess.check_output(phyml_cmd, shell=True)
+        subprocess.check_call(phyml_cmd, shell=True)
     except subprocess.CalledProcessError as e:
         print '!!! There was an error running phyml !!!'
         print
         print e
         print
         print '----------------'
-        print e.output
 

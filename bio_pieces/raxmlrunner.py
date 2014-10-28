@@ -58,11 +58,10 @@ def run_raxml(phyml, raxmloptions):
     raxml_cmd = 'raxml {0}'.format(raxmloptions)
     print raxml_cmd
     try:
-        subprocess.check_output(raxml_cmd, shell=True)
+        subprocess.check_call(raxml_cmd, shell=True)
     except subprocess.CalledProcessError as e:
         print '!!! There was an error running raxml !!!'
         print
         print e
         print
         print '----------------'
-        print e.output
