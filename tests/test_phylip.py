@@ -10,9 +10,9 @@ class Base(BaseTester):
         self.numseqs = 10
 
         # Orig -> Seq#_
-        self.mapping = {
-            str(i):'Seq{0}_'.format(i) for i in range(self.numseqs)
-        }
+        self.mapping = {}
+        for i in range(self.numseqs):
+            self.mapping[str(i)] = 'Seq{0}_'.format(i)
 
     def make_fasta(self, handle, seqids, sequences):
         ''' Write fasta sequences to handle '''
@@ -173,7 +173,9 @@ class TestGetSeqMapping(Base):
             self.make_fasta(fh, self.ids, self.randseqs)
 
         # Expected mapping for fastafile generated
-        self.mapping = {'Seq{0}_'.format(id):id for id in self.ids}
+        self.mapping = {}
+        for id in self.ids:
+            self.mapping['Seq{0}_'.format(id)] = id
 
     def test_gets_mapping_same_order_as_inputfile(self):
         r = self._C(self.inputfasta)
