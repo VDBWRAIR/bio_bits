@@ -1,13 +1,15 @@
 from setuptools import setup, find_packages
 from glob import glob
 
+import bio_pieces
+
 setup(
-    name = "bio_pieces",
-    version = "0.0.9",
+    name = bio_pieces.__projectname__,
+    version = bio_pieces.__release__,
     packages = find_packages(),
-    author = "Tyghe Vallard",
-    author_email = "vallardt@gmail.com",
-    description = "Various bioinformatics scripting",
+    author = bio_pieces.__authors__,
+    author_email = bio_pieces.__authoremails__,
+    description = bio_pieces.__description__,
     license = "GPLv2",
     keywords = "biopython split fasta concat",
     entry_points = {
