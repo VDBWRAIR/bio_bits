@@ -9,6 +9,10 @@ from nose.tools import eq_, ok_, raises
 from nose.plugins.attrib import attr
 from mock import Mock, patch
 import tempdir
+
+# tests dir
+TESTDIR = dirname(abspath(__file__))
+EXAMPLES = join(TESTDIR, 'example_files')
  
 class BaseTester(object):
     def setUp(self):

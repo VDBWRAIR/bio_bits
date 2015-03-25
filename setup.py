@@ -17,6 +17,7 @@ setup(
     install_requires = [
         'biopython',
         'argparse',
+        'pysam',
     ],
     setup_requires = [
         'nose'
