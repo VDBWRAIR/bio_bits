@@ -14,6 +14,12 @@ from bio_pieces import rename_fasta
 TEST_FASTA = join(THIS,'example.fasta')
 TEST_CSV = join(THIS,'renamelist.csv')
 
+FASTA = '''>id1
+ATGC
+>id2
+ATGC
+'''
+
 class TestGetCSVMap(unittest.TestCase):
     def test_gets_mapping(self):
         mapping = rename_fasta.get_csv_map(TEST_CSV)
@@ -22,6 +28,69 @@ class TestGetCSVMap(unittest.TestCase):
         #self.assertEqual(mapping['003'], 'sample3')
         self.assertNotIn('#From', mapping)
         self.assertNotIn('003', mapping)
+
+class TestRenameFastaIdentifiers(unittest.TestCase):
+    def setUp(self):
+        self.lines = FASTA.splitlines()
+        self.patch_fileinput = mock.patch('bio_pieces.rename_fasta.fileinput')
+        self.mock_fileinput = self.patch_fileinput.start()
+        self.mock_fileinput_input = self.mock_fileinput.input
+        self.addCleanup(self.mock_fileinput.stop)
+        self.patch_sys_stdout = mock.patch('bio_pieces.rename_fasta.sys.stdout')
+        self.patch_sys_stderr = mock.patch('bio_pieces.rename_fasta.sys.stderr')
+        self.mock_stdout = self.patch_sys_stdout.start()
+        self.mock_stderr = self.patch_sys_stderr.start()
+        self.addCleanup(self.mock_stdout.stop)
+        self.addCleanup(self.mock_stderr.stop)
+
+    def test_renames_to_console(self):
+        self.mock_fileinput_input.return_value = self.lines
+        mapping = {
+            'id1': 'foo',
+            'id2': 'bar'
+        }
+        rename_fasta.rename_fasta_identifiers(['foo.fasta'], mapping, False)
+        self.mock_fileinput_input.assert_called_once_with(
+            ['foo.fasta'], inplace=False
+        )
+        self.assertEqual(
+            [
+                mock.call('>foo'), mock.call('ATGC'),
+                mock.call('>bar'), mock.call('ATGC')
+            ],
+            self.mock_stdout.write.call_args_list
+        )
+
+    def test_renames_inplace(self):
+        self.mock_fileinput_input.__iter__ = []
+        mapping = {
+            'id1': 'foo',
+            'id2': 'bar'
+        }
+        rename_fasta.rename_fasta_identifiers(['foo.fasta'], mapping, True)
+        self.mock_fileinput_input.assert_called_once_with(
+            ['foo.fasta'], inplace=True
+        )
+
+    def test_missing_identifier_in_mapping_file_stderr_message(self):
+        self.mock_fileinput_input.return_value = self.lines
+        mapping = {
+            'id1': 'foo'
+        }
+        rename_fasta.rename_fasta_identifiers(['foo.fasta'], mapping, False)
+        self.mock_fileinput_input.assert_called_once_with(
+            ['foo.fasta'], inplace=False
+        )
+        self.assertEqual(
+            [
+                mock.call('>foo'), mock.call('ATGC'),
+                mock.call('>id2'), mock.call('ATGC'),
+            ],
+            self.mock_stdout.write.call_args_list
+        )
+        self.mock_stderr.write.assert_called_once_with(
+            'id2 is not in provided mapping\n'
+        )
 
 class TestFunctional(unittest.TestCase):
     def setUp(self):
