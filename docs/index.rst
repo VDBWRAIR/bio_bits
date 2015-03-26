@@ -13,6 +13,7 @@ Contents:
     
     installation
     scripts/index
+    changelog
 
 Indices and tables
 ==================
