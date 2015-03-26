@@ -8,6 +8,6 @@ install:
     - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
     - python setup.py develop
 script:
-    - nosetests --with-coverage --cover-erase --cover-package=bio_pieces
+    - nosetests tests --with-coverage --cover-erase --cover-package=bio_pieces
 after_success:
     - coveralls
