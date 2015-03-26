@@ -14,7 +14,7 @@ setup(
     keywords = "biopython split fasta concat",
     entry_points = {
         'console_scripts': [
-            'rename_fasta = bio_pieces.rename:main',
+            'rename_fasta = bio_pieces.rename_fasta:main',
             #'sequence_concat = bio_pieces.sequence_concat:main',
             #'sequence_files_concat = bio_pieces.sequence_files_concat:main',
             #'sequence_split = bio_pieces.sequence_split:main',

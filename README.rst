@@ -1,2 +1,4 @@
-# bio_pieces
+bio_pieces
+==========
+
 Various bioinformatics scripts

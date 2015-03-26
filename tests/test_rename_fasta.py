@@ -1,19 +1,16 @@
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+from . import (
+    unittest, THIS
+)
 
 import shutil
 import subprocess
 import os
-import StringIO
 from os.path import *
 
 import mock
 
 from bio_pieces import rename_fasta
 
-THIS = dirname(__file__)
 TEST_FASTA = join(THIS,'example.fasta')
 TEST_CSV = join(THIS,'renamelist.csv')
 
@@ -78,9 +75,10 @@ class TestFunctional(unittest.TestCase):
             _iter = sout.splitlines()
 
         for line in _iter:
+            line = str(line)
             if line.startswith('>'):
                 p = line.split()
                 id = p[0][1:]
                 self.assertIn(id, rev_mapping)
 
-        self.assertEqual('003 is not in provided mapping\n', serr)
+        self.assertEqual(b'003 is not in provided mapping\n', serr)
