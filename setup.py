@@ -17,7 +17,7 @@ setup(
             'rename_fasta = bio_pieces.rename_fasta:main',
             #'sequence_concat = bio_pieces.sequence_concat:main',
             #'sequence_files_concat = bio_pieces.sequence_files_concat:main',
-            #'sequence_split = bio_pieces.sequence_split:main',
+            #'sequence_split = bio_pieces_old.sequence_split:main',
             #'cat_sequences = bio_pieces.cat_sequences:main',
             #'phyml_seqrename = bio_pieces.phyml_seqrename:main',
             #'raxmlrunner = bio_pieces.raxmlrunner:main',
