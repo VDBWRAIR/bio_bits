@@ -13,6 +13,7 @@ Contents:
     
     installation
     scripts/index
+    amos
     changelog
 
 Indices and tables
