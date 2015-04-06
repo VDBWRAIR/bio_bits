@@ -128,3 +128,26 @@ would do the following:
 
     red = a.reds[1]
     seq = red.seq
+
+If you want to convert a RED entry into anything you can use the ``.format``
+method. The ``.format`` method allows you to utilize any of the properties of
+a RED object such as ``.iid``, ``.eid``, ``.seq``, ``.qlt``. You can see in
+the examples below how to do this.
+
+Examples
+--------
+
+Here is an example of how to convert all RED blocks into a single fastq file
+
+.. code-block:: python
+
+    from bio_pieces import amos
+
+    # Fastq format string
+    fastq_fmt = '@{iid}\n{seq}\n+\n{qlt}'
+
+    with open('amos.fastq','w') as fh_out:
+        with open('AMOS.afg') as fh_in:
+            for iid, red in amos.AMOS(fh_in).reds.items():
+                fq = red.format(fastq_fmt)
+                fh_out.write(fq + '\n')
