@@ -2,7 +2,7 @@ bio_pieces
 ==========
 
 .. image:: https://readthedocs.org/projects/bio-pieces/badge/?version=latest
-    :target: https://readthedocs.org/projects/bio-pieces/?badge=latest
+    :target: http://bio-pieces.readthedocs.org/en/latest/
     :alt: Documentation Status
 
 .. image:: https://travis-ci.org/VDBWRAIR/bio_pieces.svg
