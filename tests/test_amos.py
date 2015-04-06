@@ -99,6 +99,14 @@ class TestAmos(unittest.TestCase):
         self.assertIsInstance(_amos.ctgs, dict)
         self.assertIsInstance(_amos.ctgs[0], amos.CTG)
 
+    def test_reds_same_order_as_file(self):
+        mock_fh = mock.MagicMock()
+        mock_fh.__iter__.return_value = self.amosstr.splitlines(True)
+        _amos = amos.AMOS(mock_fh)
+        for i, iidred in enumerate(_amos.reds.items()):
+            iid, red = iidred
+            self.assertEqual(i, iid)
+
 class TestCtg(unittest.TestCase):
     def setUp(self):
         self.tlelist = []
@@ -143,6 +151,20 @@ class TestTle(unittest.TestCase):
     def test_raises_exception_with_bad_tle_block(self):
         self.assertRaises(ValueError, amos.TLE.parse, '')
 
+    def test_str_method_returns_TLE_string(self):
+        tle = amos.TLE.parse(self.tle_str)
+        self.assertEqual(
+            self.tle_str.rstrip(), # no newline
+            str(tle)
+        )
+
+    def test_repr_method_returns_correct_string(self):
+        tle = amos.TLE.parse(self.tle_str)
+        self.assertEqual(
+            "TLE(1,0,'0,4')",
+            tle.__repr__()
+        )
+
 class TestRed(unittest.TestCase):
     def setUp(self):
         self.red_str = make_red(1,1,'ATGC','DDDD')
@@ -186,4 +208,25 @@ class TestRed(unittest.TestCase):
         self.assertRaises(
             ValueError,
             red.set_from_seqrec, self.seqrec
+        )
+
+    def test_format_method_returns_correct_string(self):
+        red = amos.RED.parse(self.red_str)
+        self.assertEqual(
+            '>1\nATGC\n+1\nDDDD',
+            red.format('>{iid}\n{seq}\n+{eid}\n{qlt}')
+        )
+
+    def test_str_method_returns_RED_string(self):
+        red = amos.RED.parse(self.red_str)
+        self.assertEqual(
+            self.red_str.rstrip(), # no newline
+            str(red)
+        )
+
+    def test_repr_method_returns_correct_string(self):
+        red = amos.RED.parse(self.red_str)
+        self.assertEqual(
+            "RED(1,1,'ATGC','DDDD')",
+            red.__repr__()
         )

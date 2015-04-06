@@ -14,6 +14,16 @@ def splitline(strvalue, delimiter, converter):
     left, right = strvalue.split(delimiter)
     return (left, converter(right))
 
+class AmosBlock(object):
+    '''
+    Base class for RED, CTG and TLE
+    '''
+    def format(self, fmt):
+        return fmt.format(**self.__dict__)
+
+    def __str__(self):
+        return self.format(self.FMT)
+
 class AMOS(object):
     def __init__(self, file_handle):
         self.reds = {}
@@ -103,7 +113,9 @@ class CTG(object):
             tlelist.append(tle)
         return CTG(iid, eid, com, seq, qlt, tlelist)
 
-class TLE(object):
+class TLE(AmosBlock):
+    FMT = '{{TLE\nsrc:{src}\noff:{off}\nclr:{clr}\n}}'
+
     def __init__(self, src, off, clr):
         self.src = src
         self.off = off
@@ -132,7 +144,14 @@ class TLE(object):
         clr = splitline(lines[3], ':', str)[1]
         return TLE(src, off, clr)
 
-class RED(object):
+    def __repr__(self):
+        return self.format(
+            "TLE({src},{off},'{clr}')"
+        )
+
+class RED(AmosBlock):
+    FMT = '{{RED\niid:{iid}\neid:{eid}\nseq:\n{seq}\n.\nqlt:\n{qlt}\n.\n}}'
+    
     class MismatchedSequenceError(Exception):
         pass
 
@@ -185,3 +204,8 @@ class RED(object):
             raise ValueError("Given SeqRecord is missing phred_quality")
         self.eid = seqrec.id
         self.qlt = seqrec._per_letter_annotations['phred_quality']
+
+    def __repr__(self):
+        return self.format(
+            "RED({iid},{eid},'{seq}','{qlt}')"
+        )

@@ -10,3 +10,5 @@ Version 0.1.0
   on a input rename file
 * Added travis, coveralls, readthedocs
 * Added amos file parser that is specific to Ray assembler amos format
+* Added format functionality for amos classes such that it is easy to
+  convert to different formats
