@@ -24,6 +24,9 @@ class AmosBlock(object):
     def __str__(self):
         return self.format(self.FMT)
 
+    def __eq__(self, other):
+        return type(other) is type(self) and self.__dict__ == other.__dict__
+
 class AMOS(object):
     def __init__(self, file_handle):
         self.reds = {}
@@ -113,6 +116,9 @@ class CTG(object):
             tlelist.append(tle)
         return CTG(iid, eid, com, seq, qlt, tlelist)
 
+    def __eq__(self, other):
+        return type(other) is type(self) and self.__dict__ == other.__dict__
+
 class TLE(AmosBlock):
     FMT = '{{TLE\nsrc:{src}\noff:{off}\nclr:{clr}\n}}'
 
@@ -148,6 +154,7 @@ class TLE(AmosBlock):
         return self.format(
             "TLE({src},{off},'{clr}')"
         )
+
 
 class RED(AmosBlock):
     FMT = '{{RED\niid:{iid}\neid:{eid}\nseq:\n{seq}\n.\nqlt:\n{qlt}\n.\n}}'

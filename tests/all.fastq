@@ -1,0 +1,50 @@
+id0
+ATCG
++
+0000
+id2
+TCAG
++
+2222
+id1
+ATCG
++
+1111
+id1 
+TCAG
++
+1111 
+id2
+ACTG
++
+2222
+id2
+ACTG
++
+2222
+id3
+GTCA
++
+2222
+id3
+GTCA
++
+2222
+id4 
+GACT
++
+3333
+id4 
+GACT
++
+3333
+id5
+GTAC
++
+5555
+
+seqs = ['ATCG', 'TCAG', 'ACTG', 'GTCA', 'GACT', 'GTAC', 'CTGA']
+nums = [0, 0, 1, 2, 3, 4, 5, 6, 0]
+print '\n'.join('\n'.join(["id"+str(i), seqs[num], '+', str(i)*4]) for i, num in enumerate(nums))
+
+map(add, list((["id"+str(i), seqs[num], '+', str(i)*4]) for i, num in enumerate(nums)))

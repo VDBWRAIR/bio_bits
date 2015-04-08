@@ -6,7 +6,19 @@ Note that ALT might be multiple alleles (sadface)
 '''
 import vcf
 import pandas as 
-''' file.samples()[0]  -> returns dengue.bam etc.'''
+import itertools
+
+'''
+Flatten multiple fastq files into one iterator.
+'''
+def multi_fastq_iterator(fastq_handles):
+    
+    files = map(lambda a: SeqIO.parse(open(a), 'fastq'), fastq_handles)
+    #? return itertools.chain(files)
+    return record for _fastq in files for record in _fastq
+    
+
+''' file.samples()[0]  -> returns dengue.bam etc.''' 
 def SmartVCF(vcf.parser.Reader):
     def __init__(self, *args, **kwargs):
         return super(vcf.parser.Reader, self).__init__(*args, **kwargs)

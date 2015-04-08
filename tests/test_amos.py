@@ -1,6 +1,7 @@
 from os.path import *
+import random
 
-try:
+try: 
     import unittest2 as unittest
 except ImportError:
     import unittest
@@ -40,6 +41,22 @@ TLE =   '{{TLE\n' \
         '}}\n'
 AMOS =  '{redlist}{ctglist}'
 
+def make_amos_string():
+    redlist, tlelist, ctglist = ([] for _ in range(3))
+    seqs = ['ATCG', 'ATCG'] + [''.join(random.sample('AGCT', 4)) for i in range(7)] + ['ATCG']
+    for i in range(10):
+        redstr = make_red(i, i, seqs[i], 'DDDD')
+        tlestr = make_tle(i, 0, '0,4')
+        redlist.append(redstr)
+        tlelist.append(tlestr) 
+    for i in range(5):
+        ctgstr = make_ctg(
+            i, 'foo-{0}'.format(i), 'foocom', 'ATGC', 'DDDD', tlelist[i:i+2]
+        )
+        ctglist.append(ctgstr) 
+    amosstr = ''.join(redlist) + ''.join(ctglist)
+    return redlist, tlelist, ctglist, amosstr
+
 def make_red(iid, eid, seq, qlt):
     return RED.format(
         iid=iid, eid=eid, seq=seq, qlt=qlt
@@ -71,22 +88,7 @@ class TestSplitLine(unittest.TestCase):
 
 class TestAmos(unittest.TestCase):
     def setUp(self):
-        self.redlist = []
-        self.tlelist = []
-        self.ctglist = []
-        for i in range(10):
-            redstr = make_red(i, i, 'ATGC', 'DDDD')
-            tlestr = make_tle(i, 0, '0,4')
-            self.redlist.append(redstr)
-            self.tlelist.append(tlestr)
-
-        for i in range(5):
-            ctgstr = make_ctg(
-                i, 'foo-{0}'.format(i), 'foocom', 'ATGC', 'DDDD', self.tlelist[i:i+2]
-            )
-            self.ctglist.append(ctgstr)
-
-        self.amosstr = ''.join(self.redlist) + ''.join(self.ctglist)
+        self.redlist, self.tlelist, self.ctglist, self.amosstr = make_amos_string()
 
     def test_parses_correct_amos_contents(self):
         mock_fh = mock.MagicMock()
