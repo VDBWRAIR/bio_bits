@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generated="20150409 17:46:06.795" generator="Robot 2.8.7 (Python 2.7.8 on linux2)">
+<suite source="/home/AMED/michael.panciera/projects/bio_pieces/tests/amos2fastq.robot" id="s1" name="Amos2Fastq">
+<test id="s1-t1" name="TestAmos2Fastq">
+<kw type="kw" name="${process_result} = Process.Run Process">
+<doc>Runs a process and waits for it to complete.</doc>
+<arguments>
+<arg>python</arg>
+<arg>../bio_pieces/myargs.py</arg>
+<arg>${in_fastq1}</arg>
+<arg>${in_fastq2}</arg>
+<arg>--amos ${in_amos}</arg>
+</arguments>
+<msg timestamp="20150409 17:46:06.825" level="INFO">Starting process:
+['python', '../bio_pieces/myargs.py', 'testinput/foo1.fastq', 'testinput/foo2.fastq', '--amos testinput/foo.afg']</msg>
+<msg timestamp="20150409 17:46:06.827" level="INFO">Waiting for process to complete.</msg>
+<msg timestamp="20150409 17:46:07.080" level="INFO">Process completed.</msg>
+<msg timestamp="20150409 17:46:07.080" level="INFO">${process_result} = &lt;result object with rc 1&gt;</msg>
+<status status="PASS" endtime="20150409 17:46:07.080" starttime="20150409 17:46:06.825"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Be Equal As Integers">
+<doc>Fails if objects are unequal after converting them to integers.</doc>
+<arguments>
+<arg>${process_result.rc}</arg>
+<arg>0</arg>
+</arguments>
+<msg timestamp="20150409 17:46:07.081" level="INFO">Argument types are:
+&lt;type 'int'&gt;
+&lt;type 'unicode'&gt;</msg>
+<msg timestamp="20150409 17:46:07.082" level="FAIL">1 != 0</msg>
+<status status="FAIL" endtime="20150409 17:46:07.082" starttime="20150409 17:46:07.080"></status>
+</kw>
+<doc></doc>
+<tags>
+</tags>
+<status status="FAIL" endtime="20150409 17:46:07.083" critical="yes" starttime="20150409 17:46:06.825">1 != 0</status>
+</test>
+<kw type="teardown" name="Process.Terminate All Processes">
+<doc>Terminates all still running processes started by this library.</doc>
+<arguments>
+</arguments>
+<status status="PASS" endtime="20150409 17:46:07.083" starttime="20150409 17:46:07.083"></status>
+</kw>
+<doc></doc>
+<metadata>
+</metadata>
+<status status="FAIL" endtime="20150409 17:46:07.083" starttime="20150409 17:46:06.795"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="1" pass="0">Critical Tests</stat>
+<stat fail="1" pass="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat fail="1" pass="0" id="s1" name="Amos2Fastq">Amos2Fastq</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

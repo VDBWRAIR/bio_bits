@@ -2,6 +2,7 @@
 Usage: amos2fastq <fastqs>... --amos=<amos> 
 
 Given any number of fastq files and a specified AMOS file (usually with .afg extension) describing a series of contigs, create seperate fastq files arranged by the contig each read aligned to.
+
 '''
 from schema import Schema, Use, And, SchemaError
 from docopt import docopt

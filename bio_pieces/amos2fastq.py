@@ -5,6 +5,7 @@ from functools import partial
 from Bio import SeqIO
 import itertools as it
 import pandas as pd
+import amos
 #def amos_reds_as_df(amos_obj):
 #    iids_and_seq_strings = (red.iid, red.seq) for red in am.reds.values() 
 #    return pd.DataFrame(, columns=['iid', 'seq']).set_index('seq')
@@ -29,7 +30,7 @@ def join_non_unique_dataframes(df1, df2):
    return df_multi_index_1.join(df_multi_index_2)
         
 def df_from_collection_attributes(columns, collection):
-    lambdas = [lambda obj: getattr(obj, column) for column in columns]
+    lambdas = [lambda obj, col=col: getattr(obj, col) for col in columns]
     return collection_as_df(lambdas, columns, collection)
 '''
 Index defaults to first column
@@ -41,7 +42,7 @@ def collection_as_df(lambdas, columns, collection, index=None):
     return df.set_index(index) if index else df.set_index(columns[0])
 
 
-amos_reds_as_df = partial(df_from_collection_attributes, ['seq', 'iid'])
+amos_reds_as_df = partial(df_from_collection_attributes, columns=['seq', 'iid'])
 bio_records_as_df = partial(collection_as_df, [lambda rec: rec.seq.tostring(), lambda rec: rec], ['seq', 'seq_obj'])
 
 #bio_file_as_df = lambda filename, ftype: bio_records_as_df(SeqIO.parse(filename, ftype))
@@ -56,8 +57,7 @@ def get_df_subset(df, iterable, key=None):
    return df[df.index.isin(iterable)] if not key else df[df[key].isin(iterable)]
 
 
-def write_sequence_dataframe(df, outfile, format):
-    records = df['seqs']
+def write_sequences(seqs, outfile, format):
     SeqIO.write(records, outfile, format)
 
 def extract_dfs_by_ctg(df, contigs):
@@ -67,21 +67,24 @@ def extract_dfs_by_ctg(df, contigs):
     return dfs_by_ctg
 
 def make_fastqs_by_contigs(fastq_filenames, amos_file, format='fastq'):
-    fastq_records = flatten_multiple_seq_files(fastq_filenames, format) 
-    fastq_df = bio_records_as_df(fastq_records) 
-    amos_obj = amos.AMOS(amos_file)
-    reds_df = amos_reds_as_df(amos_obj.reds)
-    reds_with_seqs_df = join_non_unique_dataframes(reds_df, fastq_df)
-    contigs = amos_obj.ctgs.values()
-    dfs_by_ctg = extract_dfs_by_ctg(reds_with_seqs_df, contigs)
-    write_to_file = partial(write_sequence_dataframe, format=out_format)
-    filenames = ("{0}.{1}".format(ctg.eid, format) for ctg in contigs)
-    map(write_to_file, dfs_by_ctg, filenames)
+    try:
+        fastq_records = flatten_multiple_seq_files(fastq_filenames, format) 
+        fastq_df = bio_records_as_df(fastq_records) 
+        import ipdb; ipdb.set_trace()
+        amos_obj = amos.AMOS(amos_file)
+        reds = amos_obj.reds.values()
+        reds_df = amos_reds_as_df(collection=reds) 
+        reds_with_seqs_df = join_non_unique_dataframes(reds_df, fastq_df)
+        contigs = amos_obj.ctgs.values()
+        dfs_by_ctg = extract_dfs_by_ctg(reds_with_seqs_df, contigs)
+        write_to_file = partial(write_sequences, format=out_format)
+        filenames = ("{0}.{1}".format(ctg.eid, format) for ctg in contigs)
+        map(write_to_file, dfs_by_ctg['seqs'], filenames)
+    except Exception as e:
+        raise e
     return 0
 
 def main(fastqs, amos_file):
     return make_fastqs_by_contigs(fastqs, amos_file)
-
-         
 
 

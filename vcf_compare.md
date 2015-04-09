@@ -1,6 +1,15 @@
+filter_vcf cann be chained into diff (well, via piping) | 
+any results can be seen as counts, which is len(df)
 
+Did we get the same var calls?
+Does our method introduce more/less ambiguity
 
-
+vcf_compare ambiguous_bases
+. filter_vcf depth --threshold FILE
+. filter_vcf [CBD --minimum MIN]... [--count | -c] FILE (#allow no filter)
+. filter_vcf [ALT --exists]
+. diff ALT [--threshold THRESH] FILE1 FLIE2
+. mutations  (# this creates a sub-df which can then be dfd.)
 
 Script will expect The following arguments:
 1. two .vcf files
