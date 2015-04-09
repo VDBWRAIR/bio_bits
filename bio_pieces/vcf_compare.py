@@ -1,8 +1,20 @@
-
 '''
+Usage:
+    vcf_compare <vcfiles> [--out-directory=<outdir>] 
+                          [--threshold=THRESH]
+                          [--fields=FIELDS]...
+
+Options:
+    -o DIR --output=DIR  The output directory [default: vcf_compare_output]
+    -t THRESHOLD --threshold=THRESHOLD  Numerical threshold to determine difference
+    --
+
+
 vcf.infos => ordered dict of {'TAG' : vcf.parser.Info}
 vcf will automatically handle the type=Interger, etc. field for us. 
 Note that ALT might be multiple alleles (sadface)      
+
+
 '''
 import vcf
 import pandas as 
