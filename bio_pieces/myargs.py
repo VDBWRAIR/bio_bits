@@ -7,6 +7,7 @@ Given any number of fastq files and a specified AMOS file (usually with .afg ext
 from schema import Schema, Use, And, SchemaError
 from docopt import docopt
 import os
+import sys
 import amos2fastq
 #Do file validation immediately when script is started
 def is_fastq(filename):
@@ -27,7 +28,7 @@ def validate_args(raw_args):
 def main():
     raw_args = docopt(__doc__, version='Version 0')
     parsed_args = validate_args(raw_args)
-    return amos2fastq.main(parsed_args['<fastqs>'], parsed_args['--amos'])
+    sys.exit(amos2fastq.main(parsed_args['<fastqs>'], parsed_args['--amos']))
 
 
 if __name__ == "__main__": 

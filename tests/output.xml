@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generated="20150409 17:46:06.795" generator="Robot 2.8.7 (Python 2.7.8 on linux2)">
+<robot generated="20150410 12:52:36.067" generator="Robot 2.8.7 (Python 2.7.8 on linux2)">
 <suite source="/home/AMED/michael.panciera/projects/bio_pieces/tests/amos2fastq.robot" id="s1" name="Amos2Fastq">
 <test id="s1-t1" name="TestAmos2Fastq">
 <kw type="kw" name="${process_result} = Process.Run Process">
@@ -9,14 +9,15 @@
 <arg>../bio_pieces/myargs.py</arg>
 <arg>${in_fastq1}</arg>
 <arg>${in_fastq2}</arg>
-<arg>--amos ${in_amos}</arg>
+<arg>--amos</arg>
+<arg>${in_amos}</arg>
 </arguments>
-<msg timestamp="20150409 17:46:06.825" level="INFO">Starting process:
-['python', '../bio_pieces/myargs.py', 'testinput/foo1.fastq', 'testinput/foo2.fastq', '--amos testinput/foo.afg']</msg>
-<msg timestamp="20150409 17:46:06.827" level="INFO">Waiting for process to complete.</msg>
-<msg timestamp="20150409 17:46:07.080" level="INFO">Process completed.</msg>
-<msg timestamp="20150409 17:46:07.080" level="INFO">${process_result} = &lt;result object with rc 1&gt;</msg>
-<status status="PASS" endtime="20150409 17:46:07.080" starttime="20150409 17:46:06.825"></status>
+<msg timestamp="20150410 12:52:36.098" level="INFO">Starting process:
+['python', '../bio_pieces/myargs.py', 'testinput/foo1.fastq', 'testinput/foo2.fastq', '--amos', 'testinput/foo.afg']</msg>
+<msg timestamp="20150410 12:52:36.100" level="INFO">Waiting for process to complete.</msg>
+<msg timestamp="20150410 12:52:36.356" level="INFO">Process completed.</msg>
+<msg timestamp="20150410 12:52:36.356" level="INFO">${process_result} = &lt;result object with rc 0&gt;</msg>
+<status status="PASS" endtime="20150410 12:52:36.356" starttime="20150410 12:52:36.098"></status>
 </kw>
 <kw type="kw" name="BuiltIn.Should Be Equal As Integers">
 <doc>Fails if objects are unequal after converting them to integers.</doc>
@@ -24,37 +25,500 @@
 <arg>${process_result.rc}</arg>
 <arg>0</arg>
 </arguments>
-<msg timestamp="20150409 17:46:07.081" level="INFO">Argument types are:
+<msg timestamp="20150410 12:52:36.357" level="INFO">Argument types are:
 &lt;type 'int'&gt;
 &lt;type 'unicode'&gt;</msg>
-<msg timestamp="20150409 17:46:07.082" level="FAIL">1 != 0</msg>
-<status status="FAIL" endtime="20150409 17:46:07.082" starttime="20150409 17:46:07.080"></status>
+<status status="PASS" endtime="20150410 12:52:36.357" starttime="20150410 12:52:36.357"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Not Contain">
+<doc>Fails if `item1` contains `item2` one or more times.</doc>
+<arguments>
+<arg>${process_result.stdout}</arg>
+<arg>Error</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.357" starttime="20150410 12:52:36.357"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${process_result.stdout}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.358" starttime="20150410 12:52:36.358"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${process_result.stderr}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.358" starttime="20150410 12:52:36.358"></status>
+</kw>
+<kw type="for" name="${i} IN RANGE [ 4 ]">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="foritem" name="${i} = 0">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${i}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.359" starttime="20150410 12:52:36.358"></status>
+</kw>
+<kw type="kw" name="${expected} = Collections.Get From List">
+<doc>Returns the value specified with an `index` from `list`.</doc>
+<arguments>
+<arg>${T_EXPECTED}</arg>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.359" level="INFO">${expected} = expected_fooCTG0.fastq</msg>
+<status status="PASS" endtime="20150410 12:52:36.359" starttime="20150410 12:52:36.359"></status>
+</kw>
+<kw type="kw" name="${actual} = Collections.Get From List">
+<doc>Returns the value specified with an `index` from `list`.</doc>
+<arguments>
+<arg>${T_ACTUAL}</arg>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.359" level="INFO">${actual} = foo-0.fastq</msg>
+<status status="PASS" endtime="20150410 12:52:36.359" starttime="20150410 12:52:36.359"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${expected}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.359" starttime="20150410 12:52:36.359"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.360" starttime="20150410 12:52:36.360"></status>
+</kw>
+<kw type="kw" name="OperatingSystem.File Should Exist">
+<doc>Fails unless the given `path` points to an existing file.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.360" html="yes" level="INFO">File '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-0.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-0.fastq&lt;/a&gt;' exists</msg>
+<status status="PASS" endtime="20150410 12:52:36.360" starttime="20150410 12:52:36.360"></status>
+</kw>
+<kw type="kw" name="OperatingSystem.File Should Not Be Empty">
+<doc>Fails if the specified directory is empty.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.360" html="yes" level="INFO">File '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-0.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-0.fastq&lt;/a&gt;' contains 34 bytes</msg>
+<status status="PASS" endtime="20150410 12:52:36.360" starttime="20150410 12:52:36.360"></status>
+</kw>
+<kw type="kw" name="${actual_contents} = OperatingSystem.Get File">
+<doc>Returns the contents of a specified file.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.361" html="yes" level="INFO">Getting file '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-0.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-0.fastq&lt;/a&gt;'</msg>
+<msg timestamp="20150410 12:52:36.361" level="INFO">${actual_contents} = @id0
+ATCG
++
+0000
+@id1
+ATCG
++
+1111
+</msg>
+<status status="PASS" endtime="20150410 12:52:36.361" starttime="20150410 12:52:36.361"></status>
+</kw>
+<kw type="kw" name="${expected_contents} = OperatingSystem.Get File">
+<doc>Returns the contents of a specified file.</doc>
+<arguments>
+<arg>expected/${expected}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.361" html="yes" level="INFO">Getting file '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/expected/expected_fooCTG0.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/expected/expected_fooCTG0.fastq&lt;/a&gt;'</msg>
+<msg timestamp="20150410 12:52:36.361" level="INFO">${expected_contents} = @id0
+ATCG
++
+0000
+@id1
+ATCG
++
+1111
+</msg>
+<status status="PASS" endtime="20150410 12:52:36.361" starttime="20150410 12:52:36.361"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Be Equal As Strings">
+<doc>Fails if objects are unequal after converting them to strings.</doc>
+<arguments>
+<arg>${actual_contents}</arg>
+<arg>${expected_contents}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.362" level="INFO">Argument types are:
+&lt;type 'unicode'&gt;
+&lt;type 'unicode'&gt;</msg>
+<status status="PASS" endtime="20150410 12:52:36.362" starttime="20150410 12:52:36.361"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>passed</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.362" starttime="20150410 12:52:36.362"></status>
+</kw>
+<status status="PASS" endtime="20150410 12:52:36.362" starttime="20150410 12:52:36.358"></status>
+</kw>
+<kw type="foritem" name="${i} = 1">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${i}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.362" starttime="20150410 12:52:36.362"></status>
+</kw>
+<kw type="kw" name="${expected} = Collections.Get From List">
+<doc>Returns the value specified with an `index` from `list`.</doc>
+<arguments>
+<arg>${T_EXPECTED}</arg>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.362" level="INFO">${expected} = expected_fooCTG1.fastq</msg>
+<status status="PASS" endtime="20150410 12:52:36.362" starttime="20150410 12:52:36.362"></status>
+</kw>
+<kw type="kw" name="${actual} = Collections.Get From List">
+<doc>Returns the value specified with an `index` from `list`.</doc>
+<arguments>
+<arg>${T_ACTUAL}</arg>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.363" level="INFO">${actual} = foo-1.fastq</msg>
+<status status="PASS" endtime="20150410 12:52:36.363" starttime="20150410 12:52:36.363"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${expected}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.363" starttime="20150410 12:52:36.363"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.363" starttime="20150410 12:52:36.363"></status>
+</kw>
+<kw type="kw" name="OperatingSystem.File Should Exist">
+<doc>Fails unless the given `path` points to an existing file.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.364" html="yes" level="INFO">File '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-1.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-1.fastq&lt;/a&gt;' exists</msg>
+<status status="PASS" endtime="20150410 12:52:36.364" starttime="20150410 12:52:36.363"></status>
+</kw>
+<kw type="kw" name="OperatingSystem.File Should Not Be Empty">
+<doc>Fails if the specified directory is empty.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.364" html="yes" level="INFO">File '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-1.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-1.fastq&lt;/a&gt;' contains 17 bytes</msg>
+<status status="PASS" endtime="20150410 12:52:36.364" starttime="20150410 12:52:36.364"></status>
+</kw>
+<kw type="kw" name="${actual_contents} = OperatingSystem.Get File">
+<doc>Returns the contents of a specified file.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.364" html="yes" level="INFO">Getting file '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-1.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-1.fastq&lt;/a&gt;'</msg>
+<msg timestamp="20150410 12:52:36.364" level="INFO">${actual_contents} = @id1
+ATCG
++
+1111
+</msg>
+<status status="PASS" endtime="20150410 12:52:36.364" starttime="20150410 12:52:36.364"></status>
+</kw>
+<kw type="kw" name="${expected_contents} = OperatingSystem.Get File">
+<doc>Returns the contents of a specified file.</doc>
+<arguments>
+<arg>expected/${expected}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.365" html="yes" level="INFO">Getting file '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/expected/expected_fooCTG1.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/expected/expected_fooCTG1.fastq&lt;/a&gt;'</msg>
+<msg timestamp="20150410 12:52:36.365" level="INFO">${expected_contents} = @id1
+ATCG
++
+1111
+</msg>
+<status status="PASS" endtime="20150410 12:52:36.365" starttime="20150410 12:52:36.364"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Be Equal As Strings">
+<doc>Fails if objects are unequal after converting them to strings.</doc>
+<arguments>
+<arg>${actual_contents}</arg>
+<arg>${expected_contents}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.365" level="INFO">Argument types are:
+&lt;type 'unicode'&gt;
+&lt;type 'unicode'&gt;</msg>
+<status status="PASS" endtime="20150410 12:52:36.365" starttime="20150410 12:52:36.365"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>passed</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.366" starttime="20150410 12:52:36.366"></status>
+</kw>
+<status status="PASS" endtime="20150410 12:52:36.366" starttime="20150410 12:52:36.362"></status>
+</kw>
+<kw type="foritem" name="${i} = 2">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${i}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.366" starttime="20150410 12:52:36.366"></status>
+</kw>
+<kw type="kw" name="${expected} = Collections.Get From List">
+<doc>Returns the value specified with an `index` from `list`.</doc>
+<arguments>
+<arg>${T_EXPECTED}</arg>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.367" level="INFO">${expected} = expected_fooCTG2.fastq</msg>
+<status status="PASS" endtime="20150410 12:52:36.367" starttime="20150410 12:52:36.367"></status>
+</kw>
+<kw type="kw" name="${actual} = Collections.Get From List">
+<doc>Returns the value specified with an `index` from `list`.</doc>
+<arguments>
+<arg>${T_ACTUAL}</arg>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.368" level="INFO">${actual} = foo-2.fastq</msg>
+<status status="PASS" endtime="20150410 12:52:36.368" starttime="20150410 12:52:36.367"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${expected}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.368" starttime="20150410 12:52:36.368"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.369" starttime="20150410 12:52:36.368"></status>
+</kw>
+<kw type="kw" name="OperatingSystem.File Should Exist">
+<doc>Fails unless the given `path` points to an existing file.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.369" html="yes" level="INFO">File '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-2.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-2.fastq&lt;/a&gt;' exists</msg>
+<status status="PASS" endtime="20150410 12:52:36.369" starttime="20150410 12:52:36.369"></status>
+</kw>
+<kw type="kw" name="OperatingSystem.File Should Not Be Empty">
+<doc>Fails if the specified directory is empty.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.370" html="yes" level="INFO">File '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-2.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-2.fastq&lt;/a&gt;' contains 17 bytes</msg>
+<status status="PASS" endtime="20150410 12:52:36.370" starttime="20150410 12:52:36.369"></status>
+</kw>
+<kw type="kw" name="${actual_contents} = OperatingSystem.Get File">
+<doc>Returns the contents of a specified file.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.370" html="yes" level="INFO">Getting file '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-2.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-2.fastq&lt;/a&gt;'</msg>
+<msg timestamp="20150410 12:52:36.370" level="INFO">${actual_contents} = @id2
+ACTG
++
+2222
+</msg>
+<status status="PASS" endtime="20150410 12:52:36.370" starttime="20150410 12:52:36.370"></status>
+</kw>
+<kw type="kw" name="${expected_contents} = OperatingSystem.Get File">
+<doc>Returns the contents of a specified file.</doc>
+<arguments>
+<arg>expected/${expected}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.371" html="yes" level="INFO">Getting file '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/expected/expected_fooCTG2.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/expected/expected_fooCTG2.fastq&lt;/a&gt;'</msg>
+<msg timestamp="20150410 12:52:36.371" level="INFO">${expected_contents} = @id2
+ACTG
++
+2222
+</msg>
+<status status="PASS" endtime="20150410 12:52:36.371" starttime="20150410 12:52:36.371"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Be Equal As Strings">
+<doc>Fails if objects are unequal after converting them to strings.</doc>
+<arguments>
+<arg>${actual_contents}</arg>
+<arg>${expected_contents}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.372" level="INFO">Argument types are:
+&lt;type 'unicode'&gt;
+&lt;type 'unicode'&gt;</msg>
+<status status="PASS" endtime="20150410 12:52:36.372" starttime="20150410 12:52:36.371"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>passed</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.372" starttime="20150410 12:52:36.372"></status>
+</kw>
+<status status="PASS" endtime="20150410 12:52:36.372" starttime="20150410 12:52:36.366"></status>
+</kw>
+<kw type="foritem" name="${i} = 3">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${i}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.373" starttime="20150410 12:52:36.373"></status>
+</kw>
+<kw type="kw" name="${expected} = Collections.Get From List">
+<doc>Returns the value specified with an `index` from `list`.</doc>
+<arguments>
+<arg>${T_EXPECTED}</arg>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.373" level="INFO">${expected} = expected_fooCTG3.fastq</msg>
+<status status="PASS" endtime="20150410 12:52:36.373" starttime="20150410 12:52:36.373"></status>
+</kw>
+<kw type="kw" name="${actual} = Collections.Get From List">
+<doc>Returns the value specified with an `index` from `list`.</doc>
+<arguments>
+<arg>${T_ACTUAL}</arg>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.374" level="INFO">${actual} = foo-3.fastq</msg>
+<status status="PASS" endtime="20150410 12:52:36.374" starttime="20150410 12:52:36.374"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${expected}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.374" starttime="20150410 12:52:36.374"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.375" starttime="20150410 12:52:36.374"></status>
+</kw>
+<kw type="kw" name="OperatingSystem.File Should Exist">
+<doc>Fails unless the given `path` points to an existing file.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.375" html="yes" level="INFO">File '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-3.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-3.fastq&lt;/a&gt;' exists</msg>
+<status status="PASS" endtime="20150410 12:52:36.375" starttime="20150410 12:52:36.375"></status>
+</kw>
+<kw type="kw" name="OperatingSystem.File Should Not Be Empty">
+<doc>Fails if the specified directory is empty.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.375" html="yes" level="INFO">File '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-3.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-3.fastq&lt;/a&gt;' contains 34 bytes</msg>
+<status status="PASS" endtime="20150410 12:52:36.375" starttime="20150410 12:52:36.375"></status>
+</kw>
+<kw type="kw" name="${actual_contents} = OperatingSystem.Get File">
+<doc>Returns the contents of a specified file.</doc>
+<arguments>
+<arg>${actual}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.375" html="yes" level="INFO">Getting file '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/foo-3.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/foo-3.fastq&lt;/a&gt;'</msg>
+<msg timestamp="20150410 12:52:36.376" level="INFO">${actual_contents} = @id2
+ACTG
++
+2222
+@id3
+GTCA
++
+3333
+</msg>
+<status status="PASS" endtime="20150410 12:52:36.376" starttime="20150410 12:52:36.375"></status>
+</kw>
+<kw type="kw" name="${expected_contents} = OperatingSystem.Get File">
+<doc>Returns the contents of a specified file.</doc>
+<arguments>
+<arg>expected/${expected}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.376" html="yes" level="INFO">Getting file '&lt;a href="file:///home/AMED/michael.panciera/projects/bio_pieces/tests/expected/expected_fooCTG3.fastq"&gt;/home/AMED/michael.panciera/projects/bio_pieces/tests/expected/expected_fooCTG3.fastq&lt;/a&gt;'</msg>
+<msg timestamp="20150410 12:52:36.376" level="INFO">${expected_contents} = @id2
+ACTG
++
+2222
+@id3
+GTCA
++
+3333
+</msg>
+<status status="PASS" endtime="20150410 12:52:36.376" starttime="20150410 12:52:36.376"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Be Equal As Strings">
+<doc>Fails if objects are unequal after converting them to strings.</doc>
+<arguments>
+<arg>${actual_contents}</arg>
+<arg>${expected_contents}</arg>
+</arguments>
+<msg timestamp="20150410 12:52:36.376" level="INFO">Argument types are:
+&lt;type 'unicode'&gt;
+&lt;type 'unicode'&gt;</msg>
+<status status="PASS" endtime="20150410 12:52:36.376" starttime="20150410 12:52:36.376"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log To Console">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>passed</arg>
+</arguments>
+<status status="PASS" endtime="20150410 12:52:36.377" starttime="20150410 12:52:36.376"></status>
+</kw>
+<status status="PASS" endtime="20150410 12:52:36.377" starttime="20150410 12:52:36.372"></status>
+</kw>
+<status status="PASS" endtime="20150410 12:52:36.377" starttime="20150410 12:52:36.358"></status>
 </kw>
 <doc></doc>
 <tags>
 </tags>
-<status status="FAIL" endtime="20150409 17:46:07.083" critical="yes" starttime="20150409 17:46:06.825">1 != 0</status>
+<status status="PASS" endtime="20150410 12:52:36.377" critical="yes" starttime="20150410 12:52:36.097"></status>
 </test>
 <kw type="teardown" name="Process.Terminate All Processes">
 <doc>Terminates all still running processes started by this library.</doc>
 <arguments>
 </arguments>
-<status status="PASS" endtime="20150409 17:46:07.083" starttime="20150409 17:46:07.083"></status>
+<status status="PASS" endtime="20150410 12:52:36.377" starttime="20150410 12:52:36.377"></status>
 </kw>
 <doc></doc>
 <metadata>
 </metadata>
-<status status="FAIL" endtime="20150409 17:46:07.083" starttime="20150409 17:46:06.795"></status>
+<status status="PASS" endtime="20150410 12:52:36.377" starttime="20150410 12:52:36.067"></status>
 </suite>
 <statistics>
 <total>
-<stat fail="1" pass="0">Critical Tests</stat>
-<stat fail="1" pass="0">All Tests</stat>
+<stat fail="0" pass="1">Critical Tests</stat>
+<stat fail="0" pass="1">All Tests</stat>
 </total>
 <tag>
 </tag>
 <suite>
-<stat fail="1" pass="0" id="s1" name="Amos2Fastq">Amos2Fastq</stat>
+<stat fail="0" pass="1" id="s1" name="Amos2Fastq">Amos2Fastq</stat>
 </suite>
 </statistics>
 <errors>

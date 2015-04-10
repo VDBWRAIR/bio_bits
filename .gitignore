@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# Executables
+bin/
+
 # C extensions
 *.so
 
@@ -39,6 +42,11 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+cover
+log.html
+output.xml
+report.html
+
 
 # Translations
 *.mo
@@ -49,6 +57,15 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/_static/
+docs/_templates/
 
 # PyBuilder
 target/
+
+# Ramdom crud
+*.bak
+*.pyc
+*~
+*.swp
+*.swo
