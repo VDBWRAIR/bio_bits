@@ -1,3 +1,6 @@
 argparse
 future
 biopython
+pandas
+docopt
+schema

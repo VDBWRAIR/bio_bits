@@ -1,4 +1,10 @@
 '''
+From what I can tell, Ray will not use all the reads.
+It will, however, load all the reads as RED entries. Then onlly some get used for TLE entries. 
+The following will work (except for that `Bio.SeqIO` drops the description when it writes out a file, so you would have to cut out all the non-matching "+" lines.
+```bash
+diff actual.sorted  expected.sorted | grep "^<" -E | wc -l
+```
 figure out parseargs by file extension and variable number.
 '''
 from functools import partial
@@ -6,6 +12,8 @@ from Bio import SeqIO
 import itertools as it
 import pandas as pd
 import amos
+''' Python3 compatibility ''' 
+from past.builtins import map, xrange, filter
 #def amos_reds_as_df(amos_obj):
 #    iids_and_seq_strings = (red.iid, red.seq) for red in am.reds.values() 
 #    return pd.DataFrame(, columns=['iid', 'seq']).set_index('seq')
@@ -37,8 +45,7 @@ Index defaults to first column
 '''
 def collection_as_df(lambdas, columns, collection, index=None):
     assert len(lambdas) == len(columns), "lambdas must have same length as columns"
-    # use list here to force the evaluation of the functions. otherwise the lambda grabs the last obj
-    # evaluated from collection, as in a closure.
+    '''use list here to force the evaluation of the functions. otherwise the lambda grabs the last obj evaluated from collection, as in a closure.'''
     values = (list( func(obj) for func in lambdas) for obj in collection)
     df = pd.DataFrame(values, columns=columns)
     return df.set_index(index) if index else df.set_index(columns[0])
@@ -74,9 +81,7 @@ def make_fastqs_by_contigs(fastq_filenames, amos_file, format='fastq'):
     amos_obj = amos.AMOS(amos_file)
     reds = amos_obj.reds.values()
     reds_df = amos_reds_as_df(collection=reds) 
-    # should have an equal number of reads
-    # should have the same number of columns
-    assert reds_df.shape == fastq_df.shape
+    assert reds_df.shape == fastq_df.shape, "should have the same number of columns (seqs, seq_obj/iid) and rows (fastq reads / AMOS REDs."
     reds_with_seqs_df = join_non_unique_dataframes(reds_df, fastq_df)
     contigs = amos_obj.ctgs.values()
     dfs_by_ctg = extract_dfs_by_ctg(reds_with_seqs_df, contigs)

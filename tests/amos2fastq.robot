@@ -16,10 +16,10 @@ TestAmos2Fastq
     ${process_result} =         Run Process     python          ../bio_pieces/myargs.py      ${in_fastq1}            ${in_fastq2}    --amos      ${in_amos}
     # Check system exited  correctly
     Should Be Equal As Integers         ${process_result.rc}        0 
-    # Check output
-    Should Not Contain         ${process_result.stdout}        Error
     Log To Console       ${process_result.stdout}
     Log To Console        ${process_result.stderr}
+    # Check output
+    Should Not Contain         ${process_result.stdout}        Error
 
 # This can become generic enough to load variables from a file (expected and actual filenames)
 # Then assert equality for all of them.
