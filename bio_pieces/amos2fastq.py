@@ -1,6 +1,6 @@
 '''
 From what I can tell, Ray will not use all the reads.
-It will, however, load all the reads as RED entries. Then onlly some get used for TLE entries. 
+It will, however, load all the reads as RED entries. Then onlly some get used for TLE entries.
 The following will work (except for that `Bio.SeqIO` drops the description when it writes out a file, so you would have to cut out all the non-matching "+" lines.
 ```bash
 diff actual.sorted  expected.sorted | grep "^<" -E | wc -l
@@ -9,89 +9,128 @@ figure out parseargs by file extension and variable number.
 '''
 from functools import partial
 from Bio import SeqIO
-import itertools as it
+import itertools
 import pandas as pd
 import amos
-''' Python3 compatibility ''' 
-from past.builtins import map, xrange, filter
-#def amos_reds_as_df(amos_obj):
-#    iids_and_seq_strings = (red.iid, red.seq) for red in am.reds.values() 
-#    return pd.DataFrame(, columns=['iid', 'seq']).set_index('seq')
-#
+''' Python3 compatibility '''
+from past.builtins import map
 
-#def fastq_records_as_df(bioseq_recs):
-#    strings_and_objects =(seq.seq.tostring(), seq) for seq in fq
-#    columns=['seq', 'seq_obj']
-#    df =  pd.DataFrame(strings_and_objects, columns)
-#    return df.set_index('seq') 
-SEQKEY='seq' 
-def flatten_multiple_seq_files(filenames, format):
+def flatten_multiple_seq_files(filehandles, format):
+    '''
+    Get a flat iterator of SeqRecords from a list of opened files.
+    :param iterable filehandles: collection of valid fastq/fasta `file` objects
+    :param str format: Either "fastq" or "fasta"
+    :return generator of all fastq/fasta Bio.SeqRecords as a flat iterator
+    '''
     open_biofile = partial(SeqIO.parse, format=format)
-    return it.chain(*map(open_biofile, filenames))
+    return itertools.chain(*map(open_biofile, filehandles))
 
 def add_cumcount_index(df):
-   return df.set_index(df.groupby(df.index).cumcount(), append=True)
+    '''
+    Get a dataframe with a second index. This adds the cumulative count as a MultiIndex.
+    The "cumulative count" is the number of times the (possibly non-unique) index entry has occurred so far up to that row in the index.
+    This adds an additional index which will make each index entry "unique", as no two instances in
+    the original index can have the same cumulative count.  Used to make a Unique index from a DataFrame with non-unique index values.
+    :param pd.DataFrame df: A pandas DataFrame
+    :return pd.DataFrame  with a MultiIndex, including the cumulative count of the index.
+    '''
+    return df.set_index(df.groupby(df.index).cumcount(), append=True)
 
-# Assumes index has been properly set
+
 def join_non_unique_dataframes(df1, df2):
-   df_multi_index_1, df_multi_index_2 = map(add_cumcount_index, (df1, df2))
-   return df_multi_index_1.join(df_multi_index_2)
-        
-def df_from_collection_attributes(columns, collection):
-    lambdas = [lambda obj, col=col: getattr(obj, col) for col in columns]
-    return collection_as_df(lambdas, columns, collection)
-'''
-Index defaults to first column
-'''
-def collection_as_df(lambdas, columns, collection, index=None):
+    '''
+    Get two dataframes joined on their index, even if their indices hold non-unique values.
+    The joined DataFrame will have a MultiIndex; the original shared index + a cumulative count index.
+    :param pandas.DataFrame df1: A DataFrame with equivalent (but non-unique) index values to df2
+    :param pandas.DataFrame df2: A DataFrame with equivalent (but non-unique) index values to df1
+    :return pandas.Dataframe new joined DataFrame. Will also have a "cumulative count" index
+    '''
+    df_multi_index_1, df_multi_index_2 = map(add_cumcount_index, (df1, df2))
+    return df_multi_index_1.join(df_multi_index_2)
+
+def df_from_collection_attributes(attributes, collection):
+    '''
+    Make a pandas DataFrame out of a list of objects (collection) given a list of the attributes (attributes).
+    The columns will be titled the same as their named attributes.
+    Note: Will fail if every object in collection does not have every attribute in attributes.
+    :param list attributes: A list of strings. Valid attributes of the objects in the collection. Also used as the column names.
+    :param list collection: A list of arbitrary objects. Will fail if every object in collection does not have every attribute in attributes.
+    :return pandas.DataFrame  A DataFrame, matrix of the attributes for all objects in the collection.
+    '''
+    #TODO: It would be nice to know that the collection obj actually have these values, but that requires accessing the list
+    lambdas = [lambda obj, col=col: getattr(obj, col) for col in attributes]
+    return collection_as_df(lambdas, attributes, collection)
+
+def collection_as_df(lambdas, columns, collection):
+    '''
+    Create a pandas DataFrame by applying a series of functions to a collection.
+    :param list lambdas: a list of functions which take exactly one argument (an objects in collection)
+    :param list columns: (str) the column names, in order with lambdas
+    :param list collection: a list of objects which are valid arguments for the lambdas.
+    :return pandas.DataFrame the lambda results on the collection objects as a Matrix.
+    '''
     assert len(lambdas) == len(columns), "lambdas must have same length as columns"
     '''use list here to force the evaluation of the functions. otherwise the lambda grabs the last obj evaluated from collection, as in a closure.'''
     values = (list( func(obj) for func in lambdas) for obj in collection)
-    df = pd.DataFrame(values, columns=columns)
-    return df.set_index(index) if index else df.set_index(columns[0])
+    return pd.DataFrame(values, columns=columns)
 
-
-amos_reds_as_df = partial(df_from_collection_attributes, columns=['seq', 'iid'])
+amos_reds_as_df = partial(df_from_collection_attributes, attributes=['seq', 'iid'])
+amos_reds_as_df.__doc__ = ''' See df_from_collection_attributes; Expects list of amos.RED objects.'''
 bio_records_as_df = partial(collection_as_df, [lambda rec: rec.seq.tostring(), lambda rec: rec], ['seq', 'seq_obj'])
-
-#bio_file_as_df = lambda filename, ftype: bio_records_as_df(SeqIO.parse(filename, ftype))
-#fastq_file_as_df = partial(bio_file_as_df, 'fastq') 
-#fasta_file_as_df = partial(bio_file_as_df, 'fasta')
-
+bio_records_as_df.__doc__ = ''' See df_from_collection_attributes; Expects list of Bio.SeqRecord.'''
 
 def get_iids(contig):
-   return (tle.src for tle in contig.tlelist)
+    '''
+    Given a amos.CTG object, get the iids for all the Reads which aligned to form that contig.
+    :param amos.CTG contig object with a tlelist attribute
+    :return [int] the TLE "src" attributes (int) for each TLE in the contig, e.g. the iid for all composing reads.
+    '''
+    return (tle.src for tle in contig.tlelist)
 
 def get_df_subset(df, iterable, key=None):
-   return df[df.index.isin(iterable)] if not key else df[df[key].isin(iterable)]
+    '''
+    Note: Uses the index if no key is passed.
+    :param pandas.DataFrame df: a DataFrame where in df[key] matches type of iterable, or if no key is supplied, df.inidex matches type of iterable
+    :param iterator iterable: iterator of values which may be in df[key]/df.index
+    :return pandas.Series of those objects which match the objects in iterable
+    '''
+    return df[df.index.isin(iterable)] if not key else df[df[key].isin(iterable)]
 
-
-def write_sequences(seqs, outfile, format):
-    SeqIO.write(seqs, outfile, format)
-
-def extract_dfs_by_ctg(df, contigs):
-    iids_by_ctg = map(get_iids, contigs)
+def extract_dfs_by_ctg(df, iids_by_ctg):
     get_df_subset_seqs = partial(get_df_subset, df, key='iid')
     dfs_by_ctg = map(get_df_subset_seqs, iids_by_ctg)
     return dfs_by_ctg
 
-def make_fastqs_by_contigs(fastq_filenames, amos_file, format='fastq'):
-    fastq_records = flatten_multiple_seq_files(fastq_filenames, format) 
-    fastq_df = bio_records_as_df(fastq_records) 
-    amos_obj = amos.AMOS(amos_file)
-    reds = amos_obj.reds.values()
-    reds_df = amos_reds_as_df(collection=reds) 
+def get_seqs_by_ctg(fastq_records, reds, iids_by_ctg):
+    fastq_df = bio_records_as_df(fastq_records)
+    reds_df = amos_reds_as_df(collection=reds)
+    fastq_df, reds_df = fastq_df.set_index('seq'), reds_df.set_index('seq')
     assert reds_df.shape == fastq_df.shape, "should have the same number of columns (seqs, seq_obj/iid) and rows (fastq reads / AMOS REDs."
     reds_with_seqs_df = join_non_unique_dataframes(reds_df, fastq_df)
-    contigs = amos_obj.ctgs.values()
-    dfs_by_ctg = extract_dfs_by_ctg(reds_with_seqs_df, contigs)
+    dfs_by_ctg = extract_dfs_by_ctg(reds_with_seqs_df, iids_by_ctg)
     seqs_by_ctg = (df['seq_obj'] for df in dfs_by_ctg)
-    write_to_file = partial(write_sequences, format=format)
-    filenames = ("{0}.{1}".format(ctg.eid, format) for ctg in contigs)
+    return seqs_by_ctg
+
+def make_fastqs_by_contigs(fastqs, amos_file, fformat='fastq'):
+    '''
+    Loads fastq records and amos object, get the sequences and write them to the file.
+    :param list fastqs: list of valid fastq `file` objects
+    :param file amos_file: single amos `file` (usually .afg extension)
+    :return int 0 success code
+    '''
+    # Make list to end IO here (keep IO in main function, and fail immediately)
+    fastq_records = list(flatten_multiple_seq_files(fastqs, fformat))
+    amos_obj = amos.AMOS(amos_file)
+    map(file.close, fastqs + [amos_file])
+    reds = amos_obj.reds.values()
+    contigs = amos_obj.ctgs.values()
+    iids_by_ctg = map(get_iids, contigs)
+    # Do the heavy-lifting
+    seqs_by_ctg = get_seqs_by_ctg(fastq_records, reds, iids_by_ctg)
+    write_to_file = partial(SeqIO.write, format=fformat)
+    filenames = ("{0}.{1}".format(ctg.eid, fformat) for ctg in contigs)
     map(write_to_file, seqs_by_ctg, filenames)
     return 0
 
-def main(fastqs, amos_file):
-    return make_fastqs_by_contigs(fastqs, amos_file)
 
 
