@@ -11,20 +11,13 @@ from functools import partial
 from Bio import SeqIO
 import itertools
 import pandas as pd
-import amos
+from bio_pieces import amos
 ''' Python3 compatibility '''
-from past.builtins import map
+from past.builtins import map, filter
 
-def flatten_multiple_seq_files(filehandles, format):
-    '''
-    Get a flat iterator of SeqRecords from a list of opened files.
-    :param iterable filehandles: collection of valid fastq/fasta `file` objects
-    :param str format: Either "fastq" or "fasta"
-    :return generator of all fastq/fasta Bio.SeqRecords as a flat iterator
-    '''
-    open_biofile = partial(SeqIO.parse, format=format)
-    return itertools.chain(*map(open_biofile, filehandles))
 
+def series_contains_nan(series):
+    return series.isnull().any()
 def add_cumcount_index(df):
     '''
     Get a dataframe with a second index. This adds the cumulative count as a MultiIndex.
@@ -39,6 +32,7 @@ def add_cumcount_index(df):
 
 def join_non_unique_dataframes(df1, df2):
     '''
+    Sourced form: http://stackoverflow.com/questions/20297021/grouping-or-merging-dataframes-pandas-python
     Get two dataframes joined on their index, even if their indices hold non-unique values.
     The joined DataFrame will have a MultiIndex; the original shared index + a cumulative count index.
     :param pandas.DataFrame df1: A DataFrame with equivalent (but non-unique) index values to df2
@@ -74,19 +68,6 @@ def collection_as_df(lambdas, columns, collection):
     values = (list( func(obj) for func in lambdas) for obj in collection)
     return pd.DataFrame(values, columns=columns)
 
-amos_reds_as_df = partial(df_from_collection_attributes, attributes=['seq', 'iid'])
-amos_reds_as_df.__doc__ = ''' See df_from_collection_attributes; Expects list of amos.RED objects.'''
-bio_records_as_df = partial(collection_as_df, [lambda rec: rec.seq.tostring(), lambda rec: rec], ['seq', 'seq_obj'])
-bio_records_as_df.__doc__ = ''' See df_from_collection_attributes; Expects list of Bio.SeqRecord.'''
-
-def get_iids(contig):
-    '''
-    Given a amos.CTG object, get the iids for all the Reads which aligned to form that contig.
-    :param amos.CTG contig object with a tlelist attribute
-    :return [int] the TLE "src" attributes (int) for each TLE in the contig, e.g. the iid for all composing reads.
-    '''
-    return (tle.src for tle in contig.tlelist)
-
 def get_df_subset(df, iterable, key=None):
     '''
     Note: Uses the index if no key is passed.
@@ -96,20 +77,60 @@ def get_df_subset(df, iterable, key=None):
     '''
     return df[df.index.isin(iterable)] if not key else df[df[key].isin(iterable)]
 
-def extract_dfs_by_ctg(df, iids_by_ctg):
+amos_reds_as_df = partial(df_from_collection_attributes, attributes=['seq', 'iid'])
+amos_reds_as_df.__doc__ = ''' See df_from_collection_attributes; Expects list of amos.RED objects.'''
+bio_records_as_df = partial(collection_as_df, [lambda rec: rec.seq.tostring(), lambda rec: rec], ['seq', 'seq_obj'])
+bio_records_as_df.__doc__ = ''' See df_from_collection_attributes; Expects list of Bio.SeqRecord.'''
+
+def flatten_multiple_seq_files(filehandles, format):
+    '''
+    Get a flat iterator of SeqRecords from a list of opened files.
+    :param iterable filehandles: collection of valid fastq/fasta `file` objects
+    :param str format: Either "fastq" or "fasta"
+    :return generator of all fastq/fasta Bio.SeqRecords as a flat iterator
+    '''
+    open_biofile = partial(SeqIO.parse, format=format)
+    return itertools.chain(*map(open_biofile, filehandles))
+
+def get_iids(contig):
+    '''
+    Given a amos.CTG object, get the iids for all the Reads which aligned to form that contig.
+    :param amos.CTG contig object with a tlelist attribute
+    :return [int] the TLE "src" attributes (int) for each TLE in the contig, e.g. the iid for all composing reads.
+    '''
+    return (tle.src for tle in contig.tlelist)
+
+def extract_dfs_by_iids(df, iids_by_ctg):
+    '''
+    Get a list of "sub-frames" organized according to the organization of the iids.
+    :param pandas.DataFrame df: DataFrame with a 'seq' column
+    :param list iids_by_ctg: 2D list of iids (ints) organized by the contig they map to
+    :return a list of sub-dataframes, where each sub-frame matches the iids in the 2D list iids_by_ctg
+    '''
     get_df_subset_seqs = partial(get_df_subset, df, key='iid')
     dfs_by_ctg = map(get_df_subset_seqs, iids_by_ctg)
     return dfs_by_ctg
 
 def get_seqs_by_ctg(fastq_records, reds, iids_by_ctg):
+    '''
+    Transforms the fastq records and reds into pandas.DataFrame objects and joins them on the sequence string column.
+    Then, this DataFrame is sliced according to ``iids_by_ctg`` and returned. The result is a 2D list of SeqRecord objects
+    organized by the contigs they mapped to.
+    :param list fastq_records: a collection of Bio.SeqRecord objects
+    :param list reds: a collection of amos.RED objects
+    :param list iids_by_ctg: a 2D list of iids (organized by contig)
+    :return A 2D list of bio.SeqRecord objects organized by the contig they map to.
+    '''
     fastq_df = bio_records_as_df(fastq_records)
     reds_df = amos_reds_as_df(collection=reds)
     fastq_df, reds_df = fastq_df.set_index('seq'), reds_df.set_index('seq')
     assert reds_df.shape == fastq_df.shape, "should have the same number of columns (seqs, seq_obj/iid) and rows (fastq reads / AMOS REDs."
     reds_with_seqs_df = join_non_unique_dataframes(reds_df, fastq_df)
-    dfs_by_ctg = extract_dfs_by_ctg(reds_with_seqs_df, iids_by_ctg)
-    seqs_by_ctg = (df['seq_obj'] for df in dfs_by_ctg)
+    dfs_by_ctg = extract_dfs_by_iids(reds_with_seqs_df, iids_by_ctg)
+    seqs_by_ctg = [df['seq_obj'] for df in dfs_by_ctg]
+    assert not filter(series_contains_nan, seqs_by_ctg), "NaN value found in resulting dataframe, something went wrong."
     return seqs_by_ctg
+
 
 def make_fastqs_by_contigs(fastqs, amos_file, fformat='fastq'):
     '''
@@ -121,7 +142,8 @@ def make_fastqs_by_contigs(fastqs, amos_file, fformat='fastq'):
     # Make list to end IO here (keep IO in main function, and fail immediately)
     fastq_records = list(flatten_multiple_seq_files(fastqs, fformat))
     amos_obj = amos.AMOS(amos_file)
-    map(file.close, fastqs + [amos_file])
+    for f in fastqs + [amos_file]:
+        f.close()
     reds = amos_obj.reds.values()
     contigs = amos_obj.ctgs.values()
     iids_by_ctg = map(get_iids, contigs)
