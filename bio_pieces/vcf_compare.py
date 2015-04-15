@@ -70,7 +70,7 @@ ambiguous = partial(not_members, tag='CB', collection=['A', 'C', 'G', 'T'])
 exists = partial(not_members, collection= [None, [None], '-'])
 
 
-def filter(vcf_list, tag, op, value):
+def filter(vcf_list, tag, opfunc, value):
     '''
     i.e.  CBD > 12, etc.
     :param list vcf_list: list of vcf.model._Record objects as returned from vcf.Reader
@@ -82,9 +82,10 @@ def filter(vcf_list, tag, op, value):
     #assert ( op in ['exists', 'ambiguous']  != bool(value)), "filter should not be called with operator 'exisits' OR a value."
     #ALTs are stored as lists by vcf
     if tag == 'ALT' and type(value) is str:
-        value = [base.strip for base in value.split(',')]
-
-    check_value = partial(compare_value, getattr(operator, op), value)
+        value = [base.strip()  for base in value.split(',')]
+    if type(opfunc) is str:
+        opfunc = getattr(operator, opfunc)
+    check_value = partial(compare_value, opfunc, value)
     return [rec for rec in vcf_list if check_value(rec, tag)]
 
 
