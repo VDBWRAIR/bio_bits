@@ -16,10 +16,15 @@ Note that ALT might be multiple alleles (sadface)
 
 
 '''
-#
+from __future__ import print_function
 import vcf
 import pandas as pd
 from Bio import SeqIO
+'''
+#TODO: Replace NaN with None ala:
+df.where(pd.notnull(df), None)
+df.fillna("NULL")
+'''
 '''
 Flatten multiple fastq files into one iterator.
 '''
@@ -51,6 +56,31 @@ def vcf_file_to_df(filename):
 def get_statistics_diff(file_a, file_b):
    df1, df2 = vcf_file_to_df(file_a, file_b)
    return df1.describe() - df2.describe()
+
+def bool_select(df, key):
+    pass
+
+'''
+i.e. bool = lambda df, key: df[key] > 400
+lambda series:  series > N
+operator.ge(series, 400)
+'''
+def subselect(df, key, boolean):
+    pass
+'''
+i.e.
+df[left[left > right]]
+i.e. vcf_diff = df[ operator.eq(df['CB'], df['REF'])]
+'''
+def subselect_compare(left, right):
+    pass
+
+def print_variant_call(record):
+
+    print("{}\t{}\t{}\t{}".format(
+        ref_seq, pos, ref, cb
+    ))
+    pass
 '''
 i.e.
 sum(1 for base in sub_df.ALT if base)
