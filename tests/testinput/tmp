@@ -1,0 +1,22 @@
+{RED \niid:1 \neid:1 \nseq: \nA \n.  \nqlt: \nD \n.  \n}
+
+
+{CTG
+iid:1
+eid:contig-X1
+com:
+Software: Ray, MPI rank: 0
+.
+seq:
+GGG
+.
+qlt:
+DDD
+.
+
+{TLE
+src:280
+off:5
+clr:243,0
+}
+} 

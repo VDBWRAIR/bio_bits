@@ -1,3 +1,7 @@
 argparse
 future
-biopython==1.65
+biopython
+pandas
+docopt
+schema
+pyvcf
