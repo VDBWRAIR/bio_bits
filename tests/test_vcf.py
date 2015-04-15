@@ -3,6 +3,8 @@ from bio_pieces import vcf_compare as vcfcat
 from past.builtins import map
 import re
 import vcf
+import sys
+from bio_pieces import vcfcat_main
 
 
 def fix_string(string):
@@ -77,4 +79,12 @@ class TestVcfCompare(unittest.TestCase):
         result = vcfcat.diff(self.recs, self.diff_recs, 'DP', 100)
         positions = self.get_positions(r[0] for r in result)
         self.assertEquals([1, 3, 5], positions)
+
+    def test_vcf_main(self):
+        sys.argv = ['_', 'filter', self.infile.name, '--tag', 'CB', '--eq', 'A', '-c']
+        result = vcfcat_main.compute()[0]
+        self.assertEquals(3278, len(result))
+
+
+
 
