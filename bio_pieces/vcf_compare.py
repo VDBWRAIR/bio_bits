@@ -1,40 +1,94 @@
+from __future__ import print_function
 '''
 Usage:
-    vcf_compare <vcfiles> [--out-directory=<outdir>]
-                          [--threshold=THRESH]
-                          [--fields=FIELDS]...
+    vcfcat filter <FILE> [ --tag  <TAG> (--ge | --le | --geq | --leq | --eq | --neq) <VALUE> ]... [-c]
+    vcfcat filter <FILE> (--tag <TAG> --exists | --ambiguous)
+    vcfcat diff <FILE1> <FILE2> (--tag <TAG> [--threshold <THRESH>])  [-c]
+    vcfcat stat <FILE>
+    vcfcat statdiff <FILE1> <FILE2>
 
 Options:
-    -o DIR --output=DIR  The output directory [default: vcf_compare_output]
-    -t THRESHOLD --threshold=THRESHOLD  Numerical threshold to determine difference
+    -t THRESHOLD --threshold=THRESHOLD  Numerical threshold to determine difference [Default: 0]
+    -c, --count  Output the number of records.
+    --no-header  Output without the VCF header info.
     --
 
-
-vcf.infos => ordered dict of {'TAG' : vcf.parser.Info}
-vcf will automatically handle the type=Interger, etc. field for us.
-Note that ALT might be multiple alleles (sadface)
-
+    -o DIR --output=DIR  The output directory [default: vcf_compare_output]
 
 '''
-from __future__ import print_function
+'''
+vcf.infos => ordered dict of {'TAG' : vcf.parser.Info}
+vcf will automatically handle the type=Interger, etc. field for us.
+Note that ALT might be multiple alleles
+'''
+
 import vcf
 import pandas as pd
-from Bio import SeqIO
+import operator
+from functools import partial
 '''
 #TODO: Replace NaN with None ala:
 df.where(pd.notnull(df), None)
 df.fillna("NULL")
 '''
-'''
-Flatten multiple fastq files into one iterator.
-'''
-def multi_fastq_iterator(fastq_handles):
 
-    files = map(lambda a: SeqIO.parse(open(a), 'fastq'), fastq_handles)
-    #? return itertools.chain(files)
-    return [record for _fastq in files for record in _fastq]
+def match_records(left, right, tag, threshold):
+    l, r = flatten_vcf(left), flatten_vcf(right)
+    assert tag in l and tag in r, "Tag not found in flattened record {0}".format(str(flatten_vcf))
+    if not threshold:
+        return l[tag] == r[tag]
+    else:
+        return abs(l[tag] - r[tag]) < threshold
+
+def vcalls(records):
+    return [rec for rec in records if rec.REF != rec.INFO['CB']]
+
+def diff(left, right, tag, threshold):
+    '''
+    :param list left: vcf Records
+    :param list right: vcf Records
+    :param str tag: i.e. CB, ALT
+    :param int thershold: the amount of difference necessary
+    :return list of tuples from left, right where the values differed
+    '''
+    return [(l, r) for l, r in zip(left, right) if not match_records(l, r, tag, threshold)]
+
+def validate_vcf(filename, tags):
+    #TODO: Unfortunately have to validate types here.
+    # Also Check that tags are in vcf (using flattenvcf)
+    pass
+
+def compare_value(comparator, val, rec, tag):
+    flat_vcf = flatten_vcf(rec)
+    assert tag in flat_vcf, "Tag not found in flattened record {0}".format(str(flatten_vcf))
+    return comparator(flat_vcf[tag], val)
+
+def not_members(vcf_list, tag, collection):
+    return [rec for rec in vcf_list if flatten_vcf(rec)[tag] not in collection]
+
+ambiguous = partial(not_members, tag='CB', collection=['A', 'C', 'G', 'T'])
+exists = partial(not_members, collection= [None, [None], '-'])
 
 
+def filter(vcf_list, tag, op, value):
+    '''
+    i.e.  CBD > 12, etc.
+    :param list vcf_list: list of vcf.model._Record objects as returned from vcf.Reader
+    :param str operator: a function contained in the `operator` python stdlib module
+    :param str tag: a valid field in the vcf file (i.e. ALT, CBD)
+    :param object value: str, int/float, or list. the value to run operator against
+    :return a subset of a vcf record where the operator evaluates to true
+    '''
+    #assert ( op in ['exists', 'ambiguous']  != bool(value)), "filter should not be called with operator 'exisits' OR a value."
+    #ALTs are stored as lists by vcf
+    if tag == 'ALT' and type(value) is str:
+        value = [base.strip for base in value.split(',')]
+
+    check_value = partial(compare_value, getattr(operator, op), value)
+    return [rec for rec in vcf_list if check_value(rec, tag)]
+
+
+#Can use the dtype of a column
 ''' file.samples()[0]  -> returns dengue.bam etc.'''
 
 def flatten_list(A):
@@ -49,44 +103,25 @@ def flatten_vcf(record):
       d.update(dict((_id, flatten_list(field)) for _id, field in record.INFO.items()))
       return d
 
-def vcf_file_to_df(filename):
-   vcf_records = vcf.Reader(open(filename))
+def vcf_file_to_df(file_handle):
+   vcf_records = vcf.Reader(file_handle)
    return pd.DataFrame(flatten_vcf(rec) for rec in vcf_records)
 
-def get_statistics_diff(file_a, file_b):
+def stat(file_a):
+   return vcf_file_to_df(file_a).describe()
+
+def statdiff(file_a, file_b):
    df1, df2 = vcf_file_to_df(file_a, file_b)
    return df1.describe() - df2.describe()
 
-def bool_select(df, key):
-    pass
-
-'''
-i.e. bool = lambda df, key: df[key] > 400
-lambda series:  series > N
-operator.ge(series, 400)
-'''
-def subselect(df, key, boolean):
-    pass
 '''
 i.e.
 df[left[left > right]]
 i.e. vcf_diff = df[ operator.eq(df['CB'], df['REF'])]
 '''
-def subselect_compare(left, right):
-    pass
 
 def print_variant_call(record):
-
     print("{}\t{}\t{}\t{}".format(
         ref_seq, pos, ref, cb
     ))
     pass
-'''
-i.e.
-sum(1 for base in sub_df.ALT if base)
-sum(1 for base1, base2 in zip(sub_df.CB, norms.CB) if base1 != base2)
-sum(1 for base1, base2 in zip(sub_df.HPOLY, norms.HPOLY) if base1 != base2)
-'''
-def get_num_different(df1, df2, column):
-    pass
-
