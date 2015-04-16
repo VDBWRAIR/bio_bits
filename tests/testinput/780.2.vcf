@@ -1,0 +1,30 @@
+##fileformat=VCFv4.2
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=RC,Number=1,Type=Integer,Description="Reference Count">
+##INFO=<ID=RAQ,Number=1,Type=Integer,Description="Reference Average Quality">
+##INFO=<ID=PRC,Number=1,Type=Integer,Description="Percentage Reference Count">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Alternative Alternate Count">
+##INFO=<ID=AAQ,Number=A,Type=Integer,Description="Alternate Average Quality">
+##INFO=<ID=PAC,Number=A,Type=Integer,Description="Percentage Alternate Count">
+##INFO=<ID=CBD,Number=1,Type=Integer,Description="Called Base Depth(Depth of only bases supporting CB">
+##INFO=<ID=CB,Number=1,Type=Character,Description="Called Base">
+##INFO=<ID=HPOLY,Number=0,Type=Flag,Description="Is a homopolymer">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	780.bam
+H3N2/CY074922/Managua/2010/PB2_1	1	.	A	.	.	.	DP=284;RC=284;RAQ=36;PRC=100;CBD=284;CB=A
+H3N2/CY074922/Managua/2010/PB2_1	2	.	T	C	.	.	DP=311;RC=309;RAQ=36;PRC=99;AC=2;AAQ=35;PAC=1;CBD=309;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	3	.	T	C	.	.	DP=340;RC=305;RAQ=36;PRC=100;AC=1;AAQ=32;PAC=0;CBD=305;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	4	.	A	.	.	.	DP=300;RC=339;RAQ=36;PRC=100;CBD=339;CB=A
+H3N2/CY074922/Managua/2010/PB2_1	5	.	T	.	.	.	DP=9336;RC=336;RAQ=36;PRC=100;CBD=336;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	6	.	A	.	.	.	DP=331;RC=331;RAQ=37;PRC=100;CBD=331;CB=A
+H3N2/CY074922/Managua/2010/PB2_1	7	.	T	C	.	.	DP=346;RC=342;RAQ=36;PRC=99;AC=4;AAQ=35;PAC=1;CBD=342;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	8	.	T	C	.	.	DP=346;RC=345;RAQ=37;PRC=100;AC=1;AAQ=34;PAC=0;CBD=345;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	9	.	C	.	.	.	DP=350;RC=350;RAQ=37;PRC=100;CBD=350;CB=C
+H3N2/CY074922/Managua/2010/PB2_1	10	.	A	G,T	.	.	DP=350;RC=348;RAQ=37;PRC=99;AC=1,1;AAQ=37,38;PAC=0,0;CBD=348;CB=A
+H3N2/CY074922/Managua/2010/PB2_1	11	.	G	.	.	.	DP=400;RC=400;RAQ=37;PRC=100;CBD=400;CB=G
+H3N2/CY074922/Managua/2010/PB2_1	12	.	T	.	.	.	DP=376;RC=376;RAQ=36;PRC=100;CBD=376;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	13	.	A	.	.	.	DP=389;RC=389;RAQ=37;PRC=100;CBD=389;CB=A
+H3N2/CY074922/Managua/2010/PB2_1	14	.	T	C	.	.	DP=393;RC=391;RAQ=37;PRC=99;AC=2;AAQ=36;PAC=1;CBD=391;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	15	.	G	.	.	.	DP=404;RC=404;RAQ=37;PRC=100;CBD=404;CB=G
+H3N2/CY074922/Managua/2010/PB2_1	16	.	G	.	.	.	DP=400;RC=400;RAQ=37;PRC=100;CBD=400;CB=G
+H3N2/CY074922/Managua/2010/PB2_1	17	.	A	C	.	.	DP=302;RC=401;RAQ=37;PRC=100;AC=1;AAQ=37;PAC=0;CBD=401;CB=A;HPOLY
+H3N2/CY074922/Managua/2010/PB2_1	18	.	A	.	.	.	DP=509;RC=409;RAQ=37;PRC=100;CBD=409;CB=A;HPOLY

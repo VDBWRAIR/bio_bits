@@ -1,0 +1,22 @@
+##fileformat=VCFv4.2
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=RC,Number=1,Type=Integer,Description="Reference Count">
+##INFO=<ID=RAQ,Number=1,Type=Integer,Description="Reference Average Quality">
+##INFO=<ID=PRC,Number=1,Type=Integer,Description="Percentage Reference Count">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Alternative Alternate Count">
+##INFO=<ID=AAQ,Number=A,Type=Integer,Description="Alternate Average Quality">
+##INFO=<ID=PAC,Number=A,Type=Integer,Description="Percentage Alternate Count">
+##INFO=<ID=CBD,Number=1,Type=Integer,Description="Called Base Depth(Depth of only bases supporting CB">
+##INFO=<ID=CB,Number=1,Type=Character,Description="Called Base">
+##INFO=<ID=HPOLY,Number=0,Type=Flag,Description="Is a homopolymer">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	947.bam
+Den4/AY618992_1/Thailand/2001/Den4_1	1	.	A	.	.	.	DP=327;RC=327;RAQ=39;PRC=100;CBD=327;CB=A
+Den4/AY618992_1/Thailand/2001/Den4_1	2	.	G	.	.	.	DP=325;RC=325;RAQ=39;PRC=100;CBD=325;CB=G
+Den4/AY618992_1/Thailand/2001/Den4_1	3	.	T	.	.	.	DP=326;RC=326;RAQ=39;PRC=100;CBD=326;CB=T
+Den4/AY618992_1/Thailand/2001/Den4_1	4	.	T	.	.	.	DP=326;RC=326;RAQ=39;PRC=100;CBD=326;CB=T
+Den4/AY618992_1/Thailand/2001/Den4_1	5	.	G	.	.	.	DP=334;RC=334;RAQ=39;PRC=100;CBD=334;CB=G
+Den4/AY618992_1/Thailand/2001/Den4_1	6	.	T	C	.	.	DP=333;RC=332;RAQ=39;PRC=100;AC=1;AAQ=29;PAC=0;CBD=332;CB=T
+Den4/AY618992_1/Thailand/2001/Den4_1	7	.	T	C,G	.	.	DP=331;RC=328;RAQ=39;PRC=99;AC=2,1;AAQ=34,32;PAC=1,0;CBD=328;CB=T
+Den4/AY618992_1/Thailand/2001/Den4_1	8	.	A	.	.	.	DP=439;RC=439;RAQ=38;PRC=100;CBD=439;CB=A
+Den4/AY618992_1/Thailand/2001/Den4_1	9	.	G	.	.	.	DP=490;RC=490;RAQ=37;PRC=100;CBD=490;CB=G
+Den4/AY618992_1/Thailand/2001/Den4_1	10	.	T	.	.	.	DP=493;RC=493;RAQ=37;PRC=100;CBD=493;CB=T
