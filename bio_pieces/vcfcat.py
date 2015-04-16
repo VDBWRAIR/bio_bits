@@ -21,7 +21,6 @@ vcf.infos => ordered dict of {'TAG' : vcf.parser.Info}
 vcf will automatically handle the type=Interger, etc. field for us.
 Note that ALT might be multiple alleles
 '''
-
 import pandas as pd
 import operator
 from functools import partial
