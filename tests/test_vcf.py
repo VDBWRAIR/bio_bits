@@ -1,5 +1,5 @@
 import unittest
-from bio_pieces import vcf_compare as vcfcat
+from bio_pieces import vcfcat
 from past.builtins import map
 import re
 import vcf
@@ -38,7 +38,7 @@ class TestVcfCompare(unittest.TestCase):
         return [rec.POS for rec in result]
 
     def test_vcf_file_to_df(self):
-        result_df = vcfcat.vcf_file_to_df(self.infile)
+        result_df = vcfcat.vcf_file_to_df(vcf.Reader(self.infile))
         raw_result_head = str(result_df.head()).strip()
         result_head, expected_head = map(fix_string, [raw_result_head, self.expected_head])
         self.assertEquals(expected_head, result_head)
@@ -72,19 +72,25 @@ class TestVcfCompare(unittest.TestCase):
 
     def test_vcf_diff_str_no_threshold(self):
         result = vcfcat.diff(self.recs, self.diff_recs, 'REF', None)
-        positions = self.get_positions(r[0] for r in result)
+        positions = self.get_positions(r for r in result)
         self.assertEquals([1, 10], positions)
 
     def test_vcf_diff_int_with_threshold(self):
         result = vcfcat.diff(self.recs, self.diff_recs, 'DP', 100)
-        positions = self.get_positions(r[0] for r in result)
+        positions = self.get_positions(r for r in result)
         self.assertEquals([1, 3, 5], positions)
 
     def test_vcf_main(self):
         sys.argv = ['_', 'filter', self.infile.name, '--tag', 'CB', '--eq', 'A', '-c']
-        result = vcfcat_main.compute()[0]
+        result, _, _, __ = vcfcat_main.compute()
         self.assertEquals(3278, len(result))
 
-
-
-
+    def test_exists(self):
+        result = vcfcat.exists(self.recs, 'ALT')
+        self.assertEquals(len(result), 2)
+        existsin = 'tests/testinput/small.vcf'
+        sys.argv = ['_', 'exists', existsin, '--tag', 'ALT', '--count']
+        result, _, _, _,  = vcfcat_main.compute()
+        self.assertEquals(len(result), 2)
+        #TODO: could mock stdout here
+        #vcfcat_main.main()
