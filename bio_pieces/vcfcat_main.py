@@ -11,7 +11,6 @@ Usage:
 Options:
     -t=<THRESH> --threshold=<THRESH>  Numerical threshold to determine difference [Default: 0]
     -c, --count  Output the number of records.
-    --no-header  Output without the VCF header info.
     --csv         Output simplified format
 '''
 
