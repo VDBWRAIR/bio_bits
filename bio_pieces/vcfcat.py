@@ -61,6 +61,9 @@ def validate_vcf(filename, tags):
 def compare_value(comparator, val, rec, tag):
     flat_vcf = flatten_vcf(rec)
     assert tag in flat_vcf, "Tag not found in flattened record {0}".format(str(flatten_vcf))
+    if type(flat_vcf[tag]) != type(val):
+        raise ValueError("Type of record field {0}, {1}, does not match type of val {2}, {3}"
+                         .format(flat_vcf[tag], type(flat_vcf[tag]), val, type(val)))
     return comparator(flat_vcf[tag], val)
 
 def not_members(vcf_list, tag, collection):
@@ -96,7 +99,7 @@ def flatten_list(A):
   return A[0] if type(A) == list else A
 
 def flatten_vcf(record):
-      _ids = ['CHROM', 'REF', 'QUAL', 'POS', 'ALT']
+      _ids = ['CHROM', 'REF', 'QUAL', 'POS', 'ALT', 'FILTER', 'FORMAT', 'ID', 'INFO']
       fields = [getattr(record, _id) for _id in _ids]
      # converters = [str, str, str,  int, flatten_list]
      # fields = (convert(getattr(record, _id)) for convert, _id in zip(converters, _ids))

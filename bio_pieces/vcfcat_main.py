@@ -1,6 +1,6 @@
 '''
 Usage:
-    vcfcat filter <FILE1> [ --tag=<TAG> (--ge | --le | --geq | --leq | --eq | --neq) <VALUE> ] [-c]
+    vcfcat filter <FILE1> ( --tag=<TAG> (--ge | --le | --gt | --lt | --eq | --neq) <VALUE> ) [-c]
     vcfcat exists <FILE1> (--tag=<TAG> ) [-c]
     vcfcat ambiguous <FILE1>  [-c]
     vcfcat vcall <FILE1>  [--csv | -c ]
@@ -15,6 +15,7 @@ Options:
     --csv         Output simplified format
 '''
 
+
 from schema import Schema, Use,  Optional
 from docopt import docopt
 import operator
@@ -23,11 +24,12 @@ import sys
 import vcf
 #TODO: figure out diff output
 #TODO: Find a better way to dispatch commandline apps
-ops = ['--ge', '--le', '--geq' , '--leq' , '--eq' , '--neq']
+ops = ['--ge', '--le', '--gt' , '--lt' , '--eq' , '--neq']
 def validate_value(val):
-    if val is None:
+    if val is None or not val.isdigit():
         return val
-    return val if val.isalpha() else int(val)
+    else:
+        return int(val)
 
 def validate_vcf_file(name):
     if name is None:
