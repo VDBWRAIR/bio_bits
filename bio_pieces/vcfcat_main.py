@@ -11,7 +11,14 @@ Usage:
 Options:
     -t=<THRESH> --threshold=<THRESH>  Numerical threshold to determine difference [Default: 0]
     -c, --count  Output the number of records instead of the actual file.
-    --csv         Output simplified format
+    --csv        Output variant calls in simplified tabular format
+    --gt         Get records Greater Than <VALUE>
+    --ge         Greater than or Equal
+    --lt         Get records Less Thaan <VALUE>
+    --leq        Get records Less than or equal to <VALUE>
+    --eq         Get records Exactly Equal to <VALUE>
+    --neq        Get records Not Equal to <VALUE>
+
 Arguments:
     filter:  print only vcf records matching the filter as a new vcf file.
     exists:  only those records where the tag has a value.
@@ -23,7 +30,6 @@ Arguments:
     is used to determine if the values are "different enough", i.e., must be 10 more, or 10 less, etc.
     stat:   print simple information (like mean, etc.) for all VCF fields in a tabular format.
     statdiff:   print the (arithmetic) difference between the two file's "stat" output.
-
 '''
 
 
