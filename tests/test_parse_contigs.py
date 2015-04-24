@@ -5,6 +5,11 @@ import io
 from Bio import SeqIO
 import os
 from os.path import join, dirname, abspath
+if sys.version[0] == '3':
+    from io import StringIO as BytesIO
+else:
+    from io import BytesIO
+
 THISD = dirname(abspath(__file__))
 
 class TestParseContigs(unittest.TestCase):
@@ -28,20 +33,32 @@ CCGATCAA
 +
 FF@@@F@F
 '''
-        self.seqrecs =  list(SeqIO.parse(io.BytesIO(self.reads), format='fastq'))
+        self.sam_extra_fields	=	'\n'.join(['read1\t1\tchr1\t1\t60	10M	=	1	1	TTTCGAATC	FFFFFFFFF	NM:i:3	AS:i:231	XS:i:0	RG:Z:MiSeq',
+                                  'read2	1	chr2	1	60	10M	=	1	1	CTTCGATC	AFFDDDDD	NM:i:3	AS:i:231	XS:i:0	RG:Z:MiSeq\tfoo',
+                                  'read3	1	chr1	1	60	10M	=	1	1	CCGATCAA	FF@@@F@F	NM:i:3	AS:i:231	XS:i:0	RG:Z:MiSeq\tfoo\tbar'])
+        self.seqrecs =  list(SeqIO.parse(BytesIO(self.reads), format='fastq'))
 
     def test_sam_to_df(self):
         result = pc.samview_to_df(self.samtext)
         self.assertEquals(result.columns.tolist(), self.columns)
         self.assertEquals(result.ix[2]['QNAME'], 'read3')
 
+    def test_sam_to_df_with_extra_fields(self):
+        result = pc.samview_to_df(self.sam_extra_fields)
+        self.assertEquals(result.columns.tolist(), self.columns)
+        self.assertEquals(result.ix[2]['QNAME'], 'read3')
+        self.assertEquals(result.ix[0]['QUAL'], 'FFFFFFFFF')
+        self.assertEquals(result.ix[2]['QUAL'],   'FF@@@F@F')
+
     def test_main(self): #, margs):
+        olddir = abspath(os.getcwd())
         os.chdir(THISD)
         sys.argv = ['group_refs', 'out.samtext']
         with open('out.samtext', 'w') as out:
             out.write(self.samtext)
         #with mock.patch('__builtin__.open', mock.mock_open(read_data=self.samtext), create=True) as m:
         rcode = pc.main()
+        os.chdir(olddir)
         self.assertEquals(0, rcode)
         expected_group1 = [self.seqrecs[0], self.seqrecs[2]]
         actual_group1 = SeqIO.parse(join(THISD, 'chr1.group.fq'), format='fastq')
