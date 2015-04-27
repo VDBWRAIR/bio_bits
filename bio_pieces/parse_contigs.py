@@ -33,6 +33,7 @@ def get_seqs_by_ctg(rawtext):
         ref, reads = group[0], group[1]
         with open("{0}.group.fq".format(ref), 'w') as out:
             map(out.writelines, '\n'.join(map(fastq, reads.QNAME, reads.SEQ, reads.QUAL)))
+            out.write('\n')
 
 def main():
     raw_args = docopt(__doc__)
