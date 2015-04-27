@@ -12,3 +12,6 @@ Version 0.1.0
 * Added amos file parser that is specific to Ray assembler amos format
 * Added format functionality for amos classes such that it is easy to
   convert to different formats
+* Added amos2fastq to pull sequences out of AMOS files organized by their contigs.
+* Added vcfcat.py, a commandline app for filtering and comparing vcf files.  
+* Completed documentation for vcfcat

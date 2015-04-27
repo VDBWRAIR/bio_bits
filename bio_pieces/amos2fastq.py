@@ -13,11 +13,12 @@ import itertools
 import pandas as pd
 from bio_pieces import amos
 ''' Python3 compatibility '''
-from past.builtins import map, filter
+from past.builtins import map , filter
 
 
 def series_contains_nan(series):
     return series.isnull().any()
+
 def add_cumcount_index(df):
     '''
     Get a dataframe with a second index. This adds the cumulative count as a MultiIndex.
@@ -111,6 +112,9 @@ def extract_dfs_by_iids(df, iids_by_ctg):
     dfs_by_ctg = map(get_df_subset_seqs, iids_by_ctg)
     return dfs_by_ctg
 
+def get_not_nulls(series):
+    return series[series.notnull()]
+
 def get_seqs_by_ctg(fastq_records, reds, iids_by_ctg):
     '''
     Transforms the fastq records and reds into pandas.DataFrame objects and joins them on the sequence string column.
@@ -127,9 +131,11 @@ def get_seqs_by_ctg(fastq_records, reds, iids_by_ctg):
     assert reds_df.shape == fastq_df.shape, "should have the same number of columns (seqs, seq_obj/iid) and rows (fastq reads / AMOS REDs."
     reds_with_seqs_df = join_non_unique_dataframes(reds_df, fastq_df)
     dfs_by_ctg = extract_dfs_by_iids(reds_with_seqs_df, iids_by_ctg)
-    seqs_by_ctg = [df['seq_obj'] for df in dfs_by_ctg]
-    assert not filter(series_contains_nan, seqs_by_ctg), "NaN value found in resulting dataframe, something went wrong."
-    return seqs_by_ctg
+    unfiltered_seqs_by_ctg = [df['seq_obj'] for df in dfs_by_ctg]
+    if filter(series_contains_nan, unfiltered_seqs_by_ctg):
+        print("Warning: AMOS records without matching fastq records found.")
+    matched_seqs_by_ctg = map(get_not_nulls, unfiltered_seqs_by_ctg)
+    return matched_seqs_by_ctg
 
 
 def make_fastqs_by_contigs(fastqs, amos_file, fformat='fastq'):
