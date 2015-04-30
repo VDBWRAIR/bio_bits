@@ -1,4 +1,6 @@
 '''
+Command-line utility for querying VCF files. By default, outputs a full vcf file matching the query.
+
 Usage:
     vcfcat filter <FILE1> ( --tag=<TAG> (--ge | --le | --gt | --lt | --eq | --neq) <VALUE> ) [-c]
     vcfcat exists <FILE1> (--tag=<TAG> ) [-c]

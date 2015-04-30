@@ -1,5 +1,8 @@
 '''
-Usage: group_references <samfile>
+Usage: group_references <samfile> --outdir <DIR>
+
+Options:
+    --outdir=<DIR>,-o=<DIR>   outupt directory [Default: parse_contigs_out]
 
 Create separate fastq files for each reference in a samfile.
 '''
@@ -8,6 +11,7 @@ from docopt import docopt
 import pandas as pd
 from schema import Schema, Use
 import sys
+import os
 if sys.version[0] == '3':
     from io import StringIO as BytesIO
 else:
@@ -24,24 +28,28 @@ def samview_to_df(rawtext):
 def fixline(row):
     return '\t'.join(row.split('\t')[:len(sam_columns)])
 
-def get_seqs_by_ctg(rawtext):
-
+def get_seqs_by_ctg(outdir, rawtext):
     sam_df = samview_to_df(rawtext)
     contig_groups = sam_df.groupby('RNAME')
     fastq = "@{0}\n{1}\n+\n{2}".format
     for group in contig_groups:
         ref, reads = group[0], group[1]
-        with open("{0}.group.fq".format(ref), 'w') as out:
+        with open("{0}/{1}.group.fq".format(outdir, ref), 'w') as out:
             map(out.writelines, '\n'.join(map(fastq, reads.QNAME, reads.SEQ, reads.QUAL)))
             out.write('\n')
 
+
 def main():
     raw_args = docopt(__doc__)
-    scheme = Schema({'<samfile>' : Use(open, error='Samfile must be readable')})
+    scheme = Schema({
+        '<samfile>' : Use(open, error='Samfile must be readable'),
+        '--outdir' : str})
     parsed_args = scheme.validate(raw_args)
-    get_seqs_by_ctg(parsed_args['<samfile>'].read())
+    outdir = parsed_args['--outdir']
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
+    get_seqs_by_ctg(outdir, parsed_args['<samfile>'].read())
     return 0
 
 if __name__ == '__main__':
     main()
-

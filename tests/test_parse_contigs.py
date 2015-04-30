@@ -51,20 +51,20 @@ FF@@@F@F
         self.assertEquals(result.ix[2]['QUAL'],   'FF@@@F@F')
 
     def test_main(self): #, margs):
-        olddir = abspath(os.getcwd())
-        os.chdir(THISD)
-        sys.argv = ['group_refs', 'out.samtext']
+#        olddir = abspath(os.getcwd())
+#        os.chdir(THISD)
+        sys.argv = ['group_refs', 'tests/out.samtext', '--outdir', 'tests/testoutput/pc']
         with open('out.samtext', 'w') as out:
             out.write(self.samtext)
         #with mock.patch('__builtin__.open', mock.mock_open(read_data=self.samtext), create=True) as m:
         rcode = pc.main()
-        os.chdir(olddir)
+#        os.chdir(olddir)
         self.assertEquals(0, rcode)
         expected_group1 = [self.seqrecs[0], self.seqrecs[2]]
-        actual_group1 = SeqIO.parse(join(THISD, 'chr1.group.fq'), format='fastq')
+        actual_group1 = SeqIO.parse(join(THISD, 'testoutput/pc/chr1.group.fq'), format='fastq')
         for le, ri in zip(expected_group1, actual_group1):
             self.assertEquals(*map(lambda r: (str(r.seq), r.letter_annotations, r.id), [le, ri]))
-        actual_group2 = SeqIO.parse(join(THISD, 'chr2.group.fq'), format='fastq')
+        actual_group2 = SeqIO.parse(join(THISD, 'testoutput/pc/chr2.group.fq'), format='fastq')
         expected_group2 = [self.seqrecs[1]]
         for le, ri in zip(expected_group2, actual_group2):
             self.assertEquals(*map(lambda r: (str(r.seq), r.letter_annotations, r.id) , [le, ri]))

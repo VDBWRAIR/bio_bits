@@ -35,7 +35,11 @@ def match_records(left, right, tag, threshold):
     :return bool: False if they are different according to threshold
     '''
     l, r = flatten_vcf(left), flatten_vcf(right)
-    assert tag in l and tag in r, "Tag not found in flattened record {0}".format(str(flatten_vcf))
+    #assert tag in l and tag in r, "Tag not found in flattened record {0}".format(str(flatten_vcf))
+    if operator.xor( (tag in l), (tag in r)):
+        return False
+    if tag not in l and tag not in r:
+        return True
     if not threshold:
         return l[tag] == r[tag]
     else:
@@ -82,7 +86,7 @@ def not_members(vcf_list, tag, collection):
     :param list collection: a list of objects
     :return list: all records where record[tag] or record.INFO[tag] is  not in collection
     '''
-    return [rec for rec in vcf_list if flatten_vcf(rec)[tag] not in collection]
+    return [rec for rec in vcf_list if (tag not in flatten_vcf(rec)) or flatten_vcf(rec)[tag] not in collection]
 
 ambiguous = partial(not_members, tag='CB', collection=['A', 'C', 'G', 'T'])
 exists = partial(not_members, collection= [None, [None], '-'])
@@ -103,7 +107,7 @@ def filter(vcf_list, tag, opfunc, value):
     if type(opfunc) is str:
         opfunc = getattr(operator, opfunc)
     check_value = partial(compare_value, opfunc, value)
-    return [rec for rec in vcf_list if check_value(rec, tag)]
+    return [rec for rec in vcf_list if (tag in flatten_vcf(rec)) and check_value(rec, tag)]
 
 def flatten_list(A):
   return A[0] if type(A) == list else A
