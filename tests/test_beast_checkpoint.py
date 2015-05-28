@@ -1,3 +1,4 @@
+from __future__ import print_function
 from . import unittest, THIS
 from os.path import *
 import sys
@@ -44,7 +45,7 @@ class TestHashLastLogEntries(BasePandas):
         df = pd.read_csv(self.testlog, sep='\t', comment='#')
         self.mock_pandas.read_csv.return_value = df
         r = beast_checkpoint.hash_last_log_entries('foo.log','bar.log')
-        f = filter(lambda k: k.startswith('freq'), r.keys())
+        f = list(filter(lambda k: k.startswith('freq'), r.keys()))
         self.assertEqual(['frequencies1','frequencies2','frequencies3','frequencies4'], f)
 
 class TestFunctional(Base):
@@ -63,7 +64,7 @@ class TestFunctional(Base):
 
         # These all need to exist in output
         find_in_lines = [
-            '<parameter id="frequencies" value="{0}"/>'.format(freqs),
+            '<parameter id="frequencies" value="0.225554'.format(freqs),
             '<parameter id="ac" value="{0}" lower="0.0" upper="Infinity"/>'.format(ac),
         ]
 
@@ -74,10 +75,11 @@ class TestFunctional(Base):
         found = []
         def find_lines(line):
             ''' look for required lines in output '''
-            sys.stderr.write(line)
             for l in find_in_lines + not_find_in_lines:
                 if l in line:
                     found.append(l)
 
         out = sh.python(cmd.split(), _out=find_lines, _err=find_lines)
-        self.assertEqual(find_in_lines, found)
+        print("Looking for lines {0}".format(find_in_lines))
+        print("Found {0}".format(found))
+        self.assertEqual(sorted(find_in_lines), sorted(found))

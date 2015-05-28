@@ -5,10 +5,15 @@
 # Expect at least 3 files
 # This matches column names in log files to parameter names in the original XML to set initial conditions
 
+from __future__ import print_function
+
 import sys
 import re
 import fileinput
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 import argparse
 import pandas as pd
@@ -78,7 +83,7 @@ def main():
     # If there is a string of names in the form name1 \t name2 \t name3, this is a parameter array
     # and its map should be name to a list of values separated by spaces
     additional = OrderedDict()
-    for name, value in param.iteritems():
+    for name, value in param.items():
         m = re.findall('^(\S+[^0-9])([0-9]+)$', name)
         if m:
             shortname = m[0][0]
@@ -113,7 +118,7 @@ def main():
     if not tree.startswith('tree STATE'):
         tree = trees[-2]
     # Go through last tree and replace ids with taxa names
-    for taxid, taxa in taxa.iteritems():
+    for taxid, taxa in taxa.items():
         tree = re.sub('(?<=[(,])'+taxid+'(?=\[|:)', "'"+taxa+"'", tree)
     # Remove tree STATE_... from tree
     tree = re.sub('tree STATE_.+ = \[\&R\] ', '', tree)
@@ -142,13 +147,13 @@ def main():
                     line = re.sub('parameter id="([^"]+)"', 'parameter id="{0}" value="{1}"'.format(name,value), line)
 
         if outputline:
-            print line
+            print(line)
 
         if '</coalescentTree>' in line:
             outputline = True
-            print '\t<newick id="startingTree">'
-            print '\t\t'+tree
-            print '\t</newick>'
+            print('\t<newick id="startingTree">')
+            print('\t\t'+tree)
+            print('\t</newick>')
 
 if __name__ == '__main__':
     main()
