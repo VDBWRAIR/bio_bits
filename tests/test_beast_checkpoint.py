@@ -67,11 +67,15 @@ class TestFunctional(Base):
             '<parameter id="ac" value="{0}" lower="0.0" upper="Infinity"/>'.format(ac),
         ]
 
+        not_find_in_lines = [
+            '<parameter id="treeModel.rootHeight" value=',
+        ]
+
         found = []
         def find_lines(line):
             ''' look for required lines in output '''
             sys.stderr.write(line)
-            for l in find_in_lines:
+            for l in find_in_lines + not_find_in_lines:
                 if l in line:
                     found.append(l)
 

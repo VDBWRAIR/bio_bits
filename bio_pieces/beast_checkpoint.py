@@ -93,7 +93,7 @@ def main():
     sys.stderr.write('{0}\n'.format(param))
 
     # Remove non-initialized parameters from param.
-    if 'treeModel.rootheight' in param:
+    if 'treeModel.rootHeight' in param:
         del param['treeModel.rootHeight']
 
     # Go through trees file and construct hash of id to taxa name
