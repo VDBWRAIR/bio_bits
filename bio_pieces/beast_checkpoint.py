@@ -39,10 +39,11 @@ def hash_last_log_entries(*logfiles):
         df = parse_logfile(path)
         # Last entry in current logfile
         lastentry = df.tail(1)
-        # Last entry as dictionary
-        lastentry = lastentry.to_dict(orient='records')[0]
+        _thing = None
+        for i, row in lastentry.iterrows():
+            _thing = OrderedDict(row)
         # Update param dict with dataframe as dictionary
-        param.update(lastentry)
+        param.update(_thing)
     return param
 
 def parse_args():
@@ -72,28 +73,7 @@ def main():
     log_filenames = args.log_filenames
 
     # Go through log files and create a hash of parameter name to value
-    param = hash_last_log_entries(log_filenames)
-
-    '''
-    names = None
-    # Iter each file
-    for log_filename in log_filenames:
-        # Iter each line in each file
-        for line in open(log_filename):
-            # Remove extra space on each end
-            line = line.strip()
-            if not line.startswith('#'):
-                # Col headers in first non comment line of first file
-                if names is None:
-                    names = line.split("\t")
-                # Values will be the last line
-                values = line
-        # values now has last line of file
-        for n,v in zip(names, values.split("\t")):
-            param[n] = v
-    '''
-
-    sys.stderr.write('{0}\n'.format(param))
+    param = hash_last_log_entries(*log_filenames)
 
     # If there is a string of names in the form name1 \t name2 \t name3, this is a parameter array
     # and its map should be name to a list of values separated by spaces
@@ -102,12 +82,15 @@ def main():
         m = re.findall('^(\S+[^0-9])([0-9]+)$', name)
         if m:
             shortname = m[0][0]
-            value = m[0][1]
+            #value = m[0][1]
             if shortname in additional:
                 additional[shortname] += " {0}".format(value)
             else:
-                additional[shortname] = value
+                additional[shortname] = "{0}".format(value)
     param.update(additional)
+
+    sys.stderr.write('Param and values that will be used from log file\n')
+    sys.stderr.write('{0}\n'.format(param))
 
     # Remove non-initialized parameters from param.
     if 'treeModel.rootheight' in param:
@@ -148,11 +131,13 @@ def main():
 
         m = re.search('parameter id="([^"]+)"', line)
         if m:
-            name = m.group(0)
+            name = m.group(1)
+            #print 'Found line with param id now looking for param["{0}"]'.format(name)
             value = param.get(name)
             if value:
+                #print 'Looking to replace {0} with {1} in this line'.format(name,value)
                 if 'value=' in line:
-                    line = re.sub('value="([^"]+)', 'value="{0}"'.format(value), line)
+                    line = re.sub('value="([^"]+)"', 'value="{0}"'.format(value), line)
                 else:
                     line = re.sub('parameter id="([^"]+)"', 'parameter id="{0}" value="{1}"'.format(name,value), line)
 
