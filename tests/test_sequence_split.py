@@ -51,6 +51,10 @@ class TestFunctional(unittest.TestCase):
 
     def setUp(self):
         self.outdir =  os.path.join(THISD, 'testoutput')
+        try:
+            os.mkdir(self.outdir)
+        except:
+            pass
         self.F_fastq_expected_lengths = {"C1" : 23, "C2" : 25, "C3" : 27, "C4" : 50, "C5" : 75, "C6" : 26, "C7" : 12, "10" : 12}
         self.default_args = Namespace(seqfile='tests/F.fastq', delimiter=':', file_type='fastq', outdir=self.outdir, colnum=1, out_format=None)
 

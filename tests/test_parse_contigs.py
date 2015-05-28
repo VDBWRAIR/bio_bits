@@ -53,6 +53,10 @@ FF@@@F@F
     def test_main(self): #, margs):
 #        olddir = abspath(os.getcwd())
 #        os.chdir(THISD)
+        try:
+            os.makedirs('tests/testoutput/pc')
+        except:
+            pass
         sys.argv = ['group_refs', 'tests/out.samtext', '--outdir', 'tests/testoutput/pc']
         with open('out.samtext', 'w') as out:
             out.write(self.samtext)

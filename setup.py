@@ -17,7 +17,8 @@ setup(
             'rename_fasta = bio_pieces.rename_fasta:main',
             'vcfcat = bio_pieces.vcfcat_main:main',
             'amos2fastq  = bio_pieces.amos2fastq_main:main',
-            'parse_contigs = bio_pieces.parse_contigs:main'
+            'parse_contigs = bio_pieces.parse_contigs:main',
+            'beast_checkpoint = bio_pieces.beast_checkpoint:main',
             #'sequence_concat = bio_pieces.sequence_concat:main',
             #'sequence_files_concat = bio_pieces.sequence_files_concat:main',
             #'sequence_split = bio_pieces_old.sequence_split:main',

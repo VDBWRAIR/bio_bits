@@ -15,3 +15,4 @@ Version 0.1.0
 * Added amos2fastq to pull sequences out of AMOS files organized by their contigs.
 * Added vcfcat.py, a commandline app for filtering and comparing vcf files.  
 * Completed documentation for vcfcat
+* Added beast_checkpoint script and documentation
