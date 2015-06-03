@@ -12,3 +12,5 @@ bio_pieces
   :target: https://coveralls.io/r/VDBWRAIR/bio_pieces
 
 Various bioinformatics scripts
+
+.. include:: docs/installation.rst
