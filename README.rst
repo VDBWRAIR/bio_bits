@@ -13,4 +13,4 @@ bio_pieces
 
 Various bioinformatics scripts
 
-.. include:: docs/installation.rst
+All documentation is hosted at http://bio-pieces.readthedocs.org/en/latest
