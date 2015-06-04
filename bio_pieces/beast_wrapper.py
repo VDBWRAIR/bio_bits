@@ -59,7 +59,7 @@ def get_xmlpath_from_argv(argv):
     ValueError: Missing input xml file path
     '''
     try:
-        xmlpath = filter(lambda x: x.endswith('.xml'), argv)[0]
+        xmlpath = list(filter(lambda x: x.endswith('.xml'), argv))[0]
         return xmlpath
     except IndexError:
         raise ValueError('Missing input xml file path')
