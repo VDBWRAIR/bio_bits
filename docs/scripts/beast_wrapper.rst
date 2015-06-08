@@ -12,7 +12,7 @@ Example
 
     $> beast_wrapper -beagle_SSE my_beast.xml
     ...
-    state   Posterior       Prior           Likelihood      rootHeight      Den1_RO1_genomes_03Feb15_aln.ucld.mean  location.clock.rate location.nonZeroRates
+    state   Posterior       Prior           Likelihood      rootHeight      my_beast.ucld.mean  location.clock.rate location.nonZeroRates
     0   -86527.5880     -6850.8316      -79676.7564     57.6772         1.16103E-3      4.86012         15.0000         -
     20000   -29044.3753     -1123.5287      -27920.8466     288.102         3.02471E-4      0.11891         16.0000         0.21 hours/million states   2d 04:29:44
     40000   -25517.9525     -979.5343       -24538.4182     211.705         1.35118E-4      0.25060         16.0000         0.25 hours/million states   2d 14:29:24
