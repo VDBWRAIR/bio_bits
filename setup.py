@@ -19,6 +19,8 @@ setup(
             'amos2fastq  = bio_pieces.amos2fastq_main:main',
             'parse_contigs = bio_pieces.parse_contigs:main',
             'beast_checkpoint = bio_pieces.beast_checkpoint:main',
+            'beast_wrapper = bio_pieces.beast_wrapper:beast_wrapper',
+            'beast_est_time = bio_pieces.beast_wrapper:beast_est_time',
             #'sequence_concat = bio_pieces.sequence_concat:main',
             #'sequence_files_concat = bio_pieces.sequence_files_concat:main',
             #'sequence_split = bio_pieces_old.sequence_split:main',
