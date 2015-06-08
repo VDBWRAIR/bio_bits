@@ -6,3 +6,4 @@ Scripts
 
     rename_fasta
     beast_checkpoint
+    beast_wrapper
