@@ -1,5 +1,6 @@
 import sys
 import re
+import functools
 
 import sh
 
@@ -85,23 +86,36 @@ def get_chainlength_from_xml(xml_fh):
         raise ValueError('Could not get chainLength from {0}'.format(xml_fh))
     return chainlength
 
+def add_est_time_to_line(chainlength, line):
+    '''
+    Adds estimated time column to beast output if hour/ is found in line
+    '''
+    if 'hours/' in line:
+        sec = hours_states_to_sec(line, chainlength)
+        pretty_time = sec_to_time(sec)
+        sys.stdout.write(line.rstrip() + '\t' +  pretty_time + '\n')
+    else:
+        sys.stdout.write(line)
+    sys.stdout.flush()
+
 def run_beast(*args, **kwargs):
     '''
     Simply run beast with same args supplied to beast_wrapper but add sec_to_time
     column for remaining time left
+
+    kwarg['_out'] is passed to sh.beast and should be a function that accepts
+        a single argument that is a beast output line
+
+    args are a list of arguments that you would normally supply to beast
     '''
-    xmlpath = get_xmlpath_from_argv(args)
-    chainlength = get_chainlength_from_xml(open(xmlpath))
-    for line in sh.beast(*args, _iter=True):
-        if 'hours/' in line:
-            sec = hours_states_to_sec(line, chainlength)
-            pretty_time = sec_to_time(sec)
-            sys.stdout.write(line.rstrip() + '\t' +  pretty_time + '\n')
-        else:
-            sys.stdout.write(line)
+    # Use _out since _iter seems do deadlock probably because of GIL
+    sh.beast(*args, _out=kwargs.get('_out', sys.stdout.write))
 
 def beast_wrapper():
-    run_beast(*sys.argv[1:])
+    xmlpath = get_xmlpath_from_argv(sys.argv)
+    chainlength = get_chainlength_from_xml(open(xmlpath))
+    process_line = functools.partial(add_est_time_to_line, chainlength)
+    run_beast(*sys.argv[1:], _out=process_line)
 
 def beast_est_time():
     states = sys.argv[1]
