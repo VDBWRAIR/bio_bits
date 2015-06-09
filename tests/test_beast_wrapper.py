@@ -79,6 +79,26 @@ class TestGetChainglengthFromXml(unittest.TestCase):
             beast_wrapper.get_chainlength_from_xml, self.xml
         )
 
+@mock.patch('bio_pieces.beast_wrapper.sys.stdout.write')
+class TestAddEstTimeToLine(unittest.TestCase):
+    def setUp(self):
+        self.lines = [
+            'line1',
+            '1 foo 1.0 hours/million states',
+        ]
+
+    def test_only_adds_sec_to_time_column_if_hours_per_line(self, mock_sout):
+        beast_wrapper.add_est_time_to_line(1000000, self.lines[0])
+        mock_sout.assert_called_once_with(
+            'line1'
+        )
+
+    def test_adds_sec_to_time_column_if_hours_per_line(self, mock_sout):
+        beast_wrapper.add_est_time_to_line(1000000, self.lines[1])
+        mock_sout.assert_called_once_with(
+            '1 foo 1.0 hours/million states\t0d 00:59:59\n'
+        )
+
 @mock.patch('bio_pieces.beast_wrapper.sh')
 class TestRunBeast(unittest.TestCase):
     def setUp(self):
@@ -86,24 +106,42 @@ class TestRunBeast(unittest.TestCase):
 
     def test_calls_beast_correctly(self, mock_sh):
         argv = ['-beagle_SSE', self.xmlpath]
-        beast_wrapper.run_beast(*argv)
-        mock_sh.beast.assert_called_with('-beagle_SSE', self.xmlpath, _iter=True)
+        func = mock.Mock()
+        beast_wrapper.run_beast(*argv, _out=func)
+        mock_sh.beast.assert_called_with(
+            '-beagle_SSE',
+            self.xmlpath,
+            _out=func
+        )
 
-    def test_only_adds_sec_to_time_column_if_hours_per_line(self, mock_sh):
-        mock_sh.beast.return_value = [
-            'line1',
-            '1 foo 1.0 hours/million states',
-            'line3'
-        ]
+    def test_uses_sys_stdout_write_as_default_func(self, mock_sh):
         argv = ['-beagle_SSE', self.xmlpath]
+        func = mock.Mock()
         with mock.patch('bio_pieces.beast_wrapper.sys.stdout.write') as mock_sout:
             beast_wrapper.run_beast(*argv)
-            self.assertEqual('line1', mock_sout.call_args_list[0][0][0])
-            self.assertEqual(
-                '1 foo 1.0 hours/million states\t0d 00:59:59\n',
-                mock_sout.call_args_list[1][0][0]
+            mock_sh.beast.assert_called_with(
+                '-beagle_SSE',
+                self.xmlpath,
+                _out=mock_sout
             )
-            self.assertEqual('line3', mock_sout.call_args_list[2][0][0])
+
+@mock.patch('bio_pieces.beast_wrapper.functools.partial')
+@mock.patch('bio_pieces.beast_wrapper.sys')
+@mock.patch('bio_pieces.beast_wrapper.sh')
+class TestBeastWrapper(unittest.TestCase):
+    def setUp(self):
+        self.xmlpath = join(THIS, 'beast.xml')
+
+    def test_outputs_modified_lines(self, mock_sh, mock_sys, mock_partial):
+        mock_sys.argv = ('beast', '-beagle_SSE', self.xmlpath)
+        beast_wrapper.beast_wrapper()
+        args = mock_sh.beast.call_args
+        self.assertEqual('-beagle_SSE', args[0][0])
+        self.assertEqual(self.xmlpath, args[0][1])
+        self.assertEqual(mock_partial.return_value, args[1]['_out'])
+        mock_partial.assert_called_once_with(
+            beast_wrapper.add_est_time_to_line, '1000000'
+        )
 
 class TestBeastEstTime(unittest.TestCase):
     def test_returns_correct_time(self):
