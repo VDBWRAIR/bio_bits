@@ -51,23 +51,23 @@ def listReplace(codon, ambi_nucl, nucl_list):
     for item in nucl_list:
         aa = codon.replace(ambi_nucl, item)
         aa = Seq(aa, IUPAC.unambiguous_dna)
-        aa = str(aa.translate())
+        aa = str(translate(aa))
         my_list.append(aa)
     return my_list
 
 
-def printAmbiguiousAA(ambi_nucl, codon):
-    """TODO: Docstring for printAmbiguiousAA.
+#def printAmbiguiousAA(ambi_nucl, codon):
+    #"""TODO: Docstring for printAmbiguiousAA.
 
-    :ambi_nucl: TODO
-    :codon: TODO
-    :returns: TODO
+    #:ambi_nucl: TODO
+    #:codon: TODO
+    #:returns: TODO
 
-    """
-    for item in filter(lambda w: w in ambi_nucl, codon):
-        val = listReplace(codon, item, ambi_codon[item])
-        val = "/".join(val)
-    return val
+    #"""
+    #for item in filter(lambda w: w in ambi_nucl, codon):
+        #val = listReplace(codon, item, ambi_codon[item])
+        #val = "/".join(val)
+    #return val
 
 
 def list_overlap(list1, list2):
@@ -116,7 +116,7 @@ def access_mixed_aa(file_name):
                       }
         # print yaml.dump(ambi_codon)
         ambi_nucl = ambi_codon.keys()
-        # print ambi_nucl
+        print ambi_nucl
         # print ambi_codon["Y"]
         aa = []
         for codon in codon_list:
@@ -156,6 +156,9 @@ def main():
     file_name = args.i
     aa = access_mixed_aa(file_name)
     print ''.join(aa)
+    print listReplace('GAY', 'Y', ['C', 'T'])
+    print listReplace("ARA", "R", ["A", "G"])
+    print listReplace("WTA", "W", ["A", "T"])
     import re
     print aa[435]
     pattern = re.compile(r'.+\/.+')
