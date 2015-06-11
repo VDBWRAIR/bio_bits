@@ -21,6 +21,7 @@ setup(
             'beast_checkpoint = bio_pieces.beast_checkpoint:main',
             'beast_wrapper = bio_pieces.beast_wrapper:beast_wrapper',
             'beast_est_time = bio_pieces.beast_wrapper:beast_est_time',
+            'version = bio_pieces.version:main',
             #'sequence_concat = bio_pieces.sequence_concat:main',
             #'sequence_files_concat = bio_pieces.sequence_files_concat:main',
             #'sequence_split = bio_pieces_old.sequence_split:main',

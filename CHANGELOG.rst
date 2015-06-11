@@ -2,6 +2,12 @@
 CHANGELOG
 =========
 
+Version 1.0.0
+-------------
+
+* Version bump. Starting here we will employ semantic versioning
+* Added version script to get version from project
+
 Version 0.1.0
 -------------
 
