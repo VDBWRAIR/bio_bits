@@ -93,8 +93,9 @@ def access_mixed_aa(file_name):
     """
     from Bio import SeqIO
     for seq_record in SeqIO.parse(file_name, 'fasta'):
-        print "Seq id: ", seq_record.id
-        print "Seq len: ", len(seq_record)
+        seq_id = seq_record.id
+        #print "Seq id: ", seq_record.id
+        #print "Seq len: ", len(seq_record)
     #my_codon =CodonTable.ambiguous_dna_by_id[1]
     # print CodonTable.AmbiguousCodonTable(my_codon)
     #letters = IUPACData.extended_protein_letters
@@ -109,69 +110,99 @@ def access_mixed_aa(file_name):
         # print ambiguous_dna_values["W"]
         # print IUPAC.ambiguous_dna.letters
         n = 3
-        codon_list = [seq_line[i:i + n] for i in range(0, len(seq_line), n)]
+        codon_list = {i+n: seq_line[i:i + n]  for i in range(0, len(seq_line), n)}
         ambi_codon = {"R": ["A", "G"], "Y": ["C", "T"], "W": ["A", "T"], "S": ["G", "C"], "K": ["T", "G"],
                       "M": ["C", "A"], "D": ["A", "T", "G"], "V": ["A", "C", "G"], "H": ["A", "C", "T"],
                       "B": ["C", "G", "T"]
                       }
-        # print yaml.dump(ambi_codon)
+        #print yaml.dump(ambi_codon)
+        #print yaml.dump(codon_list)
         ambi_nucl = ambi_codon.keys()
-        print ambi_nucl
+        #print ambi_nucl
         # print ambi_codon["Y"]
         aa = []
-        for codon in codon_list:
+        nucleotide_idx=[]
+        nucl_codon = []
+        for key, codon in sorted(codon_list.iteritems()):
+            #print "key: ", key , "codon:", codon
             if list_overlap(codon, ambi_nucl):
                 d, e, f = codon
                 m = [d, e, f]
-                # print m
+                #print codon, ".....", key
                 # print type(ambi_nucl)
                 items = set(m).intersection(ambi_nucl)
-                items = list(items)
+                indexm = m.index(list(items)[0])
+                #print "index ...", indexm
+                items = list(items) # eg. ['R']
                 for idx, val in enumerate(items):
                     # print idx
                     # print val
                     item = items[idx]
 
-                    # print item,
+                    #print item
+                    #print ambi_codon[item]
 
                     val = listReplace(codon, item, ambi_codon[item])
-                    val = list(set(val))
-                    val = "/".join(val)
+                    val = list(set(val)) # remove if aa codon is the same eg. ['D', 'D']
+                    val = "/".join(val) # yeild 'I/L'
                     val = str(val)
-                    print codon_list.index(codon)
+                    if "/" in val and indexm == 2:
+                        key = key
+                        nucleotide_idx.append(key)
+                        nucl_codon.append(codon)
+                    elif "/" in val and indexm == 1:
+                        key = key-1
+                        nucleotide_idx.append(key)
+                        nucl_codon.append(codon)
+                    elif "/" in val and indexm == 0:
+                        key = key-2
+                        nucleotide_idx.append(key)
+                        nucl_codon.append(codon)
+                    else:
+                        pass
+                    #print ".....", val
                     aa.append(val)
 
             else:
+                #print "codon3 ..." ,codon
                 aa1 = Seq(codon, IUPAC.unambiguous_dna)
                 aa1 = aa1.translate()
                 aa1 = str(aa1)
                 aa.append(aa1)
-        return aa
+        return aa, nucleotide_idx, nucl_codon,seq_id
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Convert inframe nucleotide fasta file'\
+                                     'to protein codes and report mixed aa with its locations')
     parser.add_argument("-i", type=str, help="input nucleotide fasta file")
     args = parser.parse_args()
     file_name = args.i
-    aa = access_mixed_aa(file_name)
-    print ''.join(aa)
-    print listReplace('GAY', 'Y', ['C', 'T'])
-    print listReplace("ARA", "R", ["A", "G"])
-    print listReplace("WTA", "W", ["A", "T"])
+    aa,nuc_idx,nucl_codon,seq_id = access_mixed_aa(file_name)
+    #print ''.join(aa)
+    #print nuc_idx
+    #print listReplace('GAY', 'Y', ['C', 'T'])
+    #print listReplace("ARA", "R", ["A", "G"])
+    #print listReplace("WTA", "W", ["A", "T"])
     import re
-    print aa[435]
+    #print aa[331]
     pattern = re.compile(r'.+\/.+')
+    amb_aa_codon = []
+    amb_aa_indx =[]
     for indx, letter in enumerate(aa):
-        # print indx, ".....", letter
+        #print indx, ".....", letter
         if pattern.match(letter):
-            print indx + 1, letter
+            amb_aa_codon.append(letter)
+            amb_aa_indx.append(indx +1)
+           # print indx + 1, letter
+    my_list = zip(nuc_idx,amb_aa_indx,nucl_codon,amb_aa_codon)
+    my_list = [list(elem) for elem in my_list]
+    #print list(my_list)
 
-        # for index, letter in enumerate(aa):
-            # print letter,
-            # if letter in ambig_dna:
-            #nucleotide = ambiguous_dna_values[letter]
-            ##print ("%i %s %s" % (index, letter, nucleotide))
+    from tabulate import tabulate
+    print seq_id
+    print tabulate(my_list, headers=['nt Position','aa position', 'nt composition', 'aa composition'])
+
 
 
 if __name__ == '__main__':
