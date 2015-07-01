@@ -2,7 +2,7 @@
 Usage: group_references <samfile> --outdir <DIR>
 
 Options:
-    --outdir=<DIR>,-o=<DIR>   outupt directory [Default: parse_contigs_out]
+    --outdir=<DIR>,-o=<DIR>   output directory [Default: parse_contigs_out]
 
 Create separate fastq files for each reference in a samfile.
 '''
@@ -12,6 +12,7 @@ import pandas as pd
 from schema import Schema, Use
 import sys
 import os
+import sh
 if sys.version[0] == '3':
     from io import StringIO as BytesIO
 else:
@@ -26,7 +27,11 @@ def samview_to_df(rawtext):
     return pd.read_csv(as_bytes, names=sam_columns, usecols=sam_columns, delimiter='\t', header=None, squeeze=True)
 
 def fixline(row):
-    return '\t'.join(row.split('\t')[:len(sam_columns)])
+    newrow = []
+    cols = row.split('\t')[:len(sam_columns)]
+    if len(cols) > 1 and cols[2] == '*':
+        cols[2] = 'unmapped'
+    return '\t'.join(cols)
 
 def get_seqs_by_ctg(outdir, rawtext):
     sam_df = samview_to_df(rawtext)
@@ -42,13 +47,14 @@ def get_seqs_by_ctg(outdir, rawtext):
 def main():
     raw_args = docopt(__doc__)
     scheme = Schema({
-        '<samfile>' : Use(open, error='Samfile must be readable'),
+        '<samfile>' : str,
         '--outdir' : str})
     parsed_args = scheme.validate(raw_args)
     outdir = parsed_args['--outdir']
     if not os.path.exists(outdir):
         os.mkdir(outdir)
-    get_seqs_by_ctg(outdir, parsed_args['<samfile>'].read())
+    sam = str(sh.samtools('view', parsed_args['<samfile>']))
+    get_seqs_by_ctg(outdir, sam)
     return 0
 
 if __name__ == '__main__':
