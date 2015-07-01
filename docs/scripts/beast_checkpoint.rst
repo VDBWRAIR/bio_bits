@@ -2,7 +2,7 @@ beast_checkpoint
 ================
 
 beast_checkpoint is a fork of https://gist.github.com/trvrb/5277297 that has been
-rewritten in python and slightly imporoved as the ruby script seemed to have a few
+rewritten in python and slightly improved as the ruby script seemed to have a few
 errors.
 
 It accepts any previously run or terminated beast run and will generate an xml
@@ -29,7 +29,7 @@ that is annoying
 
 Now run beast for about half of the iterations and hit CTRL-C to kill it
 This benchmark is set to run 1,000,000 iterations so around 500,000 you can kill it.
-Notice we are using a predifined seed
+Notice we are using a predefined seed
 
 .. code-block:: bash
 
@@ -42,6 +42,17 @@ Now we will want to re-run beast from that last state. We can use beast_checkpoi
 to do so by supplying the original xml and the produced trees and log files.
 We will put the new xml into a new directory since the .trees and .log files would
 create an error or possibly be overwritten.
+
+*NOTE* 
+If your fileLog and treeFileLog do not have the same logEvery then when beast
+exits you may end up with more/less tree states than log states. 
+For now you will have to manually edit the files and ensure that the last tree state
+matches the last log state.
+
+.. todo::
+
+    Could be possible to get beast_checkpoint to check for that scenario and 
+    use the last tree state that matches the last log state
 
 .. code-block:: bash
 
@@ -65,14 +76,8 @@ then you can easily load all log files into tracer via the command line as follo
 
     tracer run*/*.log
 
-Notes and Improvements
-----------------------
+LogCombiner
+-----------
 
-* After re-running beast I'm not sure if you should use logcombiner to combine all
-  log and tree files. Rudementary tests seem that it is fine, but more thourough
-  tests on longer more complex runs are needed to verify that.
-* If your fileLog and treeFileLog do not have the same logEvery then when beast
-  exits you may end up with more/less tree states than log states. Not sure how much
-  that matters, but seems like it could matter. Could be possible to get
-  beast_checkpoint to check for that scenario and use the last tree state that matches
-  the last log state
+After you have run all your beast checkpointed xml files you will probably want to
+combine them with logcombiner which comes with beast
