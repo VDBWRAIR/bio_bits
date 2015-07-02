@@ -17,7 +17,8 @@ if sys.version[0] == '3':
     from io import StringIO as BytesIO
 else:
     from io import BytesIO
-
+import string
+import re
 sam_columns = ["QNAME", "FLAG", "RNAME", "POS", "MAPQ", "CIGAR", "RNEXT", "PNEXT", "TLEN", "SEQ", "QUAL"]
 def samview_to_df(rawtext):
     '''
@@ -52,8 +53,8 @@ def get_seqs_by_ctg(outdir, rawtext):
     contig_groups = sam_df.groupby('RNAME')
     fastq = "@{0}\n{1}\n+\n{2}".format
     for group in contig_groups:
-        ref, reads = group[0], group[1]
-        ref = ref.replace('/', '_')
+        _ref, reads = group[0], group[1]
+        ref = re.sub('[%s]' % string.punctuation, '_', _ref) 
         with open("{0}/{1}.group.fq".format(outdir, ref), 'w') as out:
             map(out.writelines, '\n'.join(map(fastq, reads.QNAME, reads.SEQ, reads.QUAL)))
             out.write('\n')
