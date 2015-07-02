@@ -49,9 +49,9 @@ FF@@@F@F
         self.assertEquals(result.ix[2]['QUAL'],   'FF@@@F@F')
 
     def test_main(self): #, margs):
-        with open('tests/testoutput/out.samtext', 'w') as out:
+        with open('tests/testoutput/samtext.sam', 'w') as out:
             out.write(self.samtext)
-        sys.argv = ['group_refs', 'tests/testoutput/out.samtext', '--outdir', 'tests/testoutput/pc']
+        sys.argv = ['group_refs', 'tests/testoutput/samtext.sam', '--outdir', 'tests/testoutput/pc']
         #with mock.patch('__builtin__.open', mock.mock_open(read_data=self.samtext), create=True) as m:
         rcode = pc.main()
         self.assertEquals(0, rcode)
