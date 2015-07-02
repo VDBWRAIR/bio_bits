@@ -53,6 +53,7 @@ def get_seqs_by_ctg(outdir, rawtext):
     fastq = "@{0}\n{1}\n+\n{2}".format
     for group in contig_groups:
         ref, reads = group[0], group[1]
+        ref = ref.replace('/', '_')
         with open("{0}/{1}.group.fq".format(outdir, ref), 'w') as out:
             map(out.writelines, '\n'.join(map(fastq, reads.QNAME, reads.SEQ, reads.QUAL)))
             out.write('\n')
