@@ -1,5 +1,5 @@
 '''
-Usage: group_references <samfile> --outdir <DIR>
+Usage: parse_contigs <samfile> --outdir <DIR>
 
 Options:
     --outdir=<DIR>,-o=<DIR>   outupt directory [Default: parse_contigs_out]

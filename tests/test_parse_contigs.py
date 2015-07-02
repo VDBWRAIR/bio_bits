@@ -1,9 +1,7 @@
 import sys
 import unittest
 from bio_pieces import parse_contigs as pc
-import io
 from Bio import SeqIO
-import os
 from os.path import join, dirname, abspath
 if sys.version[0] == '3':
     from io import StringIO as BytesIO
@@ -51,18 +49,11 @@ FF@@@F@F
         self.assertEquals(result.ix[2]['QUAL'],   'FF@@@F@F')
 
     def test_main(self): #, margs):
-#        olddir = abspath(os.getcwd())
-#        os.chdir(THISD)
-        try:
-            os.makedirs('tests/testoutput/pc')
-        except:
-            pass
-        sys.argv = ['group_refs', 'tests/out.samtext', '--outdir', 'tests/testoutput/pc']
-        with open('out.samtext', 'w') as out:
+        with open('tests/testoutput/out.samtext', 'w') as out:
             out.write(self.samtext)
+        sys.argv = ['group_refs', 'tests/testoutput/out.samtext', '--outdir', 'tests/testoutput/pc']
         #with mock.patch('__builtin__.open', mock.mock_open(read_data=self.samtext), create=True) as m:
         rcode = pc.main()
-#        os.chdir(olddir)
         self.assertEquals(0, rcode)
         expected_group1 = [self.seqrecs[0], self.seqrecs[2]]
         actual_group1 = SeqIO.parse(join(THISD, 'testoutput/pc/chr1.group.fq'), format='fastq')
