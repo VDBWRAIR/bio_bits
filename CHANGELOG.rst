@@ -2,6 +2,12 @@
 CHANGELOG
 =========
 
+Version 1.1.0
+-------------
+
+* Renamed parse_contigs to group_references to better name functionality
+* group_references now supports bam files
+
 Version 1.0.0
 -------------
 

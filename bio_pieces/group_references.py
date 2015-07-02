@@ -2,7 +2,7 @@
 Usage: parse_contigs <samfile> --outdir <DIR>
 
 Options:
-    --outdir=<DIR>,-o=<DIR>   outupt directory [Default: parse_contigs_out]
+    --outdir=<DIR>,-o=<DIR>   output directory [Default: parse_contigs_out]
 
 Create separate fastq files for each reference in a samfile.
 '''
@@ -52,7 +52,7 @@ def main():
     if not os.path.exists(outdir):
         os.mkdir(outdir)
     infile = parsed_args['<samfile>']
-    view = open(infile).read() if infile.endswith('.sam') else sh.samtools('view', infile) 
+    view = open(infile).read() if infile.endswith('.sam') else str(sh.samtools('view', infile))
     get_seqs_by_ctg(outdir, view)
     return 0
 
