@@ -1,5 +1,5 @@
 '''
-Usage: group_references <samfile> --outdir <DIR>
+Usage: group_references <samfile> [--outdir <DIR>]
 
 Options:
     --outdir=<DIR>,-o=<DIR>   output directory [Default: group_references_out]
