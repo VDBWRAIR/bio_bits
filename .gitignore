@@ -69,3 +69,8 @@ target/
 *~
 *.swp
 *.swo
+.ropeproject
+foo-*.fastq
+contig*.fastq
+tests/testoutput
+tests/out.samtext

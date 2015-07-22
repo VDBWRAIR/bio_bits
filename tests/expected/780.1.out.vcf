@@ -1,0 +1,17 @@
+##fileformat=VCFv4.2
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=RC,Number=1,Type=Integer,Description="Reference Count">
+##INFO=<ID=RAQ,Number=1,Type=Integer,Description="Reference Average Quality">
+##INFO=<ID=PRC,Number=1,Type=Integer,Description="Percentage Reference Count">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Alternative Alternate Count">
+##INFO=<ID=AAQ,Number=A,Type=Integer,Description="Alternate Average Quality">
+##INFO=<ID=PAC,Number=A,Type=Integer,Description="Percentage Alternate Count">
+##INFO=<ID=CBD,Number=1,Type=Integer,Description="Called Base Depth(Depth of only bases supporting CB">
+##INFO=<ID=CB,Number=1,Type=Character,Description="Called Base">
+##INFO=<ID=HPOLY,Number=0,Type=Flag,Description="Is a homopolymer">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	780.bam 
+H3N2/CY074922/Managua/2010/PB2_1	3	.	T	C	.	.	DP=306;RC=305;RAQ=36;PRC=100;AC=1;AAQ=32;PAC=0;CBD=305;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	4	.	A	.	.	.	DP=339;RC=339;RAQ=36;PRC=100;CBD=339;CB=A
+H3N2/CY074922/Managua/2010/PB2_1	5	.	T	.	.	.	DP=336;RC=336;RAQ=36;PRC=100;CBD=336;CB=T
+H3N2/CY074922/Managua/2010/PB2_1	17	.	A	C	.	.	DP=402;RC=401;RAQ=37;PRC=100;AC=1;AAQ=37;PAC=0;CBD=401;CB=A;HPOLY
+H3N2/CY074922/Managua/2010/PB2_1	18	.	A	.	.	.	DP=409;RC=409;RAQ=37;PRC=100;CBD=409;CB=A;HPOLY

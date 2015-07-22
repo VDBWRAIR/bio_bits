@@ -4,13 +4,18 @@ python:
   - "2.7"
   - "3.4"
 install:
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2 ordereddict counter; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then pip install robotframework-python3; else pip install robotframework; fi
     - pip install -r requirements.txt
     - pip install -r tests/requirements.txt
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
-    - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then pip install robotframework-python3; else pip install robotframework; fi
     - python setup.py develop
 script:
     - nosetests tests --with-coverage --cover-erase --cover-package=bio_pieces
     - pybot tests/*.robot
 after_success:
     - coveralls
+
+notifications:
+   email:
+      recipients:
+         - michael.panciera.work@gmail.com
