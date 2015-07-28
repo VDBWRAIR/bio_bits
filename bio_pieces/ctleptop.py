@@ -37,23 +37,41 @@ def readFasta(fasta_name):
         seq = "".join(s.strip() for s in fasta_iter.next())
         yield header, seq
 
+#from __future__ import print_function
+ambicodon = {"R": ["A", "G"], "Y": ["C", "T"], "W": ["A", "T"], "S": ["G", "C"], "K": ["T", "G"],
+                                   "M": ["C", "A"], "D": ["A", "T", "G"], "V": ["A", "C", "G"], "H": ["A", "C", "T"],
+                                   "B": ["C", "G", "T"], "N" : ["A", "C", "T", "G"]
+                                   }
 
-def listReplace(codon, ambi_nucl, nucl_list):
-    """TODO: Docstring for listReplace.
+def getNearbyChars(nt): return ambicodon.get(nt) or nt
 
-    :codon: three nucleotide codon
-    :ambi_nucl: ambiguous dna code eg "R", "B"
-    :nucl_list: List of nucleotide that represent ambiguous dna code
-    :returns: List replaced three
+def nearbyPermutations(letters,index=0):
+    if (index >= len(letters)): return set([''])
+    subWords = nearbyPermutations(letters, index + 1)
+    nearbyLetters = getNearbyChars(letters[index])
+    return permutations(subWords, nearbyLetters)
+
+def  permutations(subWords, nearbyLetters):
+   permutations = set()
+   for subWord in subWords:
+       for letter in nearbyLetters:
+           permutations.add(letter + subWord)
+   return permutations
+
+
+def getaalist(codonlist):
+    """Convert codon list to aa.
+
+    :codonlist: a list of codon
+    :aalist: return aa list
 
     """
-    my_list = []
-    for item in nucl_list:
-        aa = codon.replace(ambi_nucl, item)
-        aa = Seq(aa, IUPAC.unambiguous_dna)
-        aa = str(translate(aa))
-        my_list.append(aa)
-    return my_list
+    aalist = []
+    for codon in codonlist:
+            aa = Seq(codon, IUPAC.unambiguous_dna)
+            aa = str(translate(aa))
+            aalist.append(aa)
+    return aalist
 
 
 #def printAmbiguiousAA(ambi_nucl, codon):
@@ -83,48 +101,55 @@ def list_overlap(list1, list2):
             return True
     return False
 
+def parse_list(mylist):
+    """TODO: Docstring for parse_list.
+
+    :mylist: TODO
+    :returns: TODO
+
+    """
+    for idx, val in enumerate(mylist):
+        item = items
+
+# define our method
+def replace_all(text, dic):
+        for i, j in dic.iteritems():
+            text = text.replace(i, j)
+        return text
 
 def access_mixed_aa(file_name):
-    """Read nucleotide with ambiguious codon and translate to aa.
-
-    :file_name: nucleotide fasta file with ambiguous codon
+    """Read nucleotide with ambiguious codon, and translate to aa.
+    :file_name: nucleotide fasta file
     :returns: list of aa
-
     """
     from Bio import SeqIO
     for seq_record in SeqIO.parse(file_name, 'fasta'):
         seq_id = seq_record.id
-        #print "Seq id: ", seq_record.id
-        #print "Seq len: ", len(seq_record)
-    #my_codon =CodonTable.ambiguous_dna_by_id[1]
-    # print CodonTable.AmbiguousCodonTable(my_codon)
-    #letters = IUPACData.extended_protein_letters
-    for header, seq_line in readFasta(file_name):
+        seq_len= len(seq_record)
+        header,seqline=seq_record.id, str(seq_record.seq)
+    #for header, seqline in readFasta(file_name):
         # print header + "\n" + seq_line
 
         #my_seq = Seq(seq_line, IUPAC.extended_dna)
-        my_seq = Seq(str(seq_line), IUPAC.ambiguous_dna)
+        my_seq = Seq(str(seqline), IUPAC.ambiguous_dna)
         #seq2 = Seq("ARAWTAGKAMTA", IUPAC.ambiguous_dna)
         #seq2 = seq2.translate()
         # print seq2
         # print ambiguous_dna_values["W"]
         # print IUPAC.ambiguous_dna.letters
+        seqline = seqline.replace("-", "N")
         n = 3
-        codon_list = {i+n: seq_line[i:i + n]  for i in range(0, len(seq_line), n)}
-        ambi_codon = {"R": ["A", "G"], "Y": ["C", "T"], "W": ["A", "T"], "S": ["G", "C"], "K": ["T", "G"],
-                      "M": ["C", "A"], "D": ["A", "T", "G"], "V": ["A", "C", "G"], "H": ["A", "C", "T"],
-                      "B": ["C", "G", "T"]
-                      }
+        codon_list = {i+n: seqline[i:i + n]  for i in range(0, len(seqline), n)}
         #print yaml.dump(ambi_codon)
         #print yaml.dump(codon_list)
-        ambi_nucl = ambi_codon.keys()
+        ambi_nucl = ambicodon.keys()
         #print ambi_nucl
         # print ambi_codon["Y"]
         aa = []
         nucleotide_idx=[]
         nucl_codon = []
         for key, codon in sorted(codon_list.iteritems()):
-            #print "key: ", key , "codon:", codon
+            print "key: ", key , "codon:", codon
             if list_overlap(codon, ambi_nucl):
                 d, e, f = codon
                 m = [d, e, f]
@@ -141,11 +166,14 @@ def access_mixed_aa(file_name):
 
                     #print item
                     #print ambi_codon[item]
-
-                    val = listReplace(codon, item, ambi_codon[item])
+                    codonlist=list(nearbyPermutations(codon))
+                    #print "codon list :", codonlist
+                    val = getaalist(codonlist)
                     val = list(set(val)) # remove if aa codon is the same eg. ['D', 'D']
                     val = "/".join(val) # yeild 'I/L'
                     val = str(val)
+                    #print "codonlist *****", codonlist
+                    #print "aa val *******", val
                     if "/" in val and indexm == 2:
                         key = key
                         nucleotide_idx.append(key)
@@ -171,37 +199,48 @@ def access_mixed_aa(file_name):
                 aa.append(aa1)
         return aa, nucleotide_idx, nucl_codon,seq_id
 
-
 def main():
     parser = argparse.ArgumentParser(description='Convert inframe nucleotide fasta file'\
                                      'to protein codes and report mixed aa with its locations')
     parser.add_argument("-i", type=str, help="input nucleotide fasta file")
     args = parser.parse_args()
     file_name = args.i
+    #print list(nearbyPermutations("AAR"))
+    #print listReplace("YAR", ["Y", "R"], {"Y": ['C', 'T'],  "R":["A", "G"]})
+    my_list = access_mixed_aa(file_name)
+    #print my_list
     aa,nuc_idx,nucl_codon,seq_id = access_mixed_aa(file_name)
+    #print aa,nuc_idx,nucl_codon,seq_id
+
     #print ''.join(aa)
     #print nuc_idx
     #print listReplace('GAY', 'Y', ['C', 'T'])
     #print listReplace("ARA", "R", ["A", "G"])
     #print listReplace("WTA", "W", ["A", "T"])
+
     import re
     #print aa[331]
+    #print aa
     pattern = re.compile(r'.+\/.+')
     amb_aa_codon = []
     amb_aa_indx =[]
+    seqid=[]
     for indx, letter in enumerate(aa):
         #print indx, ".....", letter
         if pattern.match(letter):
             amb_aa_codon.append(letter)
             amb_aa_indx.append(indx +1)
-           # print indx + 1, letter
-    my_list = zip(nuc_idx,amb_aa_indx,nucl_codon,amb_aa_codon)
+            seqid.append(seq_id)
+       #     print indx + 1, letter
+    #print(amb_aa_codon)
+    my_list = zip(seqid,nuc_idx,amb_aa_indx,nucl_codon,amb_aa_codon)
+    #print my_list
     my_list = [list(elem) for elem in my_list]
     #print list(my_list)
 
     from tabulate import tabulate
-    print seq_id
-    print tabulate(my_list, headers=['nt Position','aa position', 'nt composition', 'aa composition'])
+    #print my_list
+    print tabulate(my_list, headers=['seq id','nt Position','aa position', 'nt composition', 'aa composition'])
 
 
 
