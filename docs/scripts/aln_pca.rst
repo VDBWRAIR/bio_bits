@@ -13,6 +13,12 @@ sequence.
 Running aln_pca on test dataset
 -------------------------------
 
+Default substitution matrix
++++++++++++++++++++++++++++
+
+Here we are running the simple pairwise identity matrix(default) to generate
+our output file at docs/_static/pca.png
+
 .. code-block:: bash
 
     $> aln_pca tests/testinput/aln1.fasta --outfile docs/_static/pca.png
@@ -21,16 +27,24 @@ Produces:
 
 .. image:: /_static/pca.png
 
+Providing substitution matrix file
+++++++++++++++++++++++++++++++++++
+
+Now we will provide the included jalview_snm.txt substitution matrix to generate
+the output file at docs/_static/jal_view.png
+
 .. code-block:: bash
 
-    $> aln_pca tests/testinput/aln1.fasta --substitution-matrix jalview-snm.txt --outfile docs/_static/jalview.png
+    $> aln_pca tests/testinput/aln1.fasta --substitution-matrix jalview_snm.txt --outfile docs/_static/jalview.png
 
 Produces:
 
 .. image:: /_static/jalview.png
 
-Identity Matrix Generation
---------------------------
+Substitution Matrix
+-------------------
+
+Here we will use a very simple aligned fasta file
 
 Input fasta alignment::
     
@@ -57,6 +71,10 @@ This would produce the following identity matrix by default:
 |id4|  2|  2|  0|  4|
 +---+---+---+---+---+
 
+
+By default aln_pca will use the simplest substitution matrix where for every 
+non-substitution a 1 is used and any substitution yields a 1
+
 If you specify a substitution matrix file on the command line you can
 change how the identity matrix is generated.
 
@@ -75,18 +93,26 @@ We can use the SNS substitution matrix used by `Jalview`_::
     Y   -8  1   -8  0   1   -8  1   1   0   10  1
     ~   1   1   1   1   1   1   1   1   1   1   1
 
-*Note*: Any non listed base will be assigned a 1
+*Note*: Any non listed base will be assigned a 1 as it will be looked up using the
+``~`` key
 
 This matrix is also included with the source code of this project as 
 ``jalview_snm.txt``
 
 Since this is just a space separated file we can just paste it into a file and
-supply the file path using the ``--substitution-matrix`` option.
+supply the file path using the ``--substitution-matrix`` option as you can see
+above in the examples.
 
 Any tab delimited file will work as long as it has the Nucleotides for the X and Y
-axis and has numerical values for each cell.
+axis and has numerical values for each cell. If your matrix does not include a
+lookup for every substitution possible it will error or you can include the 'all'
+lookup ``~`` as the table above does. What this does is for any base that is not
+listed in the table, it will instead lookup using the ``~`` listed value. For
+example, if we use the above substitution table and tried looking up a substitution
+of an ``A`` to a ``W`` it would yield the value ``1``.
 
-This substitution matrix would yield the following identity matrix:
+If we use the same input fasta sequence as above using the JalView substitution
+matrix, it would yield the following identity matrix:
 
 +---+---+---+---+---+
 |   |id1|id2|id3|id4|

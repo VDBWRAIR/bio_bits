@@ -26,11 +26,6 @@ Also using code from this:
 https://zulko.wordpress.com/2012/09/29/animate-your-3d-plots-with-pythons-matplotlib/
 
 TODO:
-    - Add argument to build identity matrix based on a given substitution matrix
-      Default would be to do straight identity matrix as it does now
-      Here is the Jalview SNM
-      http://www.jalview.org/help/html/calculations/scorematrices.html#simplenucleotide
-    - Jalview sn matrix missing - and W and others
     - Somehow detect different data sets(aka, each sample's data should be graphed
       as different color)
     - Remove axis tick marks
@@ -43,12 +38,20 @@ def pairwise_identity(seq1, seq2, substitution_matrix=None):
     Compare two sequences by counting only bases that
     are identical between them
 
+    Substitution matrix rules:
+        - len of rows must equal len of cols
+        - must contain a key '~' for rows and columns that will be used in case
+          the substitution is not in the rest of the matrix. this is the 'all' key
+        - keys can be upper and/or lower case as well as the sequences as the
+          case is ignored
+
     :param str seq1: string of chars
     :param str seq2: string of chars
     :param mapping substitution_matrix: 2D mapping that allows lookup of
         substitutions at each position that returns the identity score for that
         substitution(by default, uses matrix of 1's for any match and 0 for 
-        non-matches)
+        non-matches). If None is given, the simplest lookup table is used of 0's 
+        and 1.
     :return: sum of same base positions
     '''
     missingallkey = ValueError('Substitution matrix is missing the ~ key that is ' \
@@ -106,7 +109,6 @@ def identity_matrix(aln, subst_matrix=None):
     of all sequences in the supplied fasta index
 
     n^2 loop over sequences to generate all identities.
-    Skips identies of sequences against themselves
     Only does top right calculations of matrix and copies values
     into bottom left as they are identical
 
@@ -120,7 +122,8 @@ def identity_matrix(aln, subst_matrix=None):
     * Any mismatch pairs yeild 0
 
     :param mapping aln: Aligned indexed fasta
-    :param matrix subst_matrix: Single Nucleotide Substitution matrix
+    :param matrix subst_matrix: Single Nucleotide Substitution matrix as a 2D lookup
+        table(dictionary like) or None to use the default.
     :return: pandas.DataFrame representing identity matrix
     '''
     id_matrix = np.empty([len(aln),len(aln)])
@@ -154,12 +157,20 @@ class Arrow3D(FancyArrowPatch):
 def build_pca_from_fasta(fastapath, outputfile, substitution_matrix):
     '''
     Prototype function to build pca graphics for aligned fasta file
+
+    :param str fastapath: File path of fasta alignment
+    :param str outputfile: Path to write output file image
+    :param dict substitution_matrix: 2D dictionary like object that supports matrix
+        lookup for Nucleotides or None to use default lookup table
     '''
     # First get identity matrix for fasta
     ifasta = index_fasta(open(fastapath))
-    subs_matrix = pd.read_csv(
-        substitution_matrix, header=0, delimiter='\s+', index_col=0)
-    id_matrix = identity_matrix(ifasta, subs_matrix)
+    # Now parse substitution matrix if needed
+    if substitution_matrix is not None:
+        subs_matrix = pd.read_csv(
+            substitution_matrix, header=0, delimiter='\s+', index_col=0)
+        substitution_matrix = subs_matrix.to_dict()
+    id_matrix = identity_matrix(ifasta, substitution_matrix)
 
     # Build vector of means for all sequences in id_matrix
     mean_vector = id_matrix.mean().as_matrix()
