@@ -28,7 +28,6 @@ https://zulko.wordpress.com/2012/09/29/animate-your-3d-plots-with-pythons-matplo
 TODO:
     - Somehow detect different data sets(aka, each sample's data should be graphed
       as different color)
-    - Remove axis tick marks
     - Make interactive? Seems like if we can launch gtk matplotlib then it should
       just work?
 '''
@@ -217,13 +216,12 @@ def build_pca_from_fasta(fastapath, outputfile, substitution_matrix):
     fig = plt.figure(figsize=(8,8))
     ax = fig.add_subplot(111, projection='3d')
     plt.rcParams['legend.fontsize'] = 10
-
     # Plot the transformed matrix
     ax.plot(transformed[0,:], transformed[1,:], transformed[2,:],
             'o', markersize=8, color='blue', alpha=0.5, label='Seqs')
     # Plot the mean location(single dot)
     ax.plot([mean_x], [mean_y], [mean_z],
-           'o', markersize=10, color='red', alpha=0.5)
+           'o', markersize=10, color='red', alpha=0.5, label='Mean')
 
     plt.title('Samples for class 1 and class 2')
     ax.legend(loc='upper right')
@@ -258,6 +256,13 @@ def make_views(ax, angles, elevations=None, width=4, height = 3,
      
     files = []
     ax.figure.set_size_inches(width,height)
+    ax1 = ax.figure.gca()
+    ax1.axes.set_xticklabels([])
+    ax1.axes.set_yticklabels([])
+    ax1.axes.set_zticklabels([])
+    ax1.axes.set_xlabel('X Axis')
+    ax1.axes.set_ylabel('Y Axis')
+    ax1.axes.set_zlabel('Z Axis')
      
     i = 0
     for elevation in elevations:
