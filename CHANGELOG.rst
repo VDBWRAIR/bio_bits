@@ -2,6 +2,18 @@
 CHANGELOG
 =========
 
+Version 1.1.0
+-------------
+
+* Renamed parse_contigs to group_references to better name functionality
+* group_references now supports bam files
+
+Version 1.0.0
+-------------
+
+* Version bump. Starting here we will employ semantic versioning
+* Added version script to get version from project
+
 Version 0.1.0
 -------------
 
@@ -15,3 +27,7 @@ Version 0.1.0
 * Added amos2fastq to pull sequences out of AMOS files organized by their contigs.
 * Added vcfcat.py, a commandline app for filtering and comparing vcf files.  
 * Completed documentation for vcfcat
+* Added beast_checkpoint script and documentation
+* Added beast_wrapper script that prints estimated time column in beast output
+* Added beast_est_time script that allows you to easily get estimated time left
+  from already running beast run
