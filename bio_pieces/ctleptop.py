@@ -125,10 +125,10 @@ def access_mixed_aa(file_name):
         #print yaml.dump(ambi_codon)
         #print yaml.dump(codon_list)
         ambi_nucl = AMBICODON.keys()
-        print ambi_nucl
+        #print ambi_nucl
         # print ambi_codon["Y"]
         for key, codon in sorted(codon_list.iteritems()):
-            print "key: ", key , "codon:", codon
+            #print "key: ", key , "codon:", codon
             if list_overlap(codon, ambi_nucl):
                 d, e, f = codon
                 m = [d, e, f]
