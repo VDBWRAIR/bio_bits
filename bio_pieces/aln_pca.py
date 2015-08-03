@@ -16,33 +16,74 @@ from mpl_toolkits.mplot3d import axes3d
 from mpl_toolkits.mplot3d import proj3d
 from matplotlib.patches import FancyArrowPatch
 
-def pairwise_identity(seq1, seq2, invalid_chars=None):
+'''
+Builds pca 3d plots based on an identity matrix for a given fasta alignment file
+
+Heavily based on this:
+http://sebastianraschka.com/Articles/2014_pca_step_by_step.html#introduction
+
+Also using code from this:
+https://zulko.wordpress.com/2012/09/29/animate-your-3d-plots-with-pythons-matplotlib/
+
+TODO:
+    - Add argument to build identity matrix based on a given substitution matrix
+      Default would be to do straight identity matrix as it does now
+      Here is the Jalview SNM
+      http://www.jalview.org/help/html/calculations/scorematrices.html#simplenucleotide
+    - Jalview sn matrix missing - and W and others
+    - Somehow detect different data sets(aka, each sample's data should be graphed
+      as different color)
+    - Remove axis tick marks
+    - Make interactive? Seems like if we can launch gtk matplotlib then it should
+      just work?
+'''
+
+def pairwise_identity(seq1, seq2, substitution_matrix=None):
     '''
     Compare two sequences by counting only bases that
     are identical between them
 
     :param str seq1: string of chars
-    :param str seq2: strin of chars
+    :param str seq2: string of chars
+    :param mapping substitution_matrix: 2D mapping that allows lookup of
+        substitutions at each position that returns the identity score for that
+        substitution(by default, uses matrix of 1's for any match and 0 for 
+        non-matches)
     :return: sum of same base positions
-    :raises: ValueError if any sequence contains any invalid_chars or
-             if sequence lengths are not identical
     '''
+    missingallkey = ValueError('Substitution matrix is missing the ~ key that is ' \
+        'used to fetch values not contained in the substitution matrix')
+    # Lazy alias
+    sm = substitution_matrix
     if len(seq1) != len(seq2):
         raise ValueError('Sequence lengths did not match')
 
-    def invalid(c):
-        if invalid_chars is None:
-            return
-        if c in invalid_chars:
-            print("c: {0} invalid_chars: {1}".format(c,invalid_chars))
-            raise ValueError('{0} is an invalid character'.format(c))
-
     ident = 0
     for x,y in itertools.izip(seq1,seq2):
-        invalid(x)
-        invalid(y)
-        if x.lower() == y.lower():
-            ident += 1
+        if substitution_matrix is None:
+            if x.lower() == y.lower():
+                ident += 1
+        else:
+            # Ignore case complexity
+            x_id = sm.get(
+                x.upper(),
+                sm.get(
+                    x.lower(),
+                    sm.get('~', None)
+                )
+            )
+            if x_id is None:
+                raise missingallkey
+            sub_score = x_id.get(
+                y.upper(),
+                x_id.get(
+                    y.lower(),
+                    x_id.get('~', None)
+                )
+            )
+            if sub_score is None:
+                raise missingallkey
+            ident += sub_score
     return ident
 
 def index_fasta(aln_fh):
@@ -59,7 +100,7 @@ def index_fasta(aln_fh):
         seq_index[record.id] =  str(record.seq)
     return pd.Series(seq_index)
 
-def identity_matrix(aln):
+def identity_matrix(aln, subst_matrix=None):
     '''
     Build an identity matrix from all the pairwise identities
     of all sequences in the supplied fasta index
@@ -69,23 +110,29 @@ def identity_matrix(aln):
     Only does top right calculations of matrix and copies values
     into bottom left as they are identical
 
+    If subst_matrix is provided then it iwll be used as the lookup
+    to build the pairwise identity such that each nucleotide pair will be looked
+    up in the matrix to get the value that will represent that identity and all
+    of the identities will be sumed at the end.
+
+    By default the matrix that is used is a simple pairwise as follows:
+    * Any matching pairs yield 1
+    * Any mismatch pairs yeild 0
+
     :param mapping aln: Aligned indexed fasta
+    :param matrix subst_matrix: Single Nucleotide Substitution matrix
     :return: pandas.DataFrame representing identity matrix
     '''
     id_matrix = np.empty([len(aln),len(aln)])
     for i in range(len(aln)):
         for j in range(len(aln)):
             #print(i,j)
-            # Don't need to compute identity against itself
-            if i == j:
-                #print("Using length")
-                id_matrix[i][j] = len(aln[j])
             # Only compute top right of matrix
-            elif i > j:
+            if i > j:
                 #print("Copying {0}{1} from {1}{0}".format(j,i))
                 id_matrix[i][j] = id_matrix[j][i]
             else:
-                _id = pairwise_identity(aln[i], aln[j])
+                _id = pairwise_identity(aln[i], aln[j], subst_matrix)
                 #print("Pident of {0} and {1} is {2}".format(aln[i],aln[j],_id))
                 id_matrix[i][j] = _id
     return pd.DataFrame(id_matrix, index=aln.keys(), columns=aln.keys())
@@ -104,13 +151,15 @@ class Arrow3D(FancyArrowPatch):
         self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
         FancyArrowPatch.draw(self, renderer)
 
-def build_pca_from_fasta(fastapath, outputfile):
+def build_pca_from_fasta(fastapath, outputfile, substitution_matrix):
     '''
     Prototype function to build pca graphics for aligned fasta file
     '''
     # First get identity matrix for fasta
     ifasta = index_fasta(open(fastapath))
-    id_matrix = identity_matrix(ifasta)
+    subs_matrix = pd.read_csv(
+        substitution_matrix, header=0, delimiter='\s+', index_col=0)
+    id_matrix = identity_matrix(ifasta, subs_matrix)
 
     # Build vector of means for all sequences in id_matrix
     mean_vector = id_matrix.mean().as_matrix()
@@ -288,6 +337,12 @@ def parse_args():
         help='Aligned fasta file to build pca graphics from'
     )
     parser.add_argument(
+        '--substitution-matrix',
+        '-s',
+        default=None,
+        help='Substitution matrix file to use'
+    )
+    parser.add_argument(
         '--outfile',
         default='pca.png',
         help='Output path[Default: %(default)s]'
@@ -296,7 +351,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    build_pca_from_fasta(args.fasta, args.outfile)
+    build_pca_from_fasta(args.fasta, args.outfile, args.substitution_matrix)
 
 if __name__ == '__main__':
     main()
