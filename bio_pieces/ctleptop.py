@@ -8,10 +8,10 @@ Created by Dereje Jima on May 21, 2015
 from Bio.Seq import *
 from Bio.Alphabet import IUPAC
 from Bio.Alphabet.IUPAC import unambiguous_dna, ambiguous_dna
-from itertools import groupby
+#from itertools import groupby
 from Bio.Data import CodonTable
 from Bio.Data.IUPACData import ambiguous_dna_values
-import yaml
+#import yaml
 import argparse
 __docformat__ = "restructuredtext en"
 
@@ -91,9 +91,9 @@ def getaalist(codonlist):
     """
     aalist = []
     for codon in codonlist:
-            aa = Seq(codon, IUPAC.unambiguous_dna)
-            aa = str(translate(aa))
-            aalist.append(aa)
+        aa = Seq(codon, IUPAC.unambiguous_dna)
+        aa = str(translate(aa))
+        aalist.append(aa)
     return aalist
 
 
@@ -115,12 +115,12 @@ def list_overlap(list1, list2):
 
 # define our method
 def replace_all(text, dic):
-        """(str, dict)-> (str)
-        >>>replace_all()
-        """
-        for i, j in dic.iteritems():
-            text = text.replace(i, j)
-        return text
+    """(str, dict)-> (str)
+    >>>replace_all()
+    """
+    for i, j in dic.iteritems():
+        text = text.replace(i, j)
+    return text
 
 
 def access_mixed_aa(file_name):
@@ -128,8 +128,6 @@ def access_mixed_aa(file_name):
     Return a list of amino acide code for ambiguous dna codon, position of
     ambiguous nt codon, aa name,seq id from fasta header  by reading multifasta
     nucleotide fasta file
-    >>>access_mixed_aa(file_name)
-
     """
     from Bio import SeqIO
     aa = []
@@ -152,7 +150,7 @@ def access_mixed_aa(file_name):
         # print IUPAC.ambiguous_dna.letters
         seqline = seqline.replace("-", "N")
         n = 3
-        codon_list = {i+n: seqline[i:i + n] for i in range(0, len(seqline), n)}
+        codon_list = {i + n: seqline[i:i + n] for i in range(0, len(seqline), n)}
         # print yaml.dump(ambi_codon)
         # print yaml.dump(codon_list)
         ambi_nucl = AMBICODON.keys()
@@ -175,7 +173,8 @@ def access_mixed_aa(file_name):
                     codonlist = list(nearbyPermutations(codon))
                     # print "codon list :", codonlist
                     val = getaalist(codonlist)
-                    val = list(set(val))  # remove if aa codon is the same eg. ['D', 'D']
+                    # remove if aa codon is the same eg. ['D', 'D']
+                    val = list(set(val))
                     val = "/".join(val)   # yeild 'I/L'
                     val = str(val)
                     # print "codonlist *****", codonlist
@@ -186,12 +185,12 @@ def access_mixed_aa(file_name):
                         nucl_codon.append(codon)
                         seqids.append(seq_id)
                     elif "/" in val and indexm == 1:
-                        key = key-1
+                        key = key - 1
                         nucleotide_idx.append(key)
                         nucl_codon.append(codon)
                         seqids.append(seq_id)
                     elif "/" in val and indexm == 0:
-                        key = key-2
+                        key = key - 2
                         nucleotide_idx.append(key)
                         nucl_codon.append(codon)
                         seqids.append(seq_id)
@@ -219,12 +218,34 @@ def parse_args():
                                      (ambiguous codon) with its location in \
                                      the sequence')
     parser.add_argument("-i", type=str, help="Nucleotide fasta file")
+
+    parser.add_argument("-o", type=str,  help="output file name")
     return parser.parse_args()
+
+
+def isGap(aalist, nclist):
+    """(list, list) -> (list)
+    Return an updated protien codon list if the gap found in the nc codon
+    >>>isGap(["K/R", "I/T"], ["ARG", "NNN"])
+    ["K/R", "GAPFOUND"]
+    """
+    uaalist = []
+    for indx, val in enumerate(nclist):
+        if "N" in val:
+            codon = "GAPFOUND"
+            uaalist.append(codon)
+        else:
+            codon = aalist[indx]
+            uaalist.append(codon)
+    return uaalist
 
 
 def main():
     args = parse_args()
     file_name = args.i
+    outfile = args.o
+    print "Start processing and writing the output file to", outfile, " please please wait ... "
+    outf = open(outfile, 'w+')
     my_list = access_mixed_aa(file_name)
     # print my_list
     aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
@@ -241,15 +262,17 @@ def main():
             amb_aa_indx.append(indx + 1)
             # print indx + 1, letter
     # print(amb_aa_codon)
+    amb_aa_codon=isGap(amb_aa_codon, nucl_codon)
     my_list = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon)
-    # print my_list
+    #print my_list
     my_list = [list(elem) for elem in my_list]
     # print list(my_list)
     from tabulate import tabulate
     # print my_list
-    print tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
-                                     'nt composition', 'aa composition'])
+    outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
+                                     'nt composition', 'aa composition']) + "\n")
+    outf.close()
 
 
 if __name__ == '__main__':
-        main()
+    main()
