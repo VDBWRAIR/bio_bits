@@ -21,45 +21,23 @@ THISD = os.path.dirname(os.path.abspath(__file__))
 print THISD
 
 
-class TestMain(unittest.TestCase):
-
-    """Base TestCase class, setup a CLI parser """
-
-    def setUp(self):
-        parser = main()
-        self.parser = parser
-        self.example_fasta = os.path.join(THISD, '721TestConsensus.fasta')
-        self.outfile =  "outfile.fa"
-
-        # def test_with_empty_args():
-        #     """
-        #     User passes no args, should fail with SystemExit
-        #     """
-        #     with self.assertRaises(SystemExit):
-        #         self.parser.parse_args([])
-    @mock.patch(main)
-    def test_main(self, args_called):
-        args_called.return_value=None
-        args = self.parser({'-i':self.example_fasta, '-o':self.outfile})
-        self.parser(args)
-        args_called.assert_called_once_with(args)
 
 
-# class CtleptopTestCase(CommandLineTestCase):
+class CtleptopTestCase(unittest.TestCase):
 
-#     def test_with_empty_args(self):
-#         """User passes no args, should fail with SystemExit"""
-#         with self.assertRaises(SystemExit):
-#             self.parser.parse_args([])
+    def test_with_empty_args(self):
+        """User passes no args, should fail with SystemExit"""
+        with self.assertRaises(SystemExit):
+            self.parser.parse_args([])
 
-#     def test_sample_data(self):
-#         """ Te
+    def test_sample_data(self):
+        """ Te
 
-#         """
-#         args = self.parser.parse_args(['-i', self.example_fasta, '-o',
-#                                        self.outfile])
-#         result = ctl(args.tags)
-#         self.assertIsNotNone(result)
+        """
+        args = self.parser.parse_args(['-i', self.example_fasta, '-o',
+                                       self.outfile])
+        result = ctl(args.tags)
+        self.assertIsNotNone(result)
 
 
 class CtleptopTest(unittest.TestCase):
