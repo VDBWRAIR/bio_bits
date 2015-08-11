@@ -114,13 +114,13 @@ def list_overlap(list1, list2):
 
 
 # define our method
-def replace_all(text, dic):
-    """(str, dict)-> (str)
-    >>>replace_all()
-    """
-    for i, j in dic.iteritems():
-        text = text.replace(i, j)
-    return text
+#def replace_all(text, dic):
+    #"""(str, dict)-> (str)
+    #>>>replace_all()
+    #"""
+    #for i, j in dic.iteritems():
+        #text = text.replace(i, j)
+    #return text
 
 
 def access_mixed_aa(file_name):
@@ -208,7 +208,7 @@ def access_mixed_aa(file_name):
     return aa, nucleotide_idx, nucl_codon, seqids
 
 
-def parse_args():
+def create_args():
     """
     Return command line arguments
 
@@ -241,7 +241,7 @@ def isGap(aalist, nclist):
 
 
 def main():
-    args = parse_args()
+    args = create_args()
     file_name = args.i
     outfile = args.o
     print "Start processing and writing the output file to", outfile, " please please wait ... "
