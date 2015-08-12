@@ -41,7 +41,7 @@ def make_emperor(fasta_fn, outdir, mapfile, coordfile):
     return run_emperor(i=coordinate_file, m=mapfile, o=outdir)
 
 def make_simple_mapping(fasta_fn):
-    ids = map(lambda x: x[1:], filter(lambda x: x.starswith('>'), open(fasta_fn)))
+    ids = map(lambda x: x[1:], filter(lambda x: x.startswith('>'), open(fasta_fn)))
     header = '#SampleID\n'
     mapfile_fn = '%s.map' % fasta_fn
     assert not os.path.exists(mapfile_fn), "Mapping file %s exists! Please remove, or run again with --map parameter." % mapfile_fn
