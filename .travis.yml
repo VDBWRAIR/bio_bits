@@ -7,6 +7,7 @@ before_install:
     - "export DISPLAY=:99.0" # Should fix matplotlib errors
     - "sh -e /etc/init.d/xvfb start"
 install:
+    - sudo apt-get install gfortran libopenblas-dev liblapack-dev #needed for sci-*
     - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2 ordereddict counter; fi
     - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then pip install robotframework-python3; else pip install robotframework; fi
     - pip install -r requirements.txt
