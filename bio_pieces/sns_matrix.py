@@ -1,12 +1,15 @@
 import pandas as pd
 import numpy as np
-from StringIO import StringIO
+try:
+    from io import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 
 # Simple Nucleotide Substitution matrix
 # Copy/pasted table from 
 # http://www.jalview.org/help/html/calculations/scorematrices.html#simplenucleotide
-sns = StringIO('''
+sns = BytesIO(u'''
 ,A,C,G,I,N,R,T,U,X,Y
 A,10,-8,-8,1,1,1,-8,-8,1,-8
 C,-8,10,-8,1,1,-8,-8,-8,1,1
