@@ -19,38 +19,47 @@ import subprocess
     # import builtins
 
 THIS = os.path.dirname(os.path.abspath(__file__))
-
 class CtleptopFunctionTest(unittest.TestCase):
+    infile = os.path.join(THIS, "Den4_MAAPS_TestData16.fasta")
+    outfile = "out_file.fa"
 
     """Base TestCase class, set up a CLI parser"""
     def setUp(self):
-        self.infile = os.path.join(THIS, "Den4_MAAPS_TestData16.fasta")
-        self.outfile = "out_file.fa"
-        self.patch_fileinput = mock.patch('bio_pieces.ctleptop.access_mixed_aa')
-        self.mock_fileinput = self.patch_fileinput.start()
-        self.mock_fileinput_input = self.mock_fileinput.input
-        self.addCleanup(self.mock_fileinput.stop)
-        self.patch_sys_stdout = mock.patch('bio_pieces.ctleptop.sys.stdout')
-        self.patch_sys_stderr = mock.patch('bio_pieces.ctleptop.sys.stderr')
-        self.mock_stdout = self.patch_sys_stdout.start()
-        self.mock_stderr = self.patch_sys_stderr.start()
-        self.addCleanup(self.mock_stdout.stop)
-        self.addCleanup(self.mock_stderr.stop)
-        self.patcher_argparse = mock.patch('bio_pieces.ctleptop.create_args')
-        self.mock_argparse = self.patcher_argparse.start()
-        self.addCleanup(self.mock_argparse.stop)
-        parser = ctleptop.create_args()
-        self.parser = parser
+        #self.patch_fileinput = mock.patch('bio_pieces.ctleptop.access_mixed_aa')
+        #self.mock_fileinput = self.patch_fileinput.start()
+        #self.mock_fileinput_input = self.mock_fileinput.input
+        #self.addCleanup(self.mock_fileinput.stop)
+        #self.patch_sys_stdout = mock.patch('bio_pieces.ctleptop.sys.stdout')
+        #self.patch_sys_stderr = mock.patch('bio_pieces.ctleptop.sys.stderr')
+        #self.mock_stdout = self.patch_sys_stdout.start()
+        #self.mock_stderr = self.patch_sys_stderr.start()
+        #self.addCleanup(self.mock_stdout.stop)
+        #self.addCleanup(self.mock_stderr.stop)
+        #self.patcher_argparse = mock.patch('bio_pieces.ctleptop.create_args')
+        #self.mock_argparse = self.patcher_argparse.start()
+        #self.addCleanup(self.mock_argparse.stop)
+        #parser = ctleptop.create_args()
+        #self.parser = parser
+        pass
 
-    @mock.patch('bio_pieces.ctleptop.argparse')
-    def test_args(self, mock_argparse):
+    #@mock.patch('bio_pieces.ctleptop.sys.argv')
+    #import sys
+    @mock.patch('sys.argv', ['DUMMY', '-i', infile, '-o', outfile])
+    def test_args(self):
         parser = ctleptop.create_args() #['-i' , self.infile, '-o', self.outfile])
-
-        self.assertTrue(parser.i)
-        self.assertTrue(parser.o)
-        mock_argparse.ArgumentParser.return_value.add_argument.assert_call_once_with(
-                ['-i' , self.infile, '-o', self.outfile]
-        )
+        #self.parser = parser
+        self.assertEquals(parser.i, self.infile)
+        self.assertEquals(parser.o, self.outfile)
+    #@mock.patch('bio_pieces.ctleptop.argparse')
+    #def test_args(self, mock_argparse):
+    #    ctleptop.create_args() #['-i' , self.infile, '-o', self.outfile])
+    #    #self.parser = parser
+    #    #self.assertTrue(parser.i)
+    #    #self.assertTrue(parser.o)
+    #    mock_argparse.ArgumentParser.return_value.add_argument.assert_called_with(
+    #            ['-i' , self.infile, '-o', self.outfile]
+    #    )
+    #    ctleptop.create_args()
 
     #@mock.patch('bio_pieces.ctleptop.access_mixed_aa')
     #def test_access_mixed_aa(self, mock_mixed_aa):
@@ -64,25 +73,25 @@ class CtleptopFunctionTest(unittest.TestCase):
                 #data = h.read()
             #my_mock.assert_called_once_with(self.infile)
 
-    def test_main(self):
-        cmd = ['ctleptop',
-               '-i',
-               self.infile,
-               '-o',
-               self.outfile,
+    #def test_main(self):
+        #cmd = ['ctleptop',
+               #'-i',
+               #self.infile,
+               #'-o',
+               #self.outfile,
 
-        ]
-        self.run_check_script(cmd)
-    def run_check_script(self, cmd, stdin=None):
-          if stdin is None:
-              p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-          else:
-              p = subprocess.Popen(
-                  cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                  stdin=stdin
-              )
-          sout, serr = p.communicate()
-          self.assertEqual(b'Start processing and writing the output file to out_file.fa  please please wait ... \n',  sout)
+        #]
+        #self.run_check_script(cmd)
+    #def run_check_script(self, cmd, stdin=None):
+          #if stdin is None:
+              #p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+          #else:
+              #p = subprocess.Popen(
+                  #cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                  #stdin=stdin
+              #)
+          #sout, serr = p.communicate()
+          #self.assertEqual(b'Start processing and writing the output file to out_file.fa  please please wait ... \n',  sout)
 
 
 class CtleptopTest(unittest.TestCase):
