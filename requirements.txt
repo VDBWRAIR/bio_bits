@@ -8,4 +8,4 @@ pyvcf
 sh
 matplotlib
 emperor
-skbio
+scikit-bio
