@@ -3,7 +3,11 @@ from __future__ import print_function
 import itertools
 import os
 import sys
-from collections import OrderedDict
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 import argparse
 from Bio import SeqIO
