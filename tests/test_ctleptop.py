@@ -34,8 +34,8 @@ class CtleptopFunctionTest(unittest.TestCase):
         #self.patch_sys_stderr = mock.patch('bio_pieces.ctleptop.sys.stderr')
         #self.mock_stdout = self.patch_sys_stdout.start()
         #self.mock_stderr = self.patch_sys_stderr.start()
-        # self.addCleanup(self.mock_stdout.stop)
-        # self.addCleanup(self.mock_stderr.stop)
+        #self.addCleanup(self.mock_stdout.stop)
+        #self.addCleanup(self.mock_stderr.stop)
         #self.patcher_argparse = mock.patch('bio_pieces.ctleptop.create_args')
         #self.mock_argparse = self.patcher_argparse.start()
         # self.addCleanup(self.mock_argparse.stop)
@@ -56,60 +56,37 @@ class CtleptopFunctionTest(unittest.TestCase):
     @mock.patch('bio_pieces.ctleptop.create_args')
     #@mock.patch('bio_pieces.ctleptop.open_f')
     def test_main(self, call_main):
-        args=ctleptop.create_args()
-
-        file_name= args.i
+        from StringIO import StringIO
+        args = ctleptop.create_args()
         #outfile = args.o
-
         ctleptop.main()
-        self.assertEquals(file_name, self.infile)
-        call_main.assert_called_once_with(args.o)
+        try:
+            with mock.patch('__builtin__.open', return_value = StringIO(args.o)):
+                fileout =args.o
+                self.assertEqual(fileout, args.o)
+        except ImportError:
+            print "Unable to open outfile"
+        self.assertEquals(args.i, self.infile)
+        #call_main.assert_called_once_with(args.o)
 
+    @mock.patch('Bio.SeqIO.parse')
+    def test_access_mixed_aa(self, mock_mixed_aa):
+        for rec in mock_mixed_aa(self.infile, 'fasta'):
+            header, seqline = rec.id, str(rec.seq)
+            self.assertTrue(isinstance(">", header))
+            self.assertTrue(isinstance("AA", seqline))
+            mock_mixed_aa.assert_called_once_with(self.infile, 'fasta')
+        ctleptop.access_mixed_aa(self.infile)
 
-
-    #@mock.patch('bio_pieces.ctleptop.argparse')
-    # def test_args(self, mock_argparse):
-    #    ctleptop.create_args() #['-i' , self.infile, '-o', self.outfile])
-    #    #self.parser = parser
-    #    #self.assertTrue(parser.i)
-    #    #self.assertTrue(parser.o)
-    #    mock_argparse.ArgumentParser.return_value.add_argument.assert_called_with(
-    #            ['-i' , self.infile, '-o', self.outfile]
-    #    )
-    #    ctleptop.create_args()
-
-    #@mock.patch('bio_pieces.ctleptop.access_mixed_aa')
-    # def test_access_mixed_aa(self, mock_mixed_aa):
-        # ctleptop.access_mixed_aa(self.infile)
-        # mock_mixed_aa.assert_called_with(self.infile)
-        #my_mock = mock.MagicMock()
-        # with mock.patch('__builtin__.open', my_mock):
-        #manager = my_mock.return_value.__enter__.return_value
-        #manager.read.return_value = ctleptop.access_mixed_aa(self.infile)
-        # with open (self.infile) as h:
-        #data = h.read()
-        # my_mock.assert_called_once_with(self.infile)
-
-    # def test_main(self):
-        # cmd = ['ctleptop',
-        #'-i',
-        # self.infile,
-        #'-o',
-        # self.outfile,
-
-        #]
-        # self.run_check_script(cmd)
-    # def run_check_script(self, cmd, stdin=None):
-        # if stdin is None:
-        #p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # else:
-        # p = subprocess.Popen(
-        #cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        # stdin=stdin
-        #)
-        #sout, serr = p.communicate()
-        #self.assertEqual(b'Start processing and writing the output file to out_file.fa  please please wait ... \n',  sout)
-
+class TestSetOptionDebug(unittest.TestCase):
+    def setUp(self):
+        pass
+        from StringIO import StringIO
+        @mock.patch('sys.stdout', new_callable=StringIO)
+        def test_options_debug(self, stdout_mock):
+            val = "Start processing and writing the output file to please please wait ... "
+            ctleptop.main()
+            self.assertEquals(stdout_mock.getvalue(), val)
 
 class CtleptopTest(unittest.TestCase):
 
