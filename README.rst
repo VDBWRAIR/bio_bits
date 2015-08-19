@@ -12,3 +12,5 @@ bio_pieces
   :target: https://coveralls.io/r/VDBWRAIR/bio_pieces
 
 Various bioinformatics scripts
+
+All documentation is hosted at http://bio-pieces.readthedocs.org/en/latest

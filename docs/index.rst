@@ -15,6 +15,7 @@ Contents:
     scripts/index
     amos
     changelog
+    todo
 
 Indices and tables
 ==================
