@@ -1,16 +1,18 @@
 import unittest
 import mock
-from bio_pieces.degen import Gene, get_gene_pos_seq, get_result_table
+from bio_pieces.degen import Gene, get_gene_degen_overlap_info, main
 from itertools import starmap
+import sys
 
-
+genbank_id = 'KJ189367.1'
+gb_file = 'tests/testinput/sequence.gb'
 class DegenTest(unittest.TestCase):
     def setUp(self):
         self.seq = 'G'*83 + 'GGRAAY' + 420*'A' + 'RAGT'+'C'*8000 + 'YYY' +  'A' * 2000
         self.positions = [85, 88, 509, 8513, 8514, 8515]
         self.genestrs = ["anchored capsid protein"] * 2 + ["membrane glycoprotein precursor"] + ["nonstructural protein NS5"]*3
         self.nts = [self.seq[i] for i in self.positions]
-        self.genbank_id = 'KJ189367.1'
+        self.genbank_id = genbank_id
         self.expected_str =''
         for p, g, nt in zip(self.positions, self.genestrs, self.nts):
             self.expected_str += '\t'.join( map(str, [g, p, nt]) ) + '\n'
@@ -26,19 +28,39 @@ class DegenTest(unittest.TestCase):
         ["2K peptide",                      6747,6815,   ],
         ["nonstructural protein NS4B",      6816,7562,  ],
         ["nonstructural protein NS5",        7563,10259,]]
-        self.genes = starmap(Gene, self.geneinfo)
+        self.genes = list(starmap(Gene, self.geneinfo))
 
 
-    @mock.patch('Bio.SeqIO.parse')
+    #@mock.patch('Bio.SeqIO.parse')
+    #NOTE: bio_pieces/degen.py must exist or else Schema throws an error.
+    @mock.patch('bio_pieces.degen.parse_fasta')
+    @mock.patch('sys.argv', ['_', 'bio_pieces/degen.py', '--gb-id', genbank_id])
     def test_functional(self, mparse):
         '''Note: requires internet access to genbank.'''
-        mparse.return_value = [self.seq]
-        actual = next(get_result_table('_', ref_id=self.genbank_id))
+        mparse.return_value = [mock.Mock(seq=self.seq)]
+        #actual = next(get_result_table('_', ref_id=self.genbank_id))
+        if not hasattr(sys.stdout, "getvalue"):
+            self.fail("need to run in buffered mode")
+        main()
+        actual = sys.stdout.getvalue().strip() # because stdout is an StringIO instance
         self.assertMultiLineEqual(actual, self.expected_str)
 
-    def test_get_gene_pos_seq(self):
+    def test_get_gene_degen_overlap_info(self):
         expected = sorted(zip(self.genestrs, self.positions, self.nts))
-        actual = sorted(get_gene_pos_seq(self.genes, self.seq))
+        actual = sorted(get_gene_degen_overlap_info(self.genes, self.seq))
         self.assertListEqual(actual, expected)
+
+    @mock.patch('bio_pieces.degen.parse_fasta')
+    #NOTE: bio_pieces/degen.py must exist or else Schema throws an error.
+    @mock.patch('sys.argv', ['_', 'bio_pieces/degen.py', '--gb-file', gb_file])
+    def test_functional_with_file(self, mparse):
+        mparse.return_value = [mock.Mock(seq=self.seq)]
+        if not hasattr(sys.stdout, "getvalue"):
+            self.fail("need to run in buffered mode")
+        main()
+        actual = sys.stdout.getvalue().strip() # because stdout is an StringIO instance
+        self.assertMultiLineEqual(actual, self.expected_str)
+
+
 
 
