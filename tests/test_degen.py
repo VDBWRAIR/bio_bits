@@ -3,6 +3,7 @@ import mock
 from bio_pieces.degen import Gene, get_gene_degen_overlap_info, main, csv_file_to_genes
 from itertools import starmap
 import sys
+from nose.plugins.attrib import attr
 
 genbank_id = 'KJ189367.1'
 gb_file = 'tests/testinput/sequence.gb'
@@ -35,6 +36,7 @@ class DegenTest(unittest.TestCase):
     #NOTE: bio_pieces/degen.py must exist or else Schema throws an error.
     @mock.patch('bio_pieces.degen.parse_fasta')
     @mock.patch('sys.argv', ['_', 'bio_pieces/degen.py', '--gb-id', genbank_id])
+    @attr('download')
     def test_functional(self, mparse):
         '''Note: requires internet access to genbank.'''
         mparse.return_value = [mock.Mock(seq=self.seq)]
