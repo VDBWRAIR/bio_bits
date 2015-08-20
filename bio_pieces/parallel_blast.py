@@ -48,9 +48,9 @@ def parse_args():
     )
     parser.add_argument(
         '--task',
-        choices=('megablast','dc-megablast','blastn',None),
+        choices=('megablast','dc-megablast','blastn','blastx','blastp'),
         default=None,
-        help='-task to use for blast/diamond'
+        help='task to use for blast/diamond'
     )
     parser.add_argument(
         '--blast_options',
@@ -80,12 +80,16 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
     :param str outfile: Output file path
     :param int ninst: number of cpus to use if not in PBS or SGE job
     :param str db: Database path to blast against
-    :param str blasttype: Blast exe to use(blastn, blastx, diamond...)
+    :param str blasttype: Blast exe to use(blastn, blastx, blastp)
     :param str task: Blast task to run with -task option for blasttype or 
         None if blastx/blastp
     :param str blastoptions: other options to pass to blast
     '''
     blast_path = sh.which(blasttype)
+    if blast_path is None:
+        raise ValueError("{0} is not in your path(Maybe not installed?)".format(
+            blasttype
+        ))
     args = ['-u', '--pipe', '--block', '10', '--recstart', '>']
     args += generate_sshlogins(ninst)
     args += [blast_path]
@@ -96,14 +100,8 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
     ]
     args += shlex.split(blastoptions)
     args += ['-query', '-']
-    #args += ['./t.py']
-    p_sh = sh.Command('parallel')
-    print("[cmd] {0}".format('parallel ' + ' '.join(args)))
-    try:
-        p = p_sh(*args, _out=open(outfile,'w'), _in=open(inputfile))
-    except sh.ErrorReturnCode as e:
-        print(e.stderr)
-        sys.exit(e.exit_code)
+    cmd = sh.Command('parallel')
+    run(cmd, args, inputfile, outfile)
 
 def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     '''
@@ -130,18 +128,23 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
         cpu,host = sshlogins[i+1].split('/')
         sshlogins[i+1] = '1/{0}'.format(host)
     dmnd_path = sh.which('diamond')
+    if dmnd_path is None:
+        raise ValueError("diamond is not in your path(Maybe not installed?)")
     args = ['-u', '--pipe', '--block', '10', '--recstart', '>', '--cat']
     args += sshlogins
     args += [
         dmnd_path, task, '--threads', str(ninst), '--db', db, '--query', '{}',
         '--compress', '0'
     ] + shlex.split(diamondoptions)
-    d_cmd = sh.Command('parallel')
-    print("[cmd] {0}".format('parallel ' + ' '.join(args)))
+    cmd = sh.Command('parallel')
+    run(cmd, args, inputfile, outfile)
+
+def run(cmd, args, infile, outfile):
+    print("[cmd] {0} {1}".format(cmd._path, ' '.join(args)))
     try:
-        p = d_cmd(*args, _out=open(outfile,'w'), _in=open(inputfile))
+        p = cmd(*args, _out=open(outfile,'w'), _in=open(infile))
     except sh.ErrorReturnCode as e:
-        print(e.stderr)
+        print(str(e.stderr))
         sys.exit(e.exit_code)
 
 def get_hostfile():
@@ -216,6 +219,6 @@ def main():
         )
     else:
         parallel_blast(
-            args.inputfasta, args.outfile, args.ninst, args.db, args.blast_type, args.task,
-            args.blast_options 
+            args.inputfasta, args.outfile, args.ninst, args.db,
+            args.blast_type, args.task, args.blast_options 
         )

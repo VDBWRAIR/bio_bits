@@ -1,16 +1,10 @@
 import tempfile
 import os
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 import mock
 
+from bio_pieces.compat import unittest
+from bio_pieces.compat import StringIO
 from bio_pieces import parallel_blast
 
 #http://talby.rcs.manchester.ac.uk/~ri/_notes_sge/par_envs_and_integration.html
@@ -213,6 +207,14 @@ class TestParallelBlast(MockSH):
             self.assertIn('2/node2.localhost', r)
             self.assertIn('3/node3.localhost', r)
 
+    def test_cannot_find_exe_raises_exception(self):
+        self.mock_sh_which.return_value = None
+        self.assertRaises(
+            ValueError,
+            parallel_blast.parallel_blast,
+            self.infile, self.outfile, 5, '/path/to/db', 'blastn', 'foox', '-bar foo'
+        )
+
 class TestParallelDiamond(MockSH):
     def test_correct_inputoutput_handling(self):
         self.mock_sh_which.return_value = '/path/to/diamond'
@@ -226,12 +228,21 @@ class TestParallelDiamond(MockSH):
         self.assertEqual(r[1]['_out'], self.mock_open.return_value)
         self.assertIn('--pipe', r[0])
 
+    def test_cannot_find_exe_raises_exception(self):
+        self.mock_sh_which.return_value = None
+        self.assertRaises(
+            ValueError,
+            parallel_blast.parallel_diamond,
+            self.infile, self.outfile, 5, '/path/to/dmd', 'foox', '-bar foo'
+        )
+
     def test_correct_command_string(self):
         self.mock_sh_which.return_value = '/path/to/diamond'
         parallel_blast.parallel_diamond(
             self.infile, self.outfile, 5, '/path/to/dmd', 'foox', '-bar foo'
         )
         r = self.mock_sh_cmd.return_value.call_args[0]
+        self.assertIn('foox', r)
         self.assertIn('--threads', r)
         self.assertIn('5', r)
         self.assertIn('--db', r)
@@ -289,4 +300,3 @@ class TestMain(unittest.TestCase):
             AssertionError,
             parallel_blast.main
         )
-        
