@@ -1,4 +1,4 @@
-import unittest
+from bio_pieces.compat import unittest
 import mock
 from bio_pieces.degen import Gene, get_gene_degen_overlap_info, main, csv_file_to_genes
 from itertools import starmap
