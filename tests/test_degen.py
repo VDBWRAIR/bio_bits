@@ -68,6 +68,11 @@ class DegenTest(unittest.TestCase):
         self.assertListEqual(actual, expected)
 
 
+    def test_tab_to_gene(self):
+        csvfile = 'tests/testinput/degen.tab'
+        expected = [Gene(name='foo', start=1, end=2), Gene(name='bar', start=9, end=33)]
+        actual = list(csv_file_to_genes(csvfile))
+        self.assertListEqual(actual, expected)
 
 
 

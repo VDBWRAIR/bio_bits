@@ -66,7 +66,7 @@ def row_to_gene(row):
     return Gene(_gene_name[0], start, end)
 
 def open_generic_csv(csvfile):
-    dialect = csv.Sniffer().sniff(csvfile.read(1024), delimiters=r"\t;,")
+    dialect = csv.Sniffer().sniff(csvfile.read(1024), delimiters="\t,")
     csvfile.seek(0)
     reader = csv.reader(csvfile, dialect)
     has_header = csv.Sniffer().has_header(csvfile.read(1024))
@@ -89,31 +89,31 @@ def get_gene_degen_overlap_info(genes, seq):
     result = ((gene.name, pos, seq[pos]) for gene, pos in perms if  gene.start <= pos <= gene.end)
     return result
 
-def get_genes(ref_id=None, gene_file=None, tab_file=None):
+def get_genes(ref_id=None, genbank_file=None, user_file=None):
     '''
     :param int ref_id: genbank accession id to get gene info from
-    :param str gene_file: filepath/filehandle for genbank file holding gene info
+    :param str genbank_file: filepath/filehandle for genbank file holding gene info
     :return iterable genes: iterable Gene objects with `start`, `end`, `name`
     '''
-    assert  len(filter(bool, [ref_id, gene_file, tab_file])) == 1, "Must supply exactly one of accession id (%s) or gene_file (%s), or csv/tab-delimited file %s." % (ref_id, gene_file, tab_file)
+    assert  len(filter(bool, [ref_id, genbank_file, user_file])) == 1, "Must supply exactly one of accession id (%s) or gene_file (%s), or csv/tab-delimited file %s." % (ref_id, gene_file, tab_file)
     if ref_id:
         genes = id_to_genes(ref_id)
-    elif gene_file:
-        genes = genbank_file_to_genes(gene_file)
-    elif tab_file:
-        genes = csv_file_to_genes(tab_file)
+    elif genbank_file:
+        genes = genbank_file_to_genes(genbank_file)
+    elif user_file:
+        genes = csv_file_to_genes(user_file)
     else:
         raise ValueError('Gene file or ref_id must be supplied.')
     return genes
 
-def get_degen_gene_overlap(sequence, ref_accession_id=None, gene_file=None):
+def get_degen_gene_overlap(sequence, ref_accession_id=None, genbank_file=None, user_file=None):
     '''
     :param str sequence: dengue sequence
     :param int ref_accession_id: genbank accession id to get gene info from
-    :param str gene_file: filepath/filehandle for genbank file holding gene info
+    :param str genbank_file: filepath/filehandle for genbank file holding gene info
     :return iterable overlaps: iterable of tuples (`Gene name`, `Degen position`, `Degen base`)
     '''
-    genes = get_genes(ref_accession_id, gene_file)
+    genes = get_genes(ref_accession_id, genbank_file)
     return get_gene_degen_overlap_info(genes, str(sequence))
 
 
