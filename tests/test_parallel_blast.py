@@ -254,3 +254,39 @@ class TestParallelDiamond(MockSH):
             self.assertIn('1/node1.localhost', r)
             self.assertIn('1/node2.localhost', r)
             self.assertIn('1/node3.localhost', r)
+
+@mock.patch('bio_pieces.parallel_blast.parallel_blast')
+@mock.patch('bio_pieces.parallel_blast.parallel_diamond')
+class TestMain(unittest.TestCase):
+    def setUp(self):
+        self.patch_args = mock.patch('bio_pieces.parallel_blast.argparse.ArgumentParser')
+        self.mock_args = self.patch_args.start()
+        self.addCleanup(self.patch_args.stop)
+        self.mock_args = self.mock_args.return_value.parse_args.return_value
+        self.mock_args.outfile = '/path/out.blast'
+        self.mock_args.ninst = 1
+        self.mock_args.db = '/path/db'
+        self.mock_args.task = None
+        self.mock_args.blast_options = ''
+
+    @mock.patch('bio_pieces.parallel_blast.exists', mock.Mock(return_value=True))
+    def test_runs_parallel_diamond_for_diamond(self, mock_pdmnd, mock_pblast):
+        self.mock_args.inputfasta = '/path/in.fa'
+        self.mock_args.blast_type = 'diamond'
+        parallel_blast.main()
+        self.assertEqual(1, mock_pdmnd.call_count)
+
+    @mock.patch('bio_pieces.parallel_blast.exists', mock.Mock(return_value=True))
+    def test_runs_parallel_blast_for_blast(self, mock_pdmnd, mock_pblast):
+        self.mock_args.inputfasta = '/path/in.fa'
+        self.mock_args.blast_type = 'blastn'
+        parallel_blast.main()
+        self.assertEqual(1, mock_pblast.call_count)
+
+    @mock.patch('bio_pieces.parallel_blast.exists', mock.Mock(return_value=False))
+    def test_raises_assertion_when_input_fasta_missing(self, mock_pdmnd, mock_pblast):
+        self.assertRaises(
+            AssertionError,
+            parallel_blast.main
+        )
+        

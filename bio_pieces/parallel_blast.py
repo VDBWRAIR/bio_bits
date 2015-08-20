@@ -219,6 +219,3 @@ def main():
             args.inputfasta, args.outfile, args.ninst, args.db, args.blast_type, args.task,
             args.blast_options 
         )
-
-if __name__ == '__main__':
-    main()
