@@ -1,4 +1,5 @@
 '''
+
 Usage:
     degen.py <fasta> (--gb-id <accession_id> | --gb-file <gbfile> | --tab-file <tabfile>)
 
@@ -11,9 +12,9 @@ from __future__ import print_function
 from functools import partial
 from collections import namedtuple
 from itertools import starmap, product
-from future.builtins import map
+from bio_pieces.compat import map, filter
 import re
-import StringIO
+from bio_pieces.compat import StringIO
 from Bio import Entrez, SeqIO
 
 #for commandline stuff
@@ -22,16 +23,12 @@ from docopt import docopt
 import os
 from operator import attrgetter as attr
 import csv
-from funcy import split
+from funcy.py3 import split
+from funcy import compose
 
 '''So GenBank can see how much you download.'''
 Entrez.email = "micheal.panciera.work@gmail.com"
 
-def compose2(f, g):
-    def inner(*args, **kwargs):
-        return f(g(*args, **kwargs))
-    return inner
-def compose(*funcs): return reduce(compose2, funcs)
 
 Gene = namedtuple('Gene', [ 'name', 'start', 'end'])
 
@@ -52,7 +49,7 @@ def fetch_record_by_id(_id):
 seq_parse_gb = partial(SeqIO.parse, format="genbank")
 parse_fasta = partial(SeqIO.parse, format="fasta")
 #assume genbank file only has one record (so use `next`)
-id_to_record = compose(next, seq_parse_gb, StringIO.StringIO, fetch_record_by_id)
+id_to_record = compose(next, seq_parse_gb, StringIO, fetch_record_by_id)
 id_to_genes = compose(seqrecord_to_genes, id_to_record)
 genbank_file_to_genes = compose(seqrecord_to_genes, next, seq_parse_gb)
 DEGENS = ['S', 'R', 'D', 'W', 'V', 'Y', 'H', 'K', 'B', 'M']
@@ -63,8 +60,9 @@ def row_to_gene(row):
     row = map(str.strip, row)
     digits, _gene_name  = split(str.isdigit, row)
     start, end = map(int, digits)
+#    import ipdb; ipdb.set_trace()
     assert start < end, "Start field should be first and less than end field. You supplied start %s end %s for gene %s" % (start, end, _gene_name[0])
-    return Gene(_gene_name[0], start, end)
+    return Gene(next(_gene_name), start, end)
 
 def open_generic_csv(csvfile):
     dialect = csv.Sniffer().sniff(csvfile.read(1024), delimiters="\t,")
@@ -96,7 +94,7 @@ def get_genes(ref_id=None, genbank_file=None, user_file=None):
     :param str genbank_file: filepath/filehandle for genbank file holding gene info
     :return iterable genes: iterable Gene objects with `start`, `end`, `name`
     '''
-    assert  len(filter(bool, [ref_id, genbank_file, user_file])) == 1, "Must supply exactly one of accession id (%s) or gene_file (%s), or csv/tab-delimited file %s." % (ref_id, gene_file, tab_file)
+    assert  sum(map(bool, [ref_id, genbank_file, user_file])) == 1, "Must supply exactly one of accession id (%s) or gene_file (%s), or csv/tab-delimited file %s." % (ref_id, gene_file, tab_file)
     if ref_id:
         genes = id_to_genes(ref_id)
     elif genbank_file:
