@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os.path import dirname,basename,abspath,exists
 import os
 from functools import partial
@@ -5,6 +6,10 @@ import argparse
 import shlex
 import subprocess
 import sys
+try:
+    from __builtin__ import open
+except ImportError:
+    from builtins import open
 
 try:
     from collections import OrderedDict
@@ -93,11 +98,11 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
     args += ['-query', '-']
     #args += ['./t.py']
     p_sh = sh.Command('parallel')
-    print "[cmd] {0}".format('parallel ' + ' '.join(args))
+    print("[cmd] {0}".format('parallel ' + ' '.join(args)))
     try:
         p = p_sh(*args, _out=open(outfile,'w'), _in=open(inputfile))
     except sh.ErrorReturnCode as e:
-        print e.stderr
+        print(e.stderr)
         sys.exit(e.exit_code)
 
 def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
@@ -132,11 +137,11 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
         '--compress', '0'
     ] + shlex.split(diamondoptions)
     d_cmd = sh.Command('parallel')
-    print "[cmd] {0}".format('parallel ' + ' '.join(args))
+    print("[cmd] {0}".format('parallel ' + ' '.join(args)))
     try:
         p = d_cmd(*args, _out=open(outfile,'w'), _in=open(inputfile))
     except sh.ErrorReturnCode as e:
-        print e.stderr
+        print(e.stderr)
         sys.exit(e.exit_code)
 
 def get_hostfile():
@@ -172,7 +177,7 @@ def parse_hostfile(hostfile_fh):
                     "Invalid second column value found in hostfile: {0}".format(x[1])
                 )
         hosts[hostname] += cpus
-    return hosts.items()
+    return list(hosts.items())
 
 def generate_sshlogins(ninst=None):
     '''

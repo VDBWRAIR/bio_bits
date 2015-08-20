@@ -4,11 +4,14 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import mock
 
-from pathdiscov import parallel_blast
+from bio_pieces import parallel_blast
 
 #http://talby.rcs.manchester.ac.uk/~ri/_notes_sge/par_envs_and_integration.html
 # nodename cpucount queue processorrange
@@ -57,12 +60,12 @@ class TestParseHostfile(unittest.TestCase):
         )
 
 class TestGetHostfile(unittest.TestCase):
-    @mock.patch.dict('pathdiscov.parallel_blast.os.environ', {'PBS_NODEFILE': 'foo'})
+    @mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PBS_NODEFILE': 'foo'})
     def test_detects_pbs(self):
         r = parallel_blast.get_hostfile()
         self.assertEqual('foo', r)
     
-    @mock.patch.dict('pathdiscov.parallel_blast.os.environ', {'PE_HOSTFILE': 'foo'})
+    @mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PE_HOSTFILE': 'foo'})
     def test_detects_sge(self):
         r = parallel_blast.get_hostfile()
         self.assertEqual('foo', r)
@@ -80,21 +83,21 @@ class TestGenerateSSHLogins(unittest.TestCase):
         with open(self.hostfile, 'w') as fh:
             fh.write('node1.localhost\n')
             fh.write('node1.localhost\n')
-        with mock.patch.dict('pathdiscov.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
+        with mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
             r = parallel_blast.generate_sshlogins()
             self.assertListEqual(['--sshlogin', '2/:'], r)
         
     def test_pbs_sshlogins(self):
         with open(self.hostfile, 'w') as fh:
             fh.write(PBS_MACHINEFILE)
-        with mock.patch.dict('pathdiscov.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
+        with mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
             r = parallel_blast.generate_sshlogins()
             self.assertListEqual(sshlogins, r)
 
     def test_sge_sshlogins(self):
         with open(self.hostfile, 'w') as fh:
             fh.write(SGE_HOSTFILE)
-        with mock.patch.dict('pathdiscov.parallel_blast.os.environ', {'PE_HOSTFILE': self.hostfile}):
+        with mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PE_HOSTFILE': self.hostfile}):
             r = parallel_blast.generate_sshlogins()
             self.assertListEqual(sshlogins, r)
 
@@ -109,13 +112,13 @@ class TestGenerateSSHLogins(unittest.TestCase):
 class MockSH(unittest.TestCase):
     def setUp(self):
         _, self.hostfile = tempfile.mkstemp()
-        self.patch_sh_cmd = mock.patch('pathdiscov.parallel_blast.sh.Command')
-        self.patch_sh_which = mock.patch('pathdiscov.parallel_blast.sh.which')
+        self.patch_sh_cmd = mock.patch('bio_pieces.parallel_blast.sh.Command')
+        self.patch_sh_which = mock.patch('bio_pieces.parallel_blast.sh.which')
         self.mock_sh_which = self.patch_sh_which.start()
         self.mock_sh_cmd = self.patch_sh_cmd.start()
         self.addCleanup(self.patch_sh_cmd.stop)
         self.addCleanup(self.patch_sh_which.stop)
-        self.patch_open = mock.patch('__builtin__.open')
+        self.patch_open = mock.patch('bio_pieces.parallel_blast.open')
         self.mock_open = self.patch_open.start()
         self.addCleanup(self.patch_open.stop)
         self.infile = '/path/infile'
@@ -174,7 +177,7 @@ class TestParallelBlast(MockSH):
         self.mock_sh_cmd.assert_called_once_with('parallel')
         r = self.mock_sh_cmd.return_value.call_args
         blastcmd = r[0]
-        print r[0]
+        print(r[0])
         self.assertIn('-db', blastcmd)
         self.assertIn('/path/db/nt', blastcmd)
         self.assertIn('-otherblast', blastcmd)
@@ -197,7 +200,7 @@ class TestParallelBlast(MockSH):
 
     def test_remote_hosts(self):
         self.mock_open.return_value.__enter__.return_value = PBS_MACHINEFILE.splitlines()
-        with mock.patch.dict('pathdiscov.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
+        with mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
             self.mock_sh_which.return_value = '/path/to/foon'
             parallel_blast.parallel_blast(
                 self.infile, self.outfile, 5, '/path/db/nt', 'foon', 'barn',
@@ -242,7 +245,7 @@ class TestParallelDiamond(MockSH):
     def test_each_remote_host_has_one_instance(self):
         self.mock_sh_which.return_value = '/path/to/diamond'
         self.mock_open.return_value.__enter__.return_value = PBS_MACHINEFILE.splitlines()
-        with mock.patch.dict('pathdiscov.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
+        with mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
             parallel_blast.parallel_diamond(
                 self.infile, self.outfile, 5, '/path/to/dmd', 'foox', '-bar foo'
             )
