@@ -53,18 +53,26 @@ id_to_record = compose(next, seq_parse_gb, StringIO, fetch_record_by_id)
 id_to_genes = compose(seqrecord_to_genes, id_to_record)
 genbank_file_to_genes = compose(seqrecord_to_genes, next, seq_parse_gb)
 DEGENS = ['S', 'R', 'D', 'W', 'V', 'Y', 'H', 'K', 'B', 'M']
-
-
+degen_positions = lambda seq:  (m.start() for m in re.finditer('|'.join(DEGENS), seq))
 
 def row_to_gene(row):
+    '''
+    :param str row: row from csv.reader containing int1, int2, str (start, stop, name). header is ignored, and fields can be in any order,
+    but the first integer must be less than the second.
+    :return Gene gene: Gene object
+    '''
     row = map(str.strip, row)
     digits, _gene_name  = split(str.isdigit, row)
     start, end = map(int, digits)
-#    import ipdb; ipdb.set_trace()
     assert start < end, "Start field should be first and less than end field. You supplied start %s end %s for gene %s" % (start, end, _gene_name[0])
     return Gene(next(_gene_name), start, end)
 
 def open_generic_csv(csvfile):
+    '''
+    return an iterator (excluding header) of rows (as tuples) of a "csv" file with comma- or tab- seperators
+    :param str csvfile: filename to csv/tsv file
+    :return csv.Reader: iterator with header skipped
+    '''
     dialect = csv.Sniffer().sniff(csvfile.read(1024), delimiters="\t,")
     csvfile.seek(0)
     reader = csv.reader(csvfile, dialect)
@@ -74,8 +82,6 @@ def open_generic_csv(csvfile):
     return reader
 
 csv_file_to_genes = compose(partial(map, row_to_gene), open_generic_csv, open)
-
-degen_positions = lambda seq:  (m.start() for m in re.finditer('|'.join(DEGENS), seq))
 
 def get_gene_degen_overlap_info(genes, seq):
     '''
@@ -121,6 +127,7 @@ Functions for commandline app
 '''
 rowformat='{0}\t{1}\t{2}'
 pretty_table = compose('\n'.join, partial(starmap, rowformat.format))
+
 def main():
     scheme = Schema(
         { '<fasta>' : os.path.isfile,
@@ -137,28 +144,3 @@ def main():
     list(map(print, map(pretty_table, infos)))
 
 if __name__ == '__main__': main()
-
-
-#def genbank_record_to_genes(rec):
-#    codes = filter(lambda x: x.key == 'mat_peptide' or x.key == 'CDS', rec.features)
-#    genes = filter( lambda x: filter(lambda y: y.key == '/product=', x.qualifiers), codes)
-#    meaningful_genes = map(F(filter, lambda y: y.key == '/product=') << attr('qualifiers'), codes)
-#    starts, stops  = zip(*map(compose(get_interval, attr('location')), genes))
-#    names = map(compose(lambda x: x.strip('"'), attr('value')), chain(*list(meaningful_genes)))
-#    gene_objects = map(Gene, names, starts, stops)
-#    return gene_objects
-#parse_gb = GenBank.RecordParser().parse
-#id_to_record = compose(parse_gb, StringIO.StringIO, fetch_record_by_id)
-#id_to_genes = compose(genbank_record_to_genes, id_to_record)
-
-#    fasta = SeqIO.parse(infasta, format='fasta')
-#    return map(partial(get_gene_pos_seq, genes), fasta)
-
-#def gene_from_line(s): return Gene(get_name(s), *get_interval(s) )
-#gene_lines = re.compile(r'(mat_peptide[^\n]+\n[^\n]+)').findall
-##raw_nums = lambda x: re.compile(r'([0-9]+)\.\.([0-9]+)\n').search(x).groups()
-#raw_nums = lambda x: re.compile(r'([0-9]+)\.\.([0-9]+)').search(x).groups()
-#get_interval = compose(partial(map, int), raw_nums)
-#get_name = lambda x: re.compile(r'/product="([^"]+)').search(x).groups()[0]
-#genes_form_text = compose(partial(map, gene_from_line), gene_lines)
-#id_to_genes = compose(genes_form_text, fetch_record_by_id)
