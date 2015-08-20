@@ -8,13 +8,13 @@ Options:
     --tab-file=<tabfile>     TSV/CSV file for reference with fields name,start,end
 '''
 from __future__ import print_function
-from Bio import Entrez, SeqIO
 from functools import partial
 from collections import namedtuple
-from itertools import starmap, product, imap as map
-from funcy import split
+from itertools import starmap, product
+from future.builtins import map
 import re
 import StringIO
+from Bio import Entrez, SeqIO
 
 #for commandline stuff
 from schema import Schema, Optional, Or
@@ -22,6 +22,7 @@ from docopt import docopt
 import os
 from operator import attrgetter as attr
 import csv
+from funcy import split
 
 '''So GenBank can see how much you download.'''
 Entrez.email = "micheal.panciera.work@gmail.com"
