@@ -1,6 +1,6 @@
 import unittest
 import mock
-from bio_pieces.degen import Gene, get_gene_degen_overlap_info, main
+from bio_pieces.degen import Gene, get_gene_degen_overlap_info, main, csv_file_to_genes
 from itertools import starmap
 import sys
 
@@ -60,6 +60,13 @@ class DegenTest(unittest.TestCase):
         main()
         actual = sys.stdout.getvalue().strip() # because stdout is an StringIO instance
         self.assertMultiLineEqual(actual, self.expected_str)
+
+    def test_csv_to_gene(self):
+        csvfile = 'tests/testinput/degen.csv'
+        expected = [Gene(name='foo', start=1, end=2), Gene(name='bar', start=9, end=33)]
+        actual = list(csv_file_to_genes(csvfile))
+        self.assertListEqual(actual, expected)
+
 
 
 

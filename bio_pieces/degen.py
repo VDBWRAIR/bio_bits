@@ -1,16 +1,18 @@
 '''
 Usage:
-    degen.py <fasta> (--gb-id <accession_id> | --gb-file <gbfile>)
+    degen.py <fasta> (--gb-id <accession_id> | --gb-file <gbfile> | --tab-file <tabfile>)
 
 Options:
     --gb-id=<accession_id>   Accession id for reference
     --gb-file=<gbfile>       Genbank file for reference
+    --tab-file=<tabfile>     TSV/CSV file for reference with fields name,start,end
 '''
 from __future__ import print_function
 from Bio import Entrez, SeqIO
 from functools import partial
 from collections import namedtuple
 from itertools import starmap, product, imap as map
+from funcy import split
 import re
 import StringIO
 
@@ -19,6 +21,7 @@ from schema import Schema, Optional, Or
 from docopt import docopt
 import os
 from operator import attrgetter as attr
+import csv
 
 '''So GenBank can see how much you download.'''
 Entrez.email = "micheal.panciera.work@gmail.com"
@@ -50,8 +53,28 @@ parse_fasta = partial(SeqIO.parse, format="fasta")
 #assume genbank file only has one record (so use `next`)
 id_to_record = compose(next, seq_parse_gb, StringIO.StringIO, fetch_record_by_id)
 id_to_genes = compose(seqrecord_to_genes, id_to_record)
-file_to_genes = compose(seqrecord_to_genes, next, seq_parse_gb)
+genbank_file_to_genes = compose(seqrecord_to_genes, next, seq_parse_gb)
 DEGENS = ['S', 'R', 'D', 'W', 'V', 'Y', 'H', 'K', 'B', 'M']
+
+
+
+def row_to_gene(row):
+    row = map(str.strip, row)
+    digits, _gene_name  = split(str.isdigit, row)
+    start, end = map(int, digits)
+    assert start < end, "Start field should be first and less than end field. You supplied start %s end %s for gene %s" % (start, end, _gene_name[0])
+    return Gene(_gene_name[0], start, end)
+
+def open_generic_csv(csvfile):
+    dialect = csv.Sniffer().sniff(csvfile.read(1024), delimiters=r"\t;,")
+    csvfile.seek(0)
+    reader = csv.reader(csvfile, dialect)
+    has_header = csv.Sniffer().has_header(csvfile.read(1024))
+    csvfile.seek(0)  # rewind
+    if has_header: next(reader) #skip header
+    return reader
+
+csv_file_to_genes = compose(partial(map, row_to_gene), open_generic_csv, open)
 
 degen_positions = lambda seq:  (m.start() for m in re.finditer('|'.join(DEGENS), seq))
 
@@ -66,17 +89,19 @@ def get_gene_degen_overlap_info(genes, seq):
     result = ((gene.name, pos, seq[pos]) for gene, pos in perms if  gene.start <= pos <= gene.end)
     return result
 
-def get_genes(ref_id=None, gene_file=None):
+def get_genes(ref_id=None, gene_file=None, tab_file=None):
     '''
     :param int ref_id: genbank accession id to get gene info from
     :param str gene_file: filepath/filehandle for genbank file holding gene info
     :return iterable genes: iterable Gene objects with `start`, `end`, `name`
     '''
-    assert not (ref_id and gene_file), "Must supply accession id (%s) or gene_file (%s), but not both." % (ref_id, gene_file)
+    assert  len(filter(bool, [ref_id, gene_file, tab_file])) == 1, "Must supply exactly one of accession id (%s) or gene_file (%s), or csv/tab-delimited file %s." % (ref_id, gene_file, tab_file)
     if ref_id:
         genes = id_to_genes(ref_id)
     elif gene_file:
-        genes = file_to_genes(gene_file)
+        genes = genbank_file_to_genes(gene_file)
+    elif tab_file:
+        genes = csv_file_to_genes(tab_file)
     else:
         raise ValueError('Gene file or ref_id must be supplied.')
     return genes
@@ -101,12 +126,13 @@ def main():
     scheme = Schema(
         { '<fasta>' : os.path.isfile,
          Optional('--gb-file') : Or(os.path.isfile, lambda x: x is None),
+         Optional('--tab-file') : Or(os.path.isfile, lambda x: x is None),
          Optional('--gb-id') : Or(str, lambda x: x is None),
          })
     raw_args = docopt(__doc__, version='Version 1.0')
     args = scheme.validate(raw_args)
     fasta = parse_fasta(args['<fasta>'])
-    genes = get_genes(args['--gb-id'], args['--gb-file'])
+    genes = get_genes(args['--gb-id'], args['--gb-file'], args['--tab-file'])
     infos = map(partial(get_gene_degen_overlap_info, genes), map(attr('seq'), fasta))
     #need `list` to force evaluation of `print`
     list(map(print, map(pretty_table, infos)))
