@@ -23,16 +23,12 @@ from docopt import docopt
 import os
 from operator import attrgetter as attr
 import csv
-from funcy import split
+from funcy.py3 import split
+from funcy import compose
 
 '''So GenBank can see how much you download.'''
 Entrez.email = "micheal.panciera.work@gmail.com"
 
-def compose2(f, g):
-    def inner(*args, **kwargs):
-        return f(g(*args, **kwargs))
-    return inner
-def compose(*funcs): return reduce(compose2, funcs)
 
 Gene = namedtuple('Gene', [ 'name', 'start', 'end'])
 
@@ -64,8 +60,9 @@ def row_to_gene(row):
     row = map(str.strip, row)
     digits, _gene_name  = split(str.isdigit, row)
     start, end = map(int, digits)
+#    import ipdb; ipdb.set_trace()
     assert start < end, "Start field should be first and less than end field. You supplied start %s end %s for gene %s" % (start, end, _gene_name[0])
-    return Gene(_gene_name[0], start, end)
+    return Gene(next(_gene_name), start, end)
 
 def open_generic_csv(csvfile):
     dialect = csv.Sniffer().sniff(csvfile.read(1024), delimiters="\t,")
