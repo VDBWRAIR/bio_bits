@@ -93,10 +93,8 @@ def get_degen_list_overlap(genes, _degen_positions):
     def get_intersect(pos):
         intersects = lambda gene, pos=pos: gene if gene.start <= pos <= gene.end else None
         matches = list(filter(bool, map(intersects, genes)))
-        return '-' if not matches else matches[0].name #next(matches).name
+        return '-' if not matches else matches[0].name
     return map(get_intersect, _degen_positions)
-#    print(list(gene.name if gene.start <= pos <= gene.end else '-' for gene, pos in perms ))
-#    return (gene.name if gene.start <= pos <= gene.end else '-' for gene, pos in perms )
 
 def get_gene_degen_overlap_info(genes, seq):
     '''
