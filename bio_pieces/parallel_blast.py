@@ -122,7 +122,7 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     args += sshlogins
     args += [
         dmnd_path, task, '--threads', str(ninst), '--db', db, '--query', '{}',
-        '--compress', '0'
+        '--compress', '0', '-a', outfile
     ] + shlex.split(diamondoptions)
     cmd = sh.Command('parallel')
     run(cmd, args, inputfile, outfile)
@@ -130,8 +130,10 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
 def run(cmd, args, infile, outfile):
     print("[cmd] {0} {1}".format(cmd._path, ' '.join(args)))
     try:
-        p = cmd(*args, _out=open(outfile,'w'), _in=open(infile))
+        p = cmd(*args, _in=open(infile), _out=open(outfile,'w'))
+        print(p)
     except sh.ErrorReturnCode as e:
+        print("There was an error")
         print(str(e.stderr))
         sys.exit(e.exit_code)
 
