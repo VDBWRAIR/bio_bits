@@ -37,10 +37,7 @@ Running blastn
 
     $> parallel_blast input.fasta output.blast --ninst 4 --db /path/to/nt \
     --blast_exe blastn --task megablast --blast_options "--evalue 0.01"
-    [cmd] /path/to/parallel -u --pipe --block 10 --recstart > 
-    --sshlogin 4/: /path/to/blastn -task megablast -db /path/to/nt 
-    -max_target_seqs 10 -outfmt "6 qseqid sseqid pident length mismatch gapopen 
-    qstart qend sstart send evalue bitscore" -query -
+    [cmd] /path/to/parallel -u --pipe --block 10 --recstart > --sshlogin 4/: /path/to/blastn -task megablast -db /path/to/nt -max_target_seqs 10 -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" -query -
 
 Notice how we had to quote the additional ``--blast_options``
 
@@ -55,12 +52,22 @@ it correctly.
 
     $> parallel_blast input.fasta out.blast --ninst 4 --db /path/to/diamondnr \
     --blast_exe diamond --task blastx --blast_options "--tmpdir dtmp"
-    [cmd] /path/to/parallel -u --pipe --block 10 --recstart > --cat --sshlogin 1/: 
-    /path/to/diamond blastx --threads 4 --db 
-    /path/to/diamondnr --query {} --compress 0 -a out.blast
+    [cmd] /path/to/parallel -u --pipe --block 10 --recstart > --cat --sshlogin 1/: /path/to/diamond blastx --threads 4 --db /path/to/diamondnr --query {} --compress 0 -a out.blast
 
 Notice how even though we specified ``--ninst 4`` that ``--sshlogin 1/:`` was used
 and ``--threads 4`` was set instead.
+
+Command that is run
++++++++++++++++++++
+
+You will notice in the examples above that when you run parallel_blast that it
+outputs the command that it is running in case you want to copy/paste it and run
+it yourself sometime.
+
+You might notice that the command does not include all the quoted arguments such 
+as the ``--recstart`` argument which should be ``--recstart ">"`` as well as 
+the ``--outfmt`` which should be quoted as ``--outfmt "6 ..."``. If you intend on 
+rerunning the command you will have to add the quotes manually.
 
 Running inside of a PBS or SGE Job
 ==================================
