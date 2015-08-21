@@ -6,5 +6,5 @@ docopt
 schema
 pyvcf
 sh
-tabulate
 funcy
+tabulate
