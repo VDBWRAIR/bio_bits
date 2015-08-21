@@ -5,6 +5,7 @@ ctleptop.py -i [FASTA FILE] > Out_file.txt
 
 Created by Dereje Jima on May 21, 2015
 """
+from __future__ import print_function
 from Bio.Seq import *
 from Bio.Alphabet import IUPAC
 from Bio.Alphabet.IUPAC import unambiguous_dna, ambiguous_dna
@@ -16,6 +17,7 @@ import argparse
 from bio_pieces import degen
 from functools import partial
 from tabulate import tabulate
+from compat import zip
 import re
 
 __docformat__ = "restructuredtext en"
@@ -161,7 +163,7 @@ def access_mixed_aa(file_name):
         ambi_nucl = AMBICODON.keys()
         # print ambi_nucl
         # print ambi_codon["Y"]
-        for key, codon in sorted(codon_list.iteritems()):
+        for key, codon in sorted(codon_list.items()):
             # print "key: ", key , "codon:", codon
             if list_overlap(codon, ambi_nucl):
                 d, e, f = codon
@@ -256,7 +258,7 @@ def main():
     args = create_args()
     file_name = args.i
     outfile = args.o
-    #print "Start processing and writing the output file to", outfile, " please please wait ... "
+    #print("Start processing and writing the output file to", outfile, " please please wait ... ")
     outf = open_f(outfile)
     my_list = access_mixed_aa(file_name)
     aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
@@ -273,12 +275,11 @@ def main():
         reference_genes = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
         overlapped_genes = degen.get_degen_list_overlap( reference_genes, nuc_idx)
         my_list = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon, overlapped_genes)
-        #my_list = [list(elem) for elem in my_list]
         outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
                                      'nt composition', 'aa composition', 'gene name']) + "\n")
     else:
+        print("Warning, no gene information supplied.")
         my_list = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon)
-        my_list = [list(elem) for elem in my_list]
         outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
                                      'nt composition', 'aa composition']) + "\n")
     outf.close()
