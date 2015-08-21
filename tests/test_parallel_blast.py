@@ -283,14 +283,14 @@ class TestMain(unittest.TestCase):
     @mock.patch('bio_pieces.parallel_blast.exists', mock.Mock(return_value=True))
     def test_runs_parallel_diamond_for_diamond(self, mock_pdmnd, mock_pblast):
         self.mock_args.inputfasta = '/path/in.fa'
-        self.mock_args.blast_type = 'diamond'
+        self.mock_args.blast_exe = 'diamond'
         parallel_blast.main()
         self.assertEqual(1, mock_pdmnd.call_count)
 
     @mock.patch('bio_pieces.parallel_blast.exists', mock.Mock(return_value=True))
     def test_runs_parallel_blast_for_blast(self, mock_pdmnd, mock_pblast):
         self.mock_args.inputfasta = '/path/in.fa'
-        self.mock_args.blast_type = 'blastn'
+        self.mock_args.blast_exe = 'blastn'
         parallel_blast.main()
         self.assertEqual(1, mock_pblast.call_count)
 

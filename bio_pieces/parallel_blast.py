@@ -35,14 +35,15 @@ def parse_args():
     parser.add_argument(
         '--ninst',
         type=int,
-        help='Number of total cpus to use'
+        default=1,
+        help='Number of total cpus to use[Default: %(default)s]'
     )
     parser.add_argument(
         '--db',
         help='Blast db path'
     )
     parser.add_argument(
-        '--blast_type',
+        '--blast_exe',
         choices=('diamond','blastn','blastx'),
         help='Executable to call'
     )
@@ -55,20 +56,7 @@ def parse_args():
     parser.add_argument(
         '--blast_options',
         default='',
-        help='Options to pass on to blast'
-    )
-    parser.add_argument(
-        '--outputdir',
-        default=None,
-        help='deprecated'
-    )
-    parser.add_argument(
-        '--logs',
-        help='deprecated'
-    )
-    parser.add_argument(
-        '--outheader',
-        help='Deprecated'
+        help='Options to pass on to blast/diamond[Default: %(default)s]'
     )
     return parser.parse_args()
 
@@ -212,7 +200,7 @@ def generate_sshlogins(ninst=None):
 def main():
     args = parse_args()
     assert exists(args.inputfasta), '[error] {0} does not exist'.format(args.inputfasta)
-    if args.blast_type == 'diamond':
+    if args.blast_exe == 'diamond':
         parallel_diamond(
             args.inputfasta, args.outfile, args.ninst, args.db, args.task,
             args.blast_options 
@@ -220,5 +208,5 @@ def main():
     else:
         parallel_blast(
             args.inputfasta, args.outfile, args.ninst, args.db,
-            args.blast_type, args.task, args.blast_options 
+            args.blast_exe, args.task, args.blast_options 
         )
