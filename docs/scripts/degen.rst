@@ -5,7 +5,7 @@ Find genes where a sequence has degenerate bases.
 How-to
 =====
 Usage:
-    degen.py <fasta> (--gb-id <accession_id> | --gb-file <gbfile> | --tab-file <tabfile>)
+    degen.py <fasta> <options>
 
 Options:
     --gb-id=<accession_id>   Accession id for reference
@@ -24,43 +24,64 @@ Example:
 
 Output:
 ======
-anchored capsid protein         85      R
-anchored capsid protein         88      Y
-membrane glycoprotein precursor 509     R
-nonstructural protein NS5       8513    Y
-nonstructural protein NS5       8514    Y
-nonstructural protein NS5       8515    Y
-anchored capsid protein         85      R
-anchored capsid protein         88      Y
-membrane glycoprotein precursor 509     R
-nonstructural protein NS5       8513    Y
-nonstructural protein NS5       8514    Y
-nonstructural protein NS5       8515    Y
+Gene name, degnerate position, degenerate base::
+
+   anchored capsid protein         85      R
+
+   anchored capsid protein         88      Y
+
+   membrane glycoprotein precursor 509     R
+
+   nonstructural protein NS5       8513    Y
+
+   nonstructural protein NS5       8514    Y
+
+   nonstructural protein NS5       8515    Y
+
+   anchored capsid protein         85      R
+
+   anchored capsid protein         88      Y
+
+   membrane glycoprotein precursor 509     R
+
+   nonstructural protein NS5       8513    Y
+
+   nonstructural protein NS5       8514    Y
+
+   nonstructural protein NS5       8515    Y
 
 
 Gene/Tab File
 =============
-degen.tab could look like:
+degen.tab could look like::
 
-genename	start	stop
-foo	1	2
-bar	9	33 
+   genename    start    stop
 
-The headers do not matter, but the start field must always come before the stop field, so the below example would also be valid:
+   foo    1    2
 
-start	GENEName	stop
-1	foo	2
-9	bar	33 
+   bar    9    33 
 
-or optionally without headers:
-1	foo	2
-9	bar	33 
+The headers do not matter, but the start field must always come before the stop field, so the below example would also be valid::
 
-alternatively, with commas in place of tabs:
+   start    GENEName    stop
 
-name,start,stop
-foo,1,2
-bar,9,33 
+   1    foo    2
+
+   9    bar    33 
+
+or optionally without headers::
+
+   1    foo    2
+
+   9    bar    33 
+
+alternatively, with commas in place of tabs::
+
+   name,start,stop
+
+   foo,1,2
+
+   bar,9,33 
 
 Genbank File
 ============
