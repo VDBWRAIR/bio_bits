@@ -1,4 +1,4 @@
-from bio_pieces.compat import unittest
+from bio_pieces.compat import unittest, StringIO
 from bio_pieces import ctleptop
 import mock
 import os
@@ -73,7 +73,6 @@ class TestCtleptopFunctionTest(unittest.TestCase):
 class TestSetOptionDebug(unittest.TestCase):
     def setUp(self):
         pass
-        from StringIO import StringIO
         @mock.patch('sys.stdout', new_callable=StringIO)
         def test_options_debug(self, stdout_mock):
             val = "Start processing and writing the output file to please please wait ... "

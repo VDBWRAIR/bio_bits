@@ -17,7 +17,7 @@ import argparse
 from bio_pieces import degen
 from functools import partial
 from tabulate import tabulate
-from compat import zip
+from bio_pieces.compat import zip
 import re
 
 __docformat__ = "restructuredtext en"
