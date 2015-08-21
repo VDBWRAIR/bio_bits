@@ -9,3 +9,4 @@ Scripts
     beast_wrapper
     group_references
     degen
+    parallel_blast
