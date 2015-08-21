@@ -14,8 +14,3 @@ script:
     - pybot tests/*.robot
 after_success:
     - coveralls
-
-notifications:
-   email:
-      recipients:
-         - michael.panciera.work@gmail.com
