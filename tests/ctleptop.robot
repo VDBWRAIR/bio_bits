@@ -5,7 +5,7 @@ Library         Collections
 Suite Teardown          Terminate All Processes    
 
 *** Variables ***
-${EXPECTED} =      tests/testoutput/ctl_expected.tsv
+${EXPECTED} =      tests/testinput/ctl_expected.tsv
 ${ACTUAL} =     robotout.tsv
 ${in_fasta} =   tests/Den4_MAAPS_TestData16.fasta 
 ${in_genbank} =         tests/testinput/sequence.gb
