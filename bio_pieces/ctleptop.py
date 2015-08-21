@@ -13,6 +13,11 @@ from Bio.Data import CodonTable
 from Bio.Data.IUPACData import ambiguous_dna_values
 #import yaml
 import argparse
+from bio_pieces import degen
+from functools import partial
+from tabulate import tabulate
+import re
+
 __docformat__ = "restructuredtext en"
 
 AMBICODON = {"R": ["A", "G"], "Y": ["C", "T"],
@@ -220,9 +225,11 @@ def create_args():
                                      the sequence', epilog = 'ctleptop -i \
                                      tests/Den4_MAAPS_TestData16.fasta -o \
                                      out_file.txt')
-    parser.add_argument("-i", type=str, help="Nucleotide fasta file")
-
-    parser.add_argument("-o", type=str,  help="output file name")
+    parser.add_argument("-i", type=str, help="Nucleotide fasta file", required=True)
+    parser.add_argument("-o", type=str,  help="output file name", required=True)
+    parser.add_argument("--gb-file", type=str,  help="genbank file name")
+    parser.add_argument("--gb-id", type=str,  help="genabnk accession id")
+    parser.add_argument("--tab-file", type=str,  help="gene tab/csv file")
     return parser.parse_args()
 
 
@@ -252,29 +259,27 @@ def main():
     #print "Start processing and writing the output file to", outfile, " please please wait ... "
     outf = open_f(outfile)
     my_list = access_mixed_aa(file_name)
-    # print my_list
     aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
-    import re
-    # print aa[331]
-    # print aa
     pattern = re.compile(r'.+\/.+')
     amb_aa_codon = []
     amb_aa_indx = []
     for indx, letter in enumerate(aa):
-        # print indx, ".....", letter
         if pattern.match(letter):
             amb_aa_codon.append(letter)
             amb_aa_indx.append(indx + 1)
-            # print indx + 1, letter
-    # print(amb_aa_codon)
     amb_aa_codon=isGap(amb_aa_codon, nucl_codon)
-    my_list = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon)
-    #print my_list
-    my_list = [list(elem) for elem in my_list]
-    # print list(my_list)
-    from tabulate import tabulate
-    # print my_list
-    outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
+
+    if args.gb_id  or args.gb_file or args.tab_file:
+        reference_genes = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
+        overlapped_genes = degen.get_degen_list_overlap( reference_genes, nuc_idx)
+        my_list = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon, overlapped_genes)
+        #my_list = [list(elem) for elem in my_list]
+        outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
+                                     'nt composition', 'aa composition', 'gene name']) + "\n")
+    else:
+        my_list = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon)
+        my_list = [list(elem) for elem in my_list]
+        outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
                                      'nt composition', 'aa composition']) + "\n")
     outf.close()
 
