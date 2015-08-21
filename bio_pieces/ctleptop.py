@@ -205,6 +205,7 @@ def access_mixed_aa(file_name):
                 aa1 = aa1.translate()
                 aa1 = str(aa1)
                 aa.append(aa1)
+    #print aa, nucleotide_idx, nucl_codon, seqids
     return aa, nucleotide_idx, nucl_codon, seqids
 
 
@@ -216,7 +217,9 @@ def create_args():
     parser = argparse.ArgumentParser(description='Convert inframe nucleotide \
                                      fasta file to protein and report mixed \
                                      (ambiguous codon) with its location in \
-                                     the sequence')
+                                     the sequence', epilog = 'ctleptop -i \
+                                     tests/Den4_MAAPS_TestData16.fasta -o \
+                                     out_file.txt')
     parser.add_argument("-i", type=str, help="Nucleotide fasta file")
 
     parser.add_argument("-o", type=str,  help="output file name")
@@ -239,13 +242,15 @@ def isGap(aalist, nclist):
             uaalist.append(codon)
     return uaalist
 
+def open_f(filename):
+    return open(filename, 'w+')
 
 def main():
     args = create_args()
     file_name = args.i
     outfile = args.o
-    print "Start processing and writing the output file to", outfile, " please please wait ... "
-    outf = open(outfile, 'w+')
+    #print "Start processing and writing the output file to", outfile, " please please wait ... "
+    outf = open_f(outfile)
     my_list = access_mixed_aa(file_name)
     # print my_list
     aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
