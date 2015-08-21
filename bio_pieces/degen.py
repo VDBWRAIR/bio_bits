@@ -83,16 +83,30 @@ def open_generic_csv(csvfile):
 
 csv_file_to_genes = compose(partial(map, row_to_gene), open_generic_csv, open)
 
+def get_degen_list_overlap(genes, _degen_positions):
+    '''
+    :param iterable genes: iterable of genes with attributes `start`, `end`, `name`
+    :param itrable _degen_positions: degenerate positions
+    :return generator of tuples of form: (gene name, position, nt)... where degens and genes overlap.
+    '''
+    genes, _degen_positions = list(genes), list(_degen_positions)
+    def get_intersect(pos):
+        intersects = lambda gene, pos=pos: gene if gene.start <= pos <= gene.end else None
+        matches = list(filter(bool, map(intersects, genes)))
+        return '-' if not matches else matches[0].name #next(matches).name
+    return map(get_intersect, _degen_positions)
+#    print(list(gene.name if gene.start <= pos <= gene.end else '-' for gene, pos in perms ))
+#    return (gene.name if gene.start <= pos <= gene.end else '-' for gene, pos in perms )
+
 def get_gene_degen_overlap_info(genes, seq):
     '''
     :param iterable genes: iterable of genes with attributes `start`, `end`, `name`
     :param str seq: nucleotide sequence
-    :return list of tuples of form: (gene name, position, nt)... where degens and genes overlap.
+    :return generator of tuples of form: (gene name, position, nt)... where degens and genes overlap.
     '''
     _degen_positions = degen_positions(str(seq))
     perms = product(genes, _degen_positions)
-    result = ((gene.name, pos, seq[pos]) for gene, pos in perms if  gene.start <= pos <= gene.end)
-    return result
+    return ((gene.name, pos, seq[pos]) for gene, pos in perms if  gene.start <= pos <= gene.end)
 
 def get_genes(ref_id=None, genbank_file=None, user_file=None):
     '''
