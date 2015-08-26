@@ -143,67 +143,46 @@ def access_mixed_aa(file_name):
     seqids = []
     for seq_record in SeqIO.parse(file_name, 'fasta'):
         seq_id = seq_record.id
-        seq_len = len(seq_record)
-        header, seqline = seq_record.id, str(seq_record.seq)
-    # for header, seqline in readFasta(file_name):
-        # print header + "\n" + seq_line
-
-        # my_seq = Seq(seq_line, IUPAC.extended_dna)
-        my_seq = Seq(str(seqline), IUPAC.ambiguous_dna)
-        # seq2 = Seq("ARAWTAGKAMTA", IUPAC.ambiguous_dna)
-        # seq2 = seq2.translate()
-        # print seq2
-        # print ambiguous_dna_values["W"]
-        # print IUPAC.ambiguous_dna.letters
+        seqline = str(seq_record.seq)
         seqline = seqline.replace("-", "N")
         n = 3
-        codon_list = {i + n: seqline[i:i + n] for i in range(0, len(seqline), n)}
-        # print yaml.dump(ambi_codon)
-        # print yaml.dump(codon_list)
+        codon_list = dict( (i + n , seqline[i:i + n]) for i in range(0, len(seqline), n))
         ambi_nucl = AMBICODON.keys()
-        # print ambi_nucl
-        # print ambi_codon["Y"]
         for key, codon in sorted(codon_list.items()):
-            # print "key: ", key , "codon:", codon
             if list_overlap(codon, ambi_nucl):
                 d, e, f = codon
                 m = [d, e, f]
-                # print codon, ".....", key
-                # print type(ambi_nucl)
-                items = set(m).intersection(ambi_nucl)
-                indexm = m.index(list(items)[0])
-                # print "index ...", indexm
-                items = list(items)      # eg. ['R']
+                items = [i for i in m if i in ambi_nucl]
+                indexm = m.index(items[0])
                 for idx, val in enumerate(items):
-                    # print idx
-                    # print val
                     codonlist = list(nearbyPermutations(codon))
-                    # print "codon list :", codonlist
                     val = getaalist(codonlist)
                     # remove if aa codon is the same eg. ['D', 'D']
-                    val = list(set(val))
-                    val = "/".join(val)   # yeild 'I/L'
-                    val = str(val)
-                    # print "codonlist *****", codonlist
-                    # print "aa val *******", val
-                    if "/" in val and indexm == 2:
-                        key = key
+                    val = set(val)
+                    val = "/".join(sorted(val))   # yeild 'I/L'
+
+                    key = key - 2 + indexm
+                    if '/' in val:
                         nucleotide_idx.append(key)
                         nucl_codon.append(codon)
                         seqids.append(seq_id)
-                    elif "/" in val and indexm == 1:
-                        key = key - 1
-                        nucleotide_idx.append(key)
-                        nucl_codon.append(codon)
-                        seqids.append(seq_id)
-                    elif "/" in val and indexm == 0:
-                        key = key - 2
-                        nucleotide_idx.append(key)
-                        nucl_codon.append(codon)
-                        seqids.append(seq_id)
-                    else:
-                        pass
-                    # print ".....", val
+#                    if "/" in val and indexm == 2:
+#                        key = key
+#                        nucleotide_idx.append(key)
+#                        nucl_codon.append(codon)
+#                        seqids.append(seq_id)
+#                    elif "/" in val and indexm == 1:
+#                        key = key - 1
+#                        nucleotide_idx.append(key)
+#                        nucl_codon.append(codon)
+#                        seqids.append(seq_id)
+#                    elif "/" in val and indexm == 0:
+#                        key = key - 2
+#                        nucleotide_idx.append(key)
+#                        nucl_codon.append(codon)
+#                        seqids.append(seq_id)
+#                    else:
+#                        pass
                     aa.append(val)
 
             else:
@@ -264,12 +243,13 @@ def main():
     aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
     pattern = re.compile(r'.+\/.+')
     amb_aa_codon = []
-    amb_aa_indx = []
+    #amb_aa_indx = []
     for indx, letter in enumerate(aa):
         if pattern.match(letter):
             amb_aa_codon.append(letter)
-            amb_aa_indx.append(indx + 1)
+            #amb_aa_indx.append(indx + 1)
     amb_aa_codon=isGap(amb_aa_codon, nucl_codon)
+    amb_aa_indx = map(lambda x: x/3 + 1, nuc_idx)
 
     if args.gb_id  or args.gb_file or args.tab_file:
         reference_genes = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
