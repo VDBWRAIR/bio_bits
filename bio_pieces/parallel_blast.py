@@ -120,10 +120,18 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
         raise ValueError("diamond is not in your path(Maybe not installed?)")
     args = ['-u', '--pipe', '--block', '10', '--recstart', '>', '--cat']
     args += sshlogins
+    '''
     args += [
         dmnd_path, task, '--threads', str(ninst), '--db', db, '--query', '{}',
         '--compress', '0', '-a', outfile
     ] + shlex.split(diamondoptions)
+    '''
+    diamond_cmd = [
+        dmnd_path, task, '--threads', str(ninst), '--db', db, '--query', '{}',
+        '--compress', '0', '-a', '{}', ';', dmnd_path, 'view', '{}.daa'
+    ] #+ shlex.split(diamondoptions)
+    diamond_cmd_str = ' '.join(diamond_cmd) + diamondoptions
+    args += [diamond_cmd_str]
     cmd = sh.Command('parallel')
     run(cmd, args, inputfile, outfile)
 

@@ -242,16 +242,17 @@ class TestParallelDiamond(MockSH):
             self.infile, self.outfile, 5, '/path/to/dmd', 'foox', '-bar foo'
         )
         r = self.mock_sh_cmd.return_value.call_args[0]
-        self.assertIn('foox', r)
-        self.assertIn('--threads', r)
-        self.assertIn('5', r)
-        self.assertIn('--db', r)
-        self.assertIn('/path/to/dmd', r)
-        self.assertIn('--query', r)
-        self.assertIn('{}', r)
         self.assertIn('--cat', r)
         self.assertIn('--sshlogin', r)
         self.assertIn('1/:', r)
+
+        diamond_cmd = dcmd = r[-1]
+        self.assertIn('diamond foox', dcmd)
+        self.assertIn('--threads 5', dcmd)
+        self.assertIn('--db /path/to/dmd', dcmd)
+        self.assertIn('--query {}', dcmd)
+        self.assertIn('-a {}', dcmd)
+        self.assertIn('diamond view {}.daa', dcmd)
 
     def test_each_remote_host_has_one_instance(self):
         self.mock_sh_which.return_value = '/path/to/diamond'
