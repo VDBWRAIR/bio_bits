@@ -154,11 +154,9 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
         p = run(
             dcmd, *args, threads=ninst, db=db, query=inputfile, a=outfile
         )
-        print(p)
         p = run(
             dcmd, 'view', a=outfile+'.daa', _out=open(outfile,'w')
         )
-        print(p)
 
 def run(cmd, *args, **kwargs):
     '''
