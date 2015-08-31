@@ -26,6 +26,11 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 
+try:
+    from __builtin__ import open
+except ImportError:
+    from builtins import open
+
 # Tests directory
 from os.path import dirname
 THIS = dirname(__file__)

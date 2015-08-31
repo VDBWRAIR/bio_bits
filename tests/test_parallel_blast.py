@@ -1,3 +1,4 @@
+from __future__ import print_function
 import tempfile
 import os
 
@@ -176,10 +177,6 @@ class TestParallelBlast(MockSH):
         self.assertIn('/path/db/nt', blastcmd)
         self.assertIn('-otherblast', blastcmd)
         self.assertIn('arg', blastcmd)
-        self.assertIn('-max_target_seqs', blastcmd)
-        self.assertIn(str(parallel_blast.MAX_TARGET_SEQS), blastcmd)
-        self.assertIn('-outfmt', blastcmd)
-        self.assertIn('"{0}"'.format(parallel_blast.BLAST_FORMAT), blastcmd)
 
     def test_localhost(self):
         self.mock_sh_which.return_value = '/path/to/foon'
@@ -215,6 +212,16 @@ class TestParallelBlast(MockSH):
             self.infile, self.outfile, 5, '/path/to/db', 'blastn', 'foox', '-bar foo'
         )
 
+    def test_passing_other_options_that_are_static_options_raises_exception(self):
+        self.mock_sh_which.return_value = '/path/to/blast'
+        for arg in parallel_blast.STATIC_BLAST_ARGS:
+            self.assertRaises(
+                ValueError, 
+                parallel_blast.parallel_blast,
+                self.infile, self.outfile, 5, '/path/to/blast', 'blastn', 'foox', 
+                arg + ' foo'
+            )
+
 class TestParallelDiamond(MockSH):
     def test_correct_inputoutput_handling(self):
         self.mock_sh_which.return_value = '/path/to/diamond'
@@ -226,7 +233,6 @@ class TestParallelDiamond(MockSH):
         # It seems that parallel needs 
         self.assertEqual(r[1]['_in'], self.mock_open.return_value)
         self.assertEqual(r[1]['_out'], self.mock_open.return_value)
-        self.assertIn('--pipe', r[0])
 
     def test_cannot_find_exe_raises_exception(self):
         self.mock_sh_which.return_value = None
@@ -236,24 +242,30 @@ class TestParallelDiamond(MockSH):
             self.infile, self.outfile, 5, '/path/to/dmd', 'foox', '-bar foo'
         )
 
-    def test_correct_command_string(self):
+    def test_local_runs_diamond_cmd_directly(self):
         self.mock_sh_which.return_value = '/path/to/diamond'
         parallel_blast.parallel_diamond(
             self.infile, self.outfile, 5, '/path/to/dmd', 'foox', '-bar foo'
         )
-        r = self.mock_sh_cmd.return_value.call_args[0]
-        self.assertIn('foox', r)
-        self.assertIn('--threads', r)
-        self.assertIn('5', r)
-        self.assertIn('--db', r)
-        self.assertIn('/path/to/dmd', r)
-        self.assertIn('--query', r)
-        self.assertIn('{}', r)
-        self.assertIn('--cat', r)
-        self.assertIn('--sshlogin', r)
-        self.assertIn('1/:', r)
+        # blastx call then view call
+        r1,r2 = self.mock_sh_cmd.return_value.call_args_list
+        print(r1)
 
-    def test_each_remote_host_has_one_instance(self):
+        r1a,r1k = r1
+        self.assertEqual(5, r1k['threads'])
+        self.assertEqual(self.infile, r1k['query'])
+        self.assertEqual('/path/to/dmd', r1k['db'])
+        self.assertEqual(self.outfile, r1k['daa'])
+        self.assertEqual('foox', r1a[0])
+        self.assertEqual(('-bar','foo'), r1a[1:])
+
+        r2a,r2k = r2
+        self.assertEqual('view', r2a[0])
+        self.assertEqual(self.outfile+'.daa', r2k['daa'])
+        self.assertEqual(self.mock_open.return_value, r2k['_out'])
+        self.mock_open.assert_called_once_with(self.outfile,'w')
+
+    def test_each_remote_host_has_one_instance_and_runs_parallel(self):
         self.mock_sh_which.return_value = '/path/to/diamond'
         self.mock_open.return_value.__enter__.return_value = PBS_MACHINEFILE.splitlines()
         with mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
@@ -265,6 +277,45 @@ class TestParallelDiamond(MockSH):
             self.assertIn('1/node1.localhost', r)
             self.assertIn('1/node2.localhost', r)
             self.assertIn('1/node3.localhost', r)
+            self.assertIn('10', r)
+
+    def test_passing_other_options_that_are_static_options_raises_exception(self):
+        self.mock_sh_which.return_value = '/path/to/diamond'
+        for arg in parallel_blast.STATIC_DIAMOND_ARGS:
+            self.assertRaises(
+                ValueError, 
+                parallel_blast.parallel_diamond,
+                self.infile, self.outfile, 5, '/path/to/dmd', 'foox', arg + ' foo'
+            )
+
+@mock.patch('bio_pieces.parallel_blast.sys.stdout')
+class TestRun(MockSH):
+    def setUp(self):
+        super(TestRun, self).setUp()
+        self.args = ['foo', '-bar']
+        self.kwargs = {'foo':'bar'}
+        self.cmd = mock.Mock()
+        self.cmd.return_value.cmd = ['/path/to/x', 'foo', '-bar', '--foo', 'bar']
+        self.cmd._path = '/path/to/x'
+
+    def test_passes_args_kwargs_to_cmd(self, mock_sout):
+        _in = StringIO('test')
+        _out = StringIO()
+        self.kwargs['_in'] = _in
+        self.kwargs['_out'] = _out
+        r = parallel_blast.run(self.cmd, *self.args, **self.kwargs)
+        self.cmd.called_once_with(*self.args, **self.kwargs)
+        sout = mock_sout.write.call_args_list[0][0][0]
+        self.assertNotIn('_in', sout)
+        self.assertNotIn('_out', sout)
+
+    def test_prints_cmd_to_stdout(self, mock_sout):
+        r = parallel_blast.run(self.cmd, *self.args, **self.kwargs)
+        sout = mock_sout.write.call_args_list
+        self.assertEqual(
+            '[cmd] {0}'.format(' '.join(self.cmd.return_value.cmd)),
+            mock_sout.write.call_args_list[0][0][0]
+        )
 
 @mock.patch('bio_pieces.parallel_blast.parallel_blast')
 @mock.patch('bio_pieces.parallel_blast.parallel_diamond')

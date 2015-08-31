@@ -6,21 +6,19 @@ import argparse
 import shlex
 import subprocess
 import sys
-try:
-    from __builtin__ import open
-except ImportError:
-    from builtins import open
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ordereddict import OrderedDict
+from bio_pieces.compat import OrderedDict, open
 
 import sh
 
-# Staticly set options for blast
-MAX_TARGET_SEQS = 10
-BLAST_FORMAT = "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore"
+# Users cannot have these in the other args passed
+STATIC_BLAST_ARGS = [
+    '-num_threads', '-db', '-query'
+]
+
+# Users cannot have these in the other args passed
+STATIC_DIAMOND_ARGS = [
+    '-t', '--threads', '-d', '--db', '-q', '--query', '--daa', '-a'
+]
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -73,23 +71,24 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
         None if blastx/blastp
     :param str blastoptions: other options to pass to blast
     '''
+    if set(STATIC_BLAST_ARGS).intersection(shlex.split(blastoptions)):
+        raise ValueError("You cannot supply any of the arguments inside of {0} as" \
+            " optional arguments to blast".format(STATIC_BLAST_ARGS))
     blast_path = sh.which(blasttype)
     if blast_path is None:
         raise ValueError("{0} is not in your path(Maybe not installed?)".format(
             blasttype
         ))
-    args = ['-u', '--pipe', '--block', '10', '--recstart', '>']
+    args = ['-u', '--pipe', '--block', '100k', '--recstart', '>']
     args += generate_sshlogins(ninst)
     args += [blast_path]
     if task is not None:
         args += ['-task', task]
-    args += ['-db', db, '-max_target_seqs', str(MAX_TARGET_SEQS),
-        '-outfmt', '"'+BLAST_FORMAT+'"'
-    ]
+    args += ['-db', db,]
     args += shlex.split(blastoptions)
     args += ['-query', '-']
     cmd = sh.Command('parallel')
-    run(cmd, args, inputfile, outfile)
+    run(cmd, *args, _in=open(inputfile), _out=open(outfile,'w'))
 
 def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     '''
@@ -98,6 +97,11 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     Will not run more than 1 diamond process per host as diamond utilizes
     threads better than blast
 
+    Since diamond v0.7.9 produces a daa file, diamond view is required to output
+    the tsv format that is similar to blast's output format. diamond view is
+    automatically called on the produced .daa file so that GNU Parallel can combine
+    all output into a single stream.
+
     :param str inputfile: Input fasta path
     :param str outfile: Output file path
     :param int ninst: number of threads to use if not in PBS or SGE job
@@ -105,10 +109,9 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     :param str task: blastx or blastp
     :param str diamondoptions: other options to pass to blast
     '''
-    '''
-    diamond -task blastx -compress 0 -db /path/nt -o outfile -query inputfile -o outfile
-    my $cmd = "$type $task_option  $options -q  $query -d $db  -o $out"; 
-    '''
+    if set(STATIC_DIAMOND_ARGS).intersection(shlex.split(diamondoptions)):
+        raise ValueError("You cannot supply any of the arguments inside of {0} as" \
+            " optional arguments to diamond".format(STATIC_DIAMOND_ARGS))
     # This seems kinda stupid that we are just replacing cpu count for each
     # node with 1, but it is easier than refactoring other code to be better
     sshlogins = generate_sshlogins(ninst)
@@ -118,19 +121,45 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     dmnd_path = sh.which('diamond')
     if dmnd_path is None:
         raise ValueError("diamond is not in your path(Maybe not installed?)")
-    args = ['-u', '--pipe', '--block', '10', '--recstart', '>', '--cat']
-    args += sshlogins
-    args += [
+    # Diamond base command arguments
+    # parallel replaces {} with the temporary file it is using
+    #  and replaces {#} with the current file segment it is using
+    # After diamond is finished, diamond view will be used to output the tsv
+    # format of the file
+    diamond_cmd = [
         dmnd_path, task, '--threads', str(ninst), '--db', db, '--query', '{}',
-        '--compress', '0', '-a', outfile
-    ] + shlex.split(diamondoptions)
-    cmd = sh.Command('parallel')
-    run(cmd, args, inputfile, outfile)
+        '--daa', '{}.{#}', ';', dmnd_path, 'view', '--daa', '{}.{#}.daa'
+    ]
+    if len(sshlogins) > 2:
+        args = ['-u', '--pipe', '--block', '10', '--recstart', '>', '--cat']
+        args += sshlogins
+        diamond_cmd_str = ' '.join(diamond_cmd) + diamondoptions
+        args += [diamond_cmd_str]
+        cmd = sh.Command('parallel')
+        run(cmd, *args, _in=open(inputfile), _out=open(outfile,'w'))
+    else:
+        dcmd = sh.Command('diamond')
+        args = [task]
+        if diamondoptions:
+            args += shlex.split(diamondoptions)
+        p = run(
+            dcmd, *args, threads=ninst, db=db, query=inputfile, daa=outfile
+        )
+        p = run(
+            dcmd, 'view', daa=outfile+'.daa', _out=open(outfile,'w')
+        )
 
-def run(cmd, args, infile, outfile):
-    print("[cmd] {0} {1}".format(cmd._path, ' '.join(args)))
+def run(cmd, *args, **kwargs):
+    '''
+    Runs and prints what is being run to stdout
+    '''
+    kwargsignore = ['_in', '_out']
+    kwargs_str = ' '.join(['--'+a+' '+str(v) for a,v in kwargs.items() 
+        if a not in kwargsignore])
+    args_str = ' '.join(args)
+    print("[cmd] {0} {1} {2}".format(cmd._path, args_str, kwargs_str))
     try:
-        p = cmd(*args, _in=open(infile), _out=open(outfile,'w'))
+        p = cmd(*args, **kwargs)
         print(p)
     except sh.ErrorReturnCode as e:
         print("There was an error")
