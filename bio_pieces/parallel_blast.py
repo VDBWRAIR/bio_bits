@@ -112,16 +112,17 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     Will not run more than 1 diamond process per host as diamond utilizes
     threads better than blast
 
+    Since diamond v0.7.9 produces a daa file, diamond view is required to output
+    the tsv format that is similar to blast's output format. diamond view is
+    automatically called on the produced .daa file so that GNU Parallel can combine
+    all output into a single stream.
+
     :param str inputfile: Input fasta path
     :param str outfile: Output file path
     :param int ninst: number of threads to use if not in PBS or SGE job
     :param str db: Database path to blast against
     :param str task: blastx or blastp
     :param str diamondoptions: other options to pass to blast
-    '''
-    '''
-    diamond -task blastx -compress 0 -db /path/nt -o outfile -query inputfile -o outfile
-    my $cmd = "$type $task_option  $options -q  $query -d $db  -o $out"; 
     '''
     if has_duplicate_args(diamondoptions, STATIC_DIAMOND_ARGS):
         raise ValueError("You cannot supply any of the arguments inside of {0} as" \
@@ -135,6 +136,11 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     dmnd_path = sh.which('diamond')
     if dmnd_path is None:
         raise ValueError("diamond is not in your path(Maybe not installed?)")
+    # Diamond base command arguments
+    # parallel replaces {} with the temporary file it is using
+    #  and replaces {#} with the current file segment it is using
+    # After diamond is finished, diamond view will be used to output the tsv
+    # format of the file
     diamond_cmd = [
         dmnd_path, task, '--threads', str(ninst), '--db', db, '--query', '{}',
         '-a', '{}.{#}', ';', dmnd_path, 'view', '{}.{#}.daa'
