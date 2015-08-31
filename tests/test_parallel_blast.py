@@ -288,27 +288,6 @@ class TestParallelDiamond(MockSH):
                 self.infile, self.outfile, 5, '/path/to/dmd', 'foox', arg + ' foo'
             )
 
-class TestHasDuplicateArgs(unittest.TestCase):
-    def test_empty_argstring_edge_case(self):
-        self.assertFalse(
-            parallel_blast.has_duplicate_args('', [])
-        )
-    
-    def test_contains_one_arg(self):
-        self.assertTrue(
-            parallel_blast.has_duplicate_args('-foo bar -baz', ['-baz'])
-        )
-
-    def test_contains_many_args(self):
-        self.assertTrue(
-            parallel_blast.has_duplicate_args('-foo bar -baz', ['-foo', '-baz'])
-        )
-
-    def test_contains_no_args(self):
-        self.assertFalse(
-            parallel_blast.has_duplicate_args('-foo bar -baz', ['-bar'])
-        )
-
 @mock.patch('bio_pieces.parallel_blast.sys.stdout')
 class TestRun(MockSH):
     def setUp(self):

@@ -71,7 +71,7 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
         None if blastx/blastp
     :param str blastoptions: other options to pass to blast
     '''
-    if has_duplicate_args(blastoptions, STATIC_BLAST_ARGS):
+    if set(STATIC_BLAST_ARGS).intersection(shlex.split(blastoptions)):
         raise ValueError("You cannot supply any of the arguments inside of {0} as" \
             " optional arguments to blast".format(STATIC_BLAST_ARGS))
     blast_path = sh.which(blasttype)
@@ -89,21 +89,6 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
     args += ['-query', '-']
     cmd = sh.Command('parallel')
     run(cmd, *args, _in=open(inputfile), _out=open(outfile,'w'))
-
-def has_duplicate_args(argstring, staticarglist):
-    '''
-    Ensure that none of staticarglist arguments are contained in argstring
-    If they are then return True otherwise false
-
-    :param str argstring: argument string for some command
-    :param list staticarglist: list of static args that should be checked to see
-        if they are contained in argstring
-    :returns: True or False
-    '''
-    for x in staticarglist:
-        if x in argstring:
-            return True
-    return False
 
 def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     '''
@@ -124,7 +109,7 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     :param str task: blastx or blastp
     :param str diamondoptions: other options to pass to blast
     '''
-    if has_duplicate_args(diamondoptions, STATIC_DIAMOND_ARGS):
+    if set(STATIC_DIAMOND_ARGS).intersection(shlex.split(diamondoptions)):
         raise ValueError("You cannot supply any of the arguments inside of {0} as" \
             " optional arguments to diamond".format(STATIC_DIAMOND_ARGS))
     # This seems kinda stupid that we are just replacing cpu count for each
