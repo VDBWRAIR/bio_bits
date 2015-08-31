@@ -45,8 +45,8 @@ Running diamond
 +++++++++++++++
 
 Diamond v0.7.9 is the version that was tested with parallel_blast. As diamond is
-still in development the options may change and thus parallel_blast may not run
-it correctly.
+still in development the options may change in future versions and parallel_blast 
+may not run them correctly. Please submit a new issue if you find any issues.
 
 .. code-block:: bash
 
@@ -56,6 +56,11 @@ it correctly.
 
 Notice how even though we specified ``--ninst 4`` that ``--sshlogin 1/:`` was used
 and ``--threads 4`` was set instead.
+
+**Note** In recent versions of diamond, diamond outputs a daa binary file instead
+of a tab separated file. parallel_blast automatically converts the diamond output
+from daa to tab format for you but leaves the daa file behind(Same name as the
+output file you specify, but with the extension .daa)
 
 Command that is run
 +++++++++++++++++++

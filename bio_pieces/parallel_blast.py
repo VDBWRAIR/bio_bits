@@ -88,7 +88,7 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
     args += shlex.split(blastoptions)
     args += ['-query', '-']
     cmd = sh.Command('parallel')
-    run(cmd, args, inputfile, outfile)
+    run(cmd, *args, _in=open(inputfile), _out=open(outfile,'w'))
 
 def has_duplicate_args(argstring, staticarglist):
     '''
@@ -145,23 +145,32 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
         diamond_cmd_str = ' '.join(diamond_cmd) + diamondoptions
         args += [diamond_cmd_str]
         cmd = sh.Command('parallel')
-        run(cmd, args, inputfile, outfile)
+        run(cmd, *args, _in=open(inputfile), _out=open(outfile,'w'))
     else:
         dcmd = sh.Command('diamond')
         args = [task]
         if diamondoptions:
             args += shlex.split(diamondoptions)
-        p = dcmd(
-            *args, threads=ninst, db=db, query=inputfile, a=outfile
+        p = run(
+            dcmd, *args, threads=ninst, db=db, query=inputfile, a=outfile
         )
         print(p)
-        p = dcmd('view', a=outfile+'.daa', _out=open(outfile,'w'))
+        p = run(
+            dcmd, 'view', a=outfile+'.daa', _out=open(outfile,'w')
+        )
         print(p)
 
-def run(cmd, args, infile, outfile):
-    print("[cmd] {0} {1}".format(cmd._path, ' '.join(args)))
+def run(cmd, *args, **kwargs):
+    '''
+    Runs and prints what is being run to stdout
+    '''
+    kwargsignore = ['_in', '_out']
+    kwargs_str = ' '.join(['--'+a+' '+str(v) for a,v in kwargs.items() 
+        if a not in kwargsignore])
+    args_str = ' '.join(args)
+    print("[cmd] {0} {1} {2}".format(cmd._path, args_str, kwargs_str))
     try:
-        p = cmd(*args, _in=open(infile), _out=open(outfile,'w'))
+        p = cmd(*args, **kwargs)
         print(p)
     except sh.ErrorReturnCode as e:
         print("There was an error")

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import tempfile
 import os
 
@@ -248,7 +249,7 @@ class TestParallelDiamond(MockSH):
         )
         # blastx call then view call
         r1,r2 = self.mock_sh_cmd.return_value.call_args_list
-        print r1
+        print(r1)
 
         r1a,r1k = r1
         self.assertEqual(5, r1k['threads'])
@@ -306,6 +307,35 @@ class TestHasDuplicateArgs(unittest.TestCase):
     def test_contains_no_args(self):
         self.assertFalse(
             parallel_blast.has_duplicate_args('-foo bar -baz', ['-bar'])
+        )
+
+@mock.patch('bio_pieces.parallel_blast.sys.stdout')
+class TestRun(MockSH):
+    def setUp(self):
+        super(TestRun, self).setUp()
+        self.args = ['foo', '-bar']
+        self.kwargs = {'foo':'bar'}
+        self.cmd = mock.Mock()
+        self.cmd.return_value.cmd = ['/path/to/x', 'foo', '-bar', '--foo', 'bar']
+        self.cmd._path = '/path/to/x'
+
+    def test_passes_args_kwargs_to_cmd(self, mock_sout):
+        _in = StringIO('test')
+        _out = StringIO()
+        self.kwargs['_in'] = _in
+        self.kwargs['_out'] = _out
+        r = parallel_blast.run(self.cmd, *self.args, **self.kwargs)
+        self.cmd.called_once_with(*self.args, **self.kwargs)
+        sout = mock_sout.write.call_args_list[0][0][0]
+        self.assertNotIn('_in', sout)
+        self.assertNotIn('_out', sout)
+
+    def test_prints_cmd_to_stdout(self, mock_sout):
+        r = parallel_blast.run(self.cmd, *self.args, **self.kwargs)
+        sout = mock_sout.write.call_args_list
+        self.assertEqual(
+            '[cmd] {0}'.format(' '.join(self.cmd.return_value.cmd)),
+            mock_sout.write.call_args_list[0][0][0]
         )
 
 @mock.patch('bio_pieces.parallel_blast.parallel_blast')
