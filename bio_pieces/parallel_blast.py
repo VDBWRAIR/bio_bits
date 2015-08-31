@@ -128,7 +128,7 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
     # format of the file
     diamond_cmd = [
         dmnd_path, task, '--threads', str(ninst), '--db', db, '--query', '{}',
-        '-a', '{}.{#}', ';', dmnd_path, 'view', '{}.{#}.daa'
+        '--daa', '{}.{#}', ';', dmnd_path, 'view', '--daa', '{}.{#}.daa'
     ]
     if len(sshlogins) > 2:
         args = ['-u', '--pipe', '--block', '10', '--recstart', '>', '--cat']
@@ -143,10 +143,10 @@ def parallel_diamond(inputfile, outfile, ninst, db, task, diamondoptions):
         if diamondoptions:
             args += shlex.split(diamondoptions)
         p = run(
-            dcmd, *args, threads=ninst, db=db, query=inputfile, a=outfile
+            dcmd, *args, threads=ninst, db=db, query=inputfile, daa=outfile
         )
         p = run(
-            dcmd, 'view', a=outfile+'.daa', _out=open(outfile,'w')
+            dcmd, 'view', daa=outfile+'.daa', _out=open(outfile,'w')
         )
 
 def run(cmd, *args, **kwargs):

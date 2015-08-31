@@ -255,13 +255,13 @@ class TestParallelDiamond(MockSH):
         self.assertEqual(5, r1k['threads'])
         self.assertEqual(self.infile, r1k['query'])
         self.assertEqual('/path/to/dmd', r1k['db'])
-        self.assertEqual(self.outfile, r1k['a'])
+        self.assertEqual(self.outfile, r1k['daa'])
         self.assertEqual('foox', r1a[0])
         self.assertEqual(('-bar','foo'), r1a[1:])
 
         r2a,r2k = r2
         self.assertEqual('view', r2a[0])
-        self.assertEqual(self.outfile+'.daa', r2k['a'])
+        self.assertEqual(self.outfile+'.daa', r2k['daa'])
         self.assertEqual(self.mock_open.return_value, r2k['_out'])
         self.mock_open.assert_called_once_with(self.outfile,'w')
 
