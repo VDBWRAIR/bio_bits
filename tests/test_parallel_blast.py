@@ -138,7 +138,7 @@ class TestParallelBlast(MockSH):
             self.infile, self.outfile, 5, '/path/db/nt', 'blastn', 'megablast',
             '-evalue 0.01 -otherblast arg'
         )
-        r = self.mock_sh_cmd.return_value.call_args[0]
+        r = self.mock_sh_cmd.return_value.call_args[0][-1]
         self.assertIn('/path/to/blastn', r)
         self.assertIn('-task', r)
         self.assertIn('megablast', r)
@@ -149,7 +149,7 @@ class TestParallelBlast(MockSH):
             self.infile, self.outfile, 5, '/path/db/nt', 'diamond', None,
             '-evalue 0.01 -otherblast arg'
         )
-        r = self.mock_sh_cmd.return_value.call_args[0]
+        r = self.mock_sh_cmd.return_value.call_args[0][-1]
         self.assertIn('/path/to/diamond', r)
         self.assertNotIn('-task', r)
 
@@ -159,7 +159,7 @@ class TestParallelBlast(MockSH):
             self.infile, self.outfile, 5, '/path/db/nt', 'blastx', None,
             '-evalue 0.01 -otherblast arg'
         )
-        r = self.mock_sh_cmd.return_value.call_args[0]
+        r = self.mock_sh_cmd.return_value.call_args[0][-1]
         self.assertIn('/path/to/blastx', r)
         self.assertNotIn('-task', r)
 
@@ -171,7 +171,7 @@ class TestParallelBlast(MockSH):
         )
         self.mock_sh_cmd.assert_called_once_with('parallel')
         r = self.mock_sh_cmd.return_value.call_args
-        blastcmd = r[0]
+        blastcmd = r[0][-1]
         print(r[0])
         self.assertIn('-db', blastcmd)
         self.assertIn('/path/db/nt', blastcmd)

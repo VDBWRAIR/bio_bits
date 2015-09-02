@@ -75,18 +75,19 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
         raise ValueError("You cannot supply any of the arguments inside of {0} as" \
             " optional arguments to blast".format(STATIC_BLAST_ARGS))
     blast_path = sh.which(blasttype)
+    blast_cmd = [blast_path]
     if blast_path is None:
         raise ValueError("{0} is not in your path(Maybe not installed?)".format(
             blasttype
         ))
     args = ['-u', '--pipe', '--block', '100k', '--recstart', '>']
     args += generate_sshlogins(ninst)
-    args += [blast_path]
     if task is not None:
-        args += ['-task', task]
-    args += ['-db', db,]
-    args += shlex.split(blastoptions)
-    args += ['-query', '-']
+        blast_cmd += ['-task', task]
+    blast_cmd += ['-db', db,]
+    blast_cmd += [blastoptions]
+    blast_cmd += ['-query', '-']
+    args += [' '.join(blast_cmd)]
     cmd = sh.Command('parallel')
     run(cmd, *args, _in=open(inputfile), _out=open(outfile,'w'))
 
@@ -159,6 +160,7 @@ def run(cmd, *args, **kwargs):
     args_str = ' '.join(args)
     print("[cmd] {0} {1} {2}".format(cmd._path, args_str, kwargs_str))
     try:
+        print(args)
         p = cmd(*args, **kwargs)
         print(p)
     except sh.ErrorReturnCode as e:
@@ -230,6 +232,7 @@ def generate_sshlogins(ninst=None):
 
 def main():
     args = parse_args()
+    print(args)
     assert exists(args.inputfasta), '[error] {0} does not exist'.format(args.inputfasta)
     if args.blast_exe == 'diamond':
         parallel_diamond(
