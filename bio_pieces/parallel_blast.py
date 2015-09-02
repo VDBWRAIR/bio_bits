@@ -160,7 +160,6 @@ def run(cmd, *args, **kwargs):
     args_str = ' '.join(args)
     print("[cmd] {0} {1} {2}".format(cmd._path, args_str, kwargs_str))
     try:
-        print(args)
         p = cmd(*args, **kwargs)
         print(p)
     except sh.ErrorReturnCode as e:
@@ -232,7 +231,6 @@ def generate_sshlogins(ninst=None):
 
 def main():
     args = parse_args()
-    print(args)
     assert exists(args.inputfasta), '[error] {0} does not exist'.format(args.inputfasta)
     if args.blast_exe == 'diamond':
         parallel_diamond(
