@@ -80,7 +80,7 @@ def parallel_blast(inputfile, outfile, ninst, db, blasttype, task, blastoptions)
         raise ValueError("{0} is not in your path(Maybe not installed?)".format(
             blasttype
         ))
-    args = ['-u', '--pipe', '--block', '100k', '--recstart', '>']
+    args = ['-u', '--pipe', '--block', '10', '--recstart', '>']
     args += generate_sshlogins(ninst)
     if task is not None:
         blast_cmd += ['-task', task]
