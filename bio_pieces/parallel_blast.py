@@ -17,7 +17,7 @@ STATIC_BLAST_ARGS = [
 
 # Users cannot have these in the other args passed
 STATIC_DIAMOND_ARGS = [
-    '-t', '--threads', '-d', '--db', '-q', '--query', '--daa', '-a'
+    '-p', '--threads', '-d', '--db', '-q', '--query', '--daa', '-a'
 ]
 
 def parse_args():
