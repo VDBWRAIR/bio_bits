@@ -120,6 +120,17 @@ class MockSH(unittest.TestCase):
         self.outfile = '/path/outfile'
 
 class TestParallelBlast(MockSH):
+    def test_uses_parallel_args(self):
+        self.mock_sh_which.return_value = '/path/to/foon'
+        parallel_blast.parallel_blast(
+            self.infile, self.outfile, 5, '/path/db/nt', 'foon', 'barn',
+            '-evalue 0.01 -otherblast arg'
+        )
+        r = self.mock_sh_cmd.return_value.call_args[0]
+        # Only parallel args up to --sshlogin
+        pargs = list(r[:r.index('--sshlogin')])
+        self.assertListEqual(parallel_blast.PARALLEL_ARGS, pargs)
+
     def test_correct_input_file_handling(self):
         self.mock_sh_which.return_value = '/path/to/foon'
         parallel_blast.parallel_blast(
@@ -130,7 +141,6 @@ class TestParallelBlast(MockSH):
         # It seems that parallel needs 
         self.assertEqual(r[1]['_in'], self.mock_open.return_value)
         self.assertEqual(r[1]['_out'], self.mock_open.return_value)
-        self.assertIn('--pipe', r[0])
 
     def test_handles_blastn_task(self):
         self.mock_sh_which.return_value = '/path/to/blastn'
@@ -223,6 +233,19 @@ class TestParallelBlast(MockSH):
             )
 
 class TestParallelDiamond(MockSH):
+    def test_uses_parallel_args(self):
+        self.mock_sh_which.return_value = '/path/to/diamond'
+        self.mock_open.return_value.__enter__.return_value = PBS_MACHINEFILE.splitlines()
+        with mock.patch.dict('bio_pieces.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
+            parallel_blast.parallel_diamond(
+                self.infile, self.outfile, 5, '/path/db/nt', 'foon',
+                '-evalue 0.01 -otherblast arg'
+            )
+            r = self.mock_sh_cmd.return_value.call_args[0]
+            # Only parallel args up to --sshlogin
+            pargs = list(r[:r.index('--sshlogin')])
+            self.assertListEqual(parallel_blast.PARALLEL_ARGS, pargs)
+
     def test_correct_inputoutput_handling(self):
         self.mock_sh_which.return_value = '/path/to/diamond'
         parallel_blast.parallel_blast(
