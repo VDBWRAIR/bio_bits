@@ -5,6 +5,7 @@ ctleptop.py -i [FASTA FILE] > Out_file.txt
 
 Created by Dereje Jima on May 21, 2015
 """
+from __future__ import division
 from __future__ import print_function
 from Bio.Seq import *
 from Bio.Alphabet import IUPAC
@@ -249,7 +250,7 @@ def main():
             amb_aa_codon.append(letter)
             #amb_aa_indx.append(indx + 1)
     amb_aa_codon=isGap(amb_aa_codon, nucl_codon)
-    amb_aa_indx = map(lambda x: x/3 + 1, nuc_idx)
+    amb_aa_indx = map(lambda x: x//3 + 1, nuc_idx)
 
     if args.gb_id  or args.gb_file or args.tab_file:
         reference_genes = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
