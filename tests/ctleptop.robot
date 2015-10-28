@@ -11,7 +11,7 @@ ${in_fasta} =   tests/Den4_MAAPS_TestData16.fasta
 ${in_genbank} =         tests/testinput/sequence.gb
 
 *** Test Cases ***
-TestAmos2Fastq
+TestCtleptop
     ${process_result} =         Run Process     ctleptop        -i      ${in_fasta}     -o      ${ACTUAL}       --gb-file       ${in_genbank}
 
     # Check system exited  correctly
