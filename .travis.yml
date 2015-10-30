@@ -13,4 +13,4 @@ script:
     - nosetests tests --with-coverage --cover-erase --cover-package=bio_pieces -a '!download'
     - pybot tests/*.robot
 after_success:
-    - coveralls
+    - coveralls 
