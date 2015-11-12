@@ -1,6 +1,6 @@
-from bio_pieces.compat import unittest
+from bio_bits.compat import unittest
 import mock
-from bio_pieces.degen import Gene, get_gene_degen_overlap_info, main, csv_file_to_genes
+from bio_bits.degen import Gene, get_gene_degen_overlap_info, main, csv_file_to_genes
 from itertools import starmap
 import sys
 from nose.plugins.attrib import attr
@@ -33,9 +33,9 @@ class DegenTest(unittest.TestCase):
 
 
     #@mock.patch('Bio.SeqIO.parse')
-    #NOTE: bio_pieces/degen.py must exist or else Schema throws an error.
-    @mock.patch('bio_pieces.degen.parse_fasta')
-    @mock.patch('sys.argv', ['_', 'bio_pieces/degen.py', '--gb-id', genbank_id])
+    #NOTE: bio_bits/degen.py must exist or else Schema throws an error.
+    @mock.patch('bio_bits.degen.parse_fasta')
+    @mock.patch('sys.argv', ['_', 'bio_bits/degen.py', '--gb-id', genbank_id])
     @attr('download')
     def test_functional(self, mparse):
         '''Note: requires internet access to genbank.'''
@@ -52,9 +52,9 @@ class DegenTest(unittest.TestCase):
         actual = sorted(get_gene_degen_overlap_info(self.genes, self.seq))
         self.assertListEqual(actual, expected)
 
-    @mock.patch('bio_pieces.degen.parse_fasta')
-    #NOTE: bio_pieces/degen.py must exist or else Schema throws an error.
-    @mock.patch('sys.argv', ['_', 'bio_pieces/degen.py', '--gb-file', gb_file])
+    @mock.patch('bio_bits.degen.parse_fasta')
+    #NOTE: bio_bits/degen.py must exist or else Schema throws an error.
+    @mock.patch('sys.argv', ['_', 'bio_bits/degen.py', '--gb-file', gb_file])
     def test_functional_with_file(self, mparse):
         mparse.return_value = [mock.Mock(seq=self.seq)]
         if not hasattr(sys.stdout, "getvalue"):

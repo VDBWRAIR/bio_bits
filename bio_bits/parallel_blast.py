@@ -6,7 +6,7 @@ import argparse
 import shlex
 import subprocess
 import sys
-from bio_pieces.compat import OrderedDict, open
+from bio_bits.compat import OrderedDict, open
 
 import sh
 

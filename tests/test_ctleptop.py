@@ -1,8 +1,8 @@
-from bio_pieces.compat import unittest, StringIO
-from bio_pieces import ctleptop
+from bio_bits.compat import unittest, StringIO
+from bio_bits import ctleptop
 import mock
 import os
-from bio_pieces.ctleptop import create_args
+from bio_bits.ctleptop import create_args
 #from sys import version_info
 # if version_info.major == 2:
 # import __builtin__ as builtins
@@ -19,24 +19,24 @@ class TestCtleptopFunctionTest(unittest.TestCase):
     """Base TestCase class, set up a CLI parser"""
 
     def setUp(self):
-        #self.patch_fileinput = mock.patch('bio_pieces.ctleptop.access_mixed_aa')
+        #self.patch_fileinput = mock.patch('bio_bits.ctleptop.access_mixed_aa')
         #self.mock_fileinput = self.patch_fileinput.start()
         #self.mock_fileinput_input = self.mock_fileinput.input
         # self.addCleanup(self.mock_fileinput.stop)
-        #self.patch_sys_stdout = mock.patch('bio_pieces.ctleptop.sys.stdout')
-        #self.patch_sys_stderr = mock.patch('bio_pieces.ctleptop.sys.stderr')
+        #self.patch_sys_stdout = mock.patch('bio_bits.ctleptop.sys.stdout')
+        #self.patch_sys_stderr = mock.patch('bio_bits.ctleptop.sys.stderr')
         #self.mock_stdout = self.patch_sys_stdout.start()
         #self.mock_stderr = self.patch_sys_stderr.start()
         #self.addCleanup(self.mock_stdout.stop)
         #self.addCleanup(self.mock_stderr.stop)
-        #self.patcher_argparse = mock.patch('bio_pieces.ctleptop.create_args')
+        #self.patcher_argparse = mock.patch('bio_bits.ctleptop.create_args')
         #self.mock_argparse = self.patcher_argparse.start()
         # self.addCleanup(self.mock_argparse.stop)
         #parser = ctleptop.create_args()
         #self.parser = parser
         pass
 
-    #@mock.patch('bio_pieces.ctleptop.sys.argv')
+    #@mock.patch('bio_bits.ctleptop.sys.argv')
     #import sys
     @mock.patch('sys.argv', ['DUMMY', '-i', infile, '-o', outfile])
     def test_args(self):
@@ -46,8 +46,8 @@ class TestCtleptopFunctionTest(unittest.TestCase):
         self.assertEquals(parser.i, self.infile)
         self.assertEquals(parser.o, self.outfile)
 '''
-    @mock.patch('bio_pieces.ctleptop.create_args')
-    #@mock.patch('bio_pieces.ctleptop.open_f')
+    @mock.patch('bio_bits.ctleptop.create_args')
+    #@mock.patch('bio_bits.ctleptop.open_f')
     def test_main(self, call_main):
         from StringIO import StringIO
         args = ctleptop.create_args()
