@@ -6,3 +6,6 @@ class TestProjectRename(unittest.TestCase):
         from bio_pieces import amos as bp_amos
         from bio_bits import amos as bb_amos
         self.assertEqual(bp_amos, bb_amos)
+
+    def test_can_import_bio_pieces(self):
+        import bio_pieces

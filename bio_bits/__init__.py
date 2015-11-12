@@ -4,3 +4,5 @@ __authors__ = 'Tyghe Vallard, Michael Panciera'
 __authoremails__ = 'vallardt@gmail.com, michael.panciera.work@gmail.com'
 __description__ = 'Various bioinformatics scripting'
 __projectname__ = 'bio_bits'
+
+bio_pieces = bio_bits
