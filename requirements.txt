@@ -7,3 +7,4 @@ schema
 pyvcf
 sh
 funcy
+tabulate

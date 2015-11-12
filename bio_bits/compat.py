@@ -8,7 +8,7 @@ try:
 except ImportError:
     from io import BytesIO
 
-from future.builtins import map, filter
+from future.builtins import map, filter, zip
 
 try:
     import unittest2 as unittest
@@ -25,6 +25,11 @@ try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
+
+try:
+    from __builtin__ import open
+except ImportError:
+    from builtins import open
 
 # Tests directory
 from os.path import dirname
