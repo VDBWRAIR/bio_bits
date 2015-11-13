@@ -14,9 +14,3 @@ class TestProjectRename(unittest.TestCase):
         actual_msg = mock_serr.write.call_args[0][0]
         self.assertIn(dep_msg, actual_msg)
 
-    def test_can_import_sub_module(self, mock_serr):
-        from bio_pieces import version
-        r = version.get_release()
-        self.assertEqual(1.0, r)
-        actual_msg = mock_serr.write.call_args[0][0]
-        self.assertIn(dep_msg, actual_msg)
