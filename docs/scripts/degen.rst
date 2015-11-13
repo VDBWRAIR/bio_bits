@@ -85,4 +85,4 @@ alternatively, with commas in place of tabs::
 
 Genbank File
 ============
-As downloaded from NCBI's entrez database. Use this option if you don't have internet access. An example can be found in bio_pieces/tests/testinput/sequence.gb
+As downloaded from NCBI's entrez database. Use this option if you don't have internet access. An example can be found in bio_bits/tests/testinput/sequence.gb

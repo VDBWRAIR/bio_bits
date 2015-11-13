@@ -15,10 +15,10 @@ from Bio.Data import CodonTable
 from Bio.Data.IUPACData import ambiguous_dna_values
 #import yaml
 import argparse
-from bio_pieces import degen
+from bio_bits import degen
 from functools import partial
 from tabulate import tabulate
-from bio_pieces.compat import zip
+from bio_bits.compat import zip
 import re
 
 __docformat__ = "restructuredtext en"

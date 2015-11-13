@@ -12,9 +12,9 @@ from __future__ import print_function
 from functools import partial
 from collections import namedtuple
 from itertools import starmap, product
-from bio_pieces.compat import map, filter
+from bio_bits.compat import map, filter
 import re
-from bio_pieces.compat import StringIO
+from bio_bits.compat import StringIO
 from Bio import Entrez, SeqIO
 
 #for commandline stuff
