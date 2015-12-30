@@ -124,13 +124,13 @@ seq id                                       nt Position    aa position  nt comp
 1793_Den4/AY618992_1/Thailand/2001/Den4_1          10015           3339  RTT               I/V               nonstructural protein NS5
 1793_Den4/AY618992_1/Thailand/2001/Den4_1          10087           3363  NGR               GAPFOUND          nonstructural protein NS5
 1793_Den4/AY618992_1/Thailand/2001/Den4_1          10085           3362  NGR               GAPFOUND          nonstructural protein NS5
-1901_Den4/AY618992_1/Thailand/2001/Den4_1             15              6  AAN               GAPFOUND          -
+1901_Den4/AY618992_1/Thailand/2001/Den4_1             15              6  AAN               GAPFOUND          5'UTR
 1901_Den4/AY618992_1/Thailand/2001/Den4_1            111             38  TTN               GAPFOUND          anchored capsid protein
 1901_Den4/AY618992_1/Thailand/2001/Den4_1           2279            760  GYT               A/V               envelope protein
 1901_Den4/AY618992_1/Thailand/2001/Den4_1           8798           2933  ARA               K/R               nonstructural protein NS5
 1901_Den4/AY618992_1/Thailand/2001/Den4_1          10195           3399  RAG               E/K               nonstructural protein NS5
-1901_Den4/AY618992_1/Thailand/2001/Den4_1          10366           3456  RGG               G/R               -
-1934_Den4/AY618992_1/Thailand/2001/Den4_1             15              6  AAN               GAPFOUND          -
+1901_Den4/AY618992_1/Thailand/2001/Den4_1          10366           3456  RGG               G/R               3'UTR
+1934_Den4/AY618992_1/Thailand/2001/Den4_1             15              6  AAN               GAPFOUND          5'UTR
 1934_Den4/AY618992_1/Thailand/2001/Den4_1            111             38  TTN               GAPFOUND          anchored capsid protein
 1934_Den4/AY618992_1/Thailand/2001/Den4_1            998            333  GMT               A/D               envelope protein
 1934_Den4/AY618992_1/Thailand/2001/Den4_1           4515           1506  TTM               F/L               nonstructural protein NS3

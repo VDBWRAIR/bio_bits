@@ -32,15 +32,28 @@ Entrez.email = "micheal.panciera.work@gmail.com"
 
 Gene = namedtuple('Gene', [ 'name', 'start', 'end'])
 
+def gene_name(rec):
+    '''
+    Determine the correct gene name from genbank record
+
+    :param Bio.SeqRecord rec: biopython genbank record
+    :return str name: 3'UTR, 5'UTR, mat_peptide, ...
+    '''
+    name = rec.qualifiers.get('product', rec.type)
+    if isinstance(name, list):
+        return name[0]
+    return name
+
 def seqrecord_to_genes(rec):
     '''
+    [SeqFeature(FeatureLocation(ExactPosition(0), ExactPosition(10452), strand=1), type='source'), SeqFeature(FeatureLocation(ExactPosition(0), ExactPosition(83), strand=1), type="5'UTR"), SeqFeature(FeatureLocation(ExactPosition(83), ExactPosition(10262), strand=1), type='CDS'), SeqFeature(FeatureLocation(ExactPosition(83), ExactPosition(425), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(425), ExactPosition(923), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(923), ExactPosition(2408), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(2408), ExactPosition(3464), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(3464), ExactPosition(4118), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(4118), ExactPosition(4508), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(4508), ExactPosition(6365), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(6365), ExactPosition(6746), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(6746), ExactPosition(6815), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(6815), ExactPosition(7562), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(7562), ExactPosition(10259), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(10262), ExactPosition(10452), strand=1), type="3'UTR")]
     :param Bio.SeqRecord rec: genbank record from SeqIO.parse format='genbank'
     :return iterable genes: iterator of gene objects (features with mat_peptied as their type)
     '''
     #Don't include `CDS`, that's whole-genome polypeptide
-    GENE_TYPES = ('mat_peptide')
-    genes = filter(lambda x: x.type in GENE_TYPES, rec.features)
-    starts_ends_names = map(lambda f: ( f.qualifiers['product'][0], int(f.location.start), int(f.location.end), ), genes)
+    EXCLUDE_GENE_TYPES = ('source', 'CDS')
+    genes = filter(lambda x: x.type not in EXCLUDE_GENE_TYPES, rec.features)
+    starts_ends_names = map(lambda f: ( gene_name(f), int(f.location.start), int(f.location.end), ), genes)
     return starmap(Gene, starts_ends_names)
 
 def fetch_record_by_id(_id):

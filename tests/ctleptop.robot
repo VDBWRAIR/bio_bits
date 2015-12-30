@@ -27,7 +27,7 @@ Expected Output Genbank File
     File Should Not Be Empty    ${actual}
     ${actual_contents} =    Get File    ${actual}
     ${expected_contents} =    Get File    ${expected}
-    Should Be Equal As Strings    ${actual_contents}    ${expected_contents} 
+    Should Be Equal As Strings    ${expected_contents}    ${actual_contents} 
 
 Expected Output Genbank Accession
     ${process_result} =    Run Process    degen_regions    -i    ${in_fasta}    -o    ${ACTUAL}    --gb-id    ${in_genbank_id}
@@ -43,7 +43,7 @@ Expected Output Genbank Accession
     File Should Not Be Empty    ${actual}
     ${actual_contents} =    Get File    ${actual}
     ${expected_contents} =    Get File    ${expected}
-    Should Be Equal As Strings    ${actual_contents}    ${expected_contents} 
+    Should Be Equal As Strings    ${expected_contents}    ${actual_contents} 
 
 Expected Output Tab File
     ${process_result} =    Run Process    degen_regions    -i    ${in_fasta}    -o    ${ACTUAL}    --tab-file    ${in_annotation_tab}
@@ -59,4 +59,4 @@ Expected Output Tab File
     File Should Not Be Empty    ${actual}
     ${actual_contents} =    Get File    ${actual}
     ${expected_contents} =    Get File    ${expected}
-    Should Be Equal As Strings    ${actual_contents}    ${expected_contents} 
+    Should Be Equal As Strings    ${expected_contents}    ${actual_contents} 

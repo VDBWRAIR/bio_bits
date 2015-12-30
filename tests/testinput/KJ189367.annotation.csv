@@ -1,4 +1,5 @@
 name,start,stop
+5'UTR,1,83
 anchored capsid protein,84,425
 membrane glycoprotein precursor,426,923
 envelope protein,924,2408
@@ -10,3 +11,4 @@ nonstructural protein NS4A,6366,6746
 2K peptide,6747,6815
 nonstructural protein NS4B,6816,7562
 nonstructural protein NS5,7563,10259
+3'UTR,10263,10452
