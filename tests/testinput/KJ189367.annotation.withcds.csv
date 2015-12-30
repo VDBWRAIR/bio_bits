@@ -1,0 +1,15 @@
+name,start,stop
+CDS,84,10262
+5'UTR,1,83
+anchored capsid protein,84,425
+membrane glycoprotein precursor,426,923
+envelope protein,924,2408
+nonstructural protein NS1,2409,3464
+nonstructural protein NS2A,3465,4118
+nonstructural protein NS2B,4119,4508
+nonstructural protein NS3,4509,6365
+nonstructural protein NS4A,6366,6746
+2K peptide,6747,6815
+nonstructural protein NS4B,6816,7562
+nonstructural protein NS5,7563,10259
+3'UTR,10263,10452

@@ -20,6 +20,7 @@ from functools import partial
 from tabulate import tabulate
 from bio_bits.compat import zip
 import re
+import sys
 
 __docformat__ = "restructuredtext en"
 
@@ -172,13 +173,14 @@ def create_args():
              the sequence',
         epilog = '%(prog)s -i tests/Den4_MAAPS_TestData16.fasta -o out_file.txt'
     )
+    g = parser.add_mutually_exclusive_group(required=True)
     parser.add_argument("-i", type=str, help="Nucleotide fasta file", required=True)
     parser.add_argument("-o", type=str,  help="output file name", required=True)
-    parser.add_argument("--gb-file", type=str,  help="genbank file name")
-    parser.add_argument("--gb-id", type=str,  help="genabnk accession id")
-    parser.add_argument("--tab-file", type=str,  help="gene tab/csv file")
+    g.add_argument("--gb-file", type=str,  help="genbank file name")
+    g.add_argument("--gb-id", type=str,  help="genabnk accession id")
+    g.add_argument("--tab-file", type=str,  help="gene tab/csv file")
+    parser.add_argument('--cds', type=str, help="CDS start stop[start,stop]")
     return parser.parse_args()
-
 
 def isGap(aalist, nclist):
     """(list, list) -> (list)
@@ -196,36 +198,60 @@ def isGap(aalist, nclist):
             uaalist.append(codon)
     return uaalist
 
-def open_f(filename):
-    return open(filename, 'w+')
+def mod_entry(entry, cds):
+    '''
+    Find Gap positions and non-coding region positions
+    :param entry: iterable of (seqid,nucindex,aaindex,nuclcodon,aacodon,genename)
+    :cds: Gene of CDS info
+    :return: entry modified to reflect gap or non-coding
+    '''
+    new_entry = list(entry)
+    nuc_pos = entry[1]
+    nt = entry[3]
+    if cds.start >= nuc_pos or cds.end <= nuc_pos:
+        new_entry[4] = 'NON-CODING'
+    elif 'N' in nt:
+        new_entry[4] = 'GAPFOUND'
+    return tuple(new_entry)
 
 def main():
     args = create_args()
     file_name = args.i
     outfile = args.o
-    outf = open_f(outfile)
-    aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
-    pattern = re.compile(r'.+\/.+')
-    amb_aa_codon = []
-    for indx, letter in enumerate(aa):
-        if pattern.match(letter):
-            amb_aa_codon.append(letter)
-            #amb_aa_indx.append(indx + 1)
-    amb_aa_codon=isGap(amb_aa_codon, nucl_codon)
-    amb_aa_indx = map(lambda x: x//3 + 1, nuc_idx)
+        
+    with open(outfile, 'w+') as outf:
+        aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
 
-    if args.gb_id  or args.gb_file or args.tab_file:
-        reference_genes = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
-        overlapped_genes = degen.get_degen_list_overlap( reference_genes, nuc_idx)
-        my_list = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon, overlapped_genes)
-        outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
-                                     'nt composition', 'aa composition', 'gene name']) + "\n")
-    else:
-        print("Warning, no gene information supplied.")
-        my_list = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon)
-        outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
-                                     'nt composition', 'aa composition']) + "\n")
-    outf.close()
+        # Get Gene info
+        reference_genes, cds = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
+        overlapped_genes = degen.get_degen_list_overlap(reference_genes, nuc_idx)
+
+        # Remove all non-mixed positions
+        amb_aa_codon = filter(lambda x: '/' in x, aa)
+        #amb_aa_codon = isGap(amb_aa_codon, nucl_codon)
+        # get amino acid index list
+        amb_aa_indx = map(lambda x: x//3 + 1, nuc_idx)
+
+        mixed_positions = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon, overlapped_genes)
+        if args.cds:
+            cds_start, cds_end = map(int, args.cds.split(','))
+            cds = degen.Gene('CDS', cds_start, cds_end)
+
+        if cds is None:
+            print("No CDS information supplied via input file or on command line")
+            sys.exit(1)
+
+        # mark gaps and non-coding positions
+        mixed_positions= map(lambda x: mod_entry(x, cds), mixed_positions)
+        outf.write(
+            tabulate(
+                mixed_positions,
+                headers=[
+                    'seq id', 'nt Position', 'aa position',
+                    'nt composition', 'aa composition', 'gene name'
+                ]
+            ) + "\n"
+        )
 
 if __name__ == '__main__':
     main()

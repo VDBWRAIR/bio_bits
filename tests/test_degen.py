@@ -1,6 +1,9 @@
 from bio_bits.compat import unittest
 import mock
-from bio_bits.degen import Gene, get_gene_degen_overlap_info, main, csv_file_to_genes
+from bio_bits.degen import (
+    Gene, get_gene_degen_overlap_info,
+    main, csv_file_to_genes
+)
 from itertools import starmap
 import sys
 from nose.plugins.attrib import attr
@@ -75,6 +78,3 @@ class DegenTest(unittest.TestCase):
         expected = [Gene(name='foo', start=1, end=2), Gene(name='bar', start=9, end=33)]
         actual = list(csv_file_to_genes(csvfile))
         self.assertListEqual(actual, expected)
-
-
-

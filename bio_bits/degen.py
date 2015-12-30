@@ -37,8 +37,10 @@ def gene_name(rec):
     Determine the correct gene name from genbank record
 
     :param Bio.SeqRecord rec: biopython genbank record
-    :return str name: 3'UTR, 5'UTR, mat_peptide, ...
+    :return str name: CDS, 3'UTR, 5'UTR, mat_peptide, ...
     '''
+    if rec.type == 'CDS':
+        return rec.type
     name = rec.qualifiers.get('product', rec.type)
     if isinstance(name, list):
         return name[0]
@@ -46,12 +48,11 @@ def gene_name(rec):
 
 def seqrecord_to_genes(rec):
     '''
-    [SeqFeature(FeatureLocation(ExactPosition(0), ExactPosition(10452), strand=1), type='source'), SeqFeature(FeatureLocation(ExactPosition(0), ExactPosition(83), strand=1), type="5'UTR"), SeqFeature(FeatureLocation(ExactPosition(83), ExactPosition(10262), strand=1), type='CDS'), SeqFeature(FeatureLocation(ExactPosition(83), ExactPosition(425), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(425), ExactPosition(923), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(923), ExactPosition(2408), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(2408), ExactPosition(3464), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(3464), ExactPosition(4118), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(4118), ExactPosition(4508), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(4508), ExactPosition(6365), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(6365), ExactPosition(6746), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(6746), ExactPosition(6815), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(6815), ExactPosition(7562), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(7562), ExactPosition(10259), strand=1), type='mat_peptide'), SeqFeature(FeatureLocation(ExactPosition(10262), ExactPosition(10452), strand=1), type="3'UTR")]
     :param Bio.SeqRecord rec: genbank record from SeqIO.parse format='genbank'
     :return iterable genes: iterator of gene objects (features with mat_peptied as their type)
     '''
     #Don't include `CDS`, that's whole-genome polypeptide
-    EXCLUDE_GENE_TYPES = ('source', 'CDS')
+    EXCLUDE_GENE_TYPES = ('source',)
     genes = filter(lambda x: x.type not in EXCLUDE_GENE_TYPES, rec.features)
     starts_ends_names = map(lambda f: ( gene_name(f), int(f.location.start), int(f.location.end), ), genes)
     return starmap(Gene, starts_ends_names)
@@ -103,6 +104,7 @@ def get_degen_list_overlap(genes, _degen_positions):
     :return generator of tuples of form: (gene name, position, nt)... where degens and genes overlap.
     '''
     genes, _degen_positions = list(genes), list(_degen_positions)
+
     def get_intersect(pos):
         intersects = lambda gene, pos=pos: gene if gene.start <= pos <= gene.end else None
         matches = list(filter(bool, map(intersects, genes)))
@@ -123,7 +125,7 @@ def get_genes(ref_id=None, genbank_file=None, user_file=None):
     '''
     :param int ref_id: genbank accession id to get gene info from
     :param str genbank_file: filepath/filehandle for genbank file holding gene info
-    :return iterable genes: iterable Gene objects with `start`, `end`, `name`
+    :return: (iterable Gene objects with `start`, `end`, `name`, cds Gene)
     '''
     assert  sum(map(bool, [ref_id, genbank_file, user_file])) == 1, "Must supply exactly one of accession id (%s) or gene_file (%s), or csv/tab-delimited file %s." % (ref_id, gene_file, tab_file)
     if ref_id:
@@ -134,18 +136,16 @@ def get_genes(ref_id=None, genbank_file=None, user_file=None):
         genes = csv_file_to_genes(user_file)
     else:
         raise ValueError('Gene file or ref_id must be supplied.')
-    return genes
 
-def get_degen_gene_overlap(sequence, ref_accession_id=None, genbank_file=None, user_file=None):
-    '''
-    :param str sequence: dengue sequence
-    :param int ref_accession_id: genbank accession id to get gene info from
-    :param str genbank_file: filepath/filehandle for genbank file holding gene info
-    :return iterable overlaps: iterable of tuples (`Gene name`, `Degen position`, `Degen base`)
-    '''
-    genes = get_genes(ref_accession_id, genbank_file)
-    return get_gene_degen_overlap_info(genes, str(sequence))
-
+    cds = None
+    _genes = []
+    for i, gene in enumerate(genes):
+        if gene.name == 'CDS':
+            cds = gene
+        else:
+            _genes.append(gene)
+    
+    return _genes,cds
 
 '''
 Functions for commandline app
@@ -163,7 +163,7 @@ def main():
     raw_args = docopt(__doc__, version='Version 1.0')
     args = scheme.validate(raw_args)
     fasta = parse_fasta(args['<fasta>'])
-    genes = get_genes(args['--gb-id'], args['--gb-file'], args['--tab-file'])
+    genes, cds = get_genes(args['--gb-id'], args['--gb-file'], args['--tab-file'])
     infos = map(partial(get_gene_degen_overlap_info, genes), map(attr('seq'), fasta))
     #need `list` to force evaluation of `print`
     list(map(print, map(pretty_table, infos)))
