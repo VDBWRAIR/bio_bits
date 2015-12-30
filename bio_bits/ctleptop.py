@@ -30,27 +30,6 @@ AMBICODON = {"R": ["A", "G"], "Y": ["C", "T"],
              "V": ["A", "C", "G"], "H": ["A", "C", "T"],
              "B": ["C", "G", "T"], "N": ["A", "C", "T", "G"]}
 
-'''
-def readFasta(fasta_name):
-    """string -> tuple
-    Given a fasta file. Yield tuples of header, sequence
-    :fasta_name: Name of a file to read
-    :returns: tuple of fasta header and sequence line
-
-    """
-    fh = open(fasta_name)
-    # ditch the boolean (x[0]) and just keep the header of sequence since we
-    # know they alternate
-    fasta_iter = (x[1] for x in groupby(fh, lambda line: line[0] == ">"))
-    for header in fasta_iter:
-        # drop the ">"
-        header = header.next()[1:].strip()
-        # join all sequence line to one
-        seq = "".join(s.strip() for s in fasta_iter.next())
-        yield header, seq
-'''
-
-
 def getNearbyChars(nt):
     """(str)->(list)
     >>>getNearbyChars("R")
@@ -61,7 +40,6 @@ def getNearbyChars(nt):
     ['A']
     """
     return AMBICODON.get(nt) or nt
-
 
 def nearbyPermutations(letters, index=0):
     """(str)->(set)
@@ -78,7 +56,6 @@ def nearbyPermutations(letters, index=0):
     nearbyLetters = getNearbyChars(letters[index])
     return permutations(subWords, nearbyLetters)
 
-
 def permutations(subWords, nearbyLetters):
     """(set, list) -> (set)
     >>>permutations(set(['CA']), ['A', 'T'])
@@ -89,7 +66,6 @@ def permutations(subWords, nearbyLetters):
         for letter in nearbyLetters:
             permutations.add(letter + subWord)
     return permutations
-
 
 def getaalist(codonlist):
     """(list) -> (list)
@@ -103,7 +79,6 @@ def getaalist(codonlist):
         aa = str(translate(aa))
         aalist.append(aa)
     return aalist
-
 
 def list_overlap(list1, list2):
     """(str, list) -> bool
@@ -119,17 +94,6 @@ def list_overlap(list1, list2):
         if i in list2:
             return True
     return False
-
-
-# define our method
-#def replace_all(text, dic):
-    #"""(str, dict)-> (str)
-    #>>>replace_all()
-    #"""
-    #for i, j in dic.iteritems():
-        #text = text.replace(i, j)
-    #return text
-
 
 def access_mixed_aa(file_name):
     """(str) ->(list,list,list,list).
@@ -201,12 +165,13 @@ def create_args():
     Return command line arguments
 
     """
-    parser = argparse.ArgumentParser(description='Convert inframe nucleotide \
-                                     fasta file to protein and report mixed \
-                                     (ambiguous codon) with its location in \
-                                     the sequence', epilog = 'ctleptop -i \
-                                     tests/Den4_MAAPS_TestData16.fasta -o \
-                                     out_file.txt')
+    parser = argparse.ArgumentParser(
+        description='Convert inframe nucleotide \
+             fasta file to protein and report mixed \
+             (ambiguous codon) with its location in \
+             the sequence',
+        epilog = '%(prog)s -i tests/Den4_MAAPS_TestData16.fasta -o out_file.txt'
+    )
     parser.add_argument("-i", type=str, help="Nucleotide fasta file", required=True)
     parser.add_argument("-o", type=str,  help="output file name", required=True)
     parser.add_argument("--gb-file", type=str,  help="genbank file name")
@@ -264,7 +229,6 @@ def main():
         outf.write(tabulate(my_list, headers=['seq id', 'nt Position', 'aa position',
                                      'nt composition', 'aa composition']) + "\n")
     outf.close()
-
 
 if __name__ == '__main__':
     main()
