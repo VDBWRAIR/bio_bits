@@ -203,13 +203,10 @@ def main():
     args = create_args()
     file_name = args.i
     outfile = args.o
-    #print("Start processing and writing the output file to", outfile, " please please wait ... ")
     outf = open_f(outfile)
-    my_list = access_mixed_aa(file_name)
     aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
     pattern = re.compile(r'.+\/.+')
     amb_aa_codon = []
-    #amb_aa_indx = []
     for indx, letter in enumerate(aa):
         if pattern.match(letter):
             amb_aa_codon.append(letter)
