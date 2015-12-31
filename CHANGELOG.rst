@@ -7,8 +7,9 @@ Version 1.2.0
 
 * Renamed project to bio_bits to fix naming issue with other project
 * GPL License added
-* dgen_regions script added
+* degen_regions script added
 * parallel_blast added
+* plot_muts script added
 
 Version 1.1.0
 -------------
