@@ -40,14 +40,15 @@ legend = {"queries": 'r', "references": 'b', "interval": 'g'}
 #    assert len(s1) == len(s2), "All sequences must be the same length! %s %s" % (s1, s2)
 #    return hamming(s1, s2)/float(len(s1))
 
+class InvalidFastaIdentifier(Exception): pass
 def extract_year(header):
     #s = header[-4:]
     if header.count('/') > 3: s = header.split('/')[3]
     else: s = header.split('_')[-1]
     try:
         return int(year_regex.search(s).group())
-    except:
-        print( header)
+    except Exception as e:
+        raise InvalidFastaIdentifier("Could retrieve year from {0}".format(header))
 # had to add 2015 to A/England/50220895/
 
 
