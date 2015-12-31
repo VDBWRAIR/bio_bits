@@ -182,22 +182,6 @@ def create_args():
     parser.add_argument('--cds', type=str, help="CDS start stop[start,stop]")
     return parser.parse_args()
 
-def isGap(aalist, nclist):
-    """(list, list) -> (list)
-    Return an updated protien codon list if the gap found in the nc codon
-    >>>isGap(["K/R", "I/T"], ["ARG", "NNN"])
-    ["K/R", "GAPFOUND"]
-    """
-    uaalist = []
-    for indx, val in enumerate(nclist):
-        if "N" in val:
-            codon = "GAPFOUND"
-            uaalist.append(codon)
-        else:
-            codon = aalist[indx]
-            uaalist.append(codon)
-    return uaalist
-
 def mod_entry(entry, cds):
     '''
     Find Gap positions and non-coding region positions
@@ -228,7 +212,6 @@ def main():
 
         # Remove all non-mixed positions
         amb_aa_codon = filter(lambda x: '/' in x, aa)
-        #amb_aa_codon = isGap(amb_aa_codon, nucl_codon)
         # get amino acid index list
         amb_aa_indx = map(lambda x: x//3 + 1, nuc_idx)
 
