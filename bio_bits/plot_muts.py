@@ -40,15 +40,14 @@ legend = {"queries": 'r', "references": 'b', "interval": 'g'}
 #    assert len(s1) == len(s2), "All sequences must be the same length! %s %s" % (s1, s2)
 #    return hamming(s1, s2)/float(len(s1))
 
-class InvalidFastaIdentifier(Exception): pass
 def extract_year(header):
     #s = header[-4:]
     if header.count('/') > 3: s = header.split('/')[3]
     else: s = header.split('_')[-1]
     try:
         return int(year_regex.search(s).group())
-    except Exception as e:
-        raise InvalidFastaIdentifier("Could retrieve year from {0}".format(header))
+    except:
+        print( header)
 # had to add 2015 to A/England/50220895/
 
 
@@ -76,26 +75,27 @@ def process(refs_fn, query_fn, save_path=None):
 
 def do_plot(x1, y1, x2, y2, save_path=None):
 
+    fig = plt.figure()
     ax = plt.subplot(111)
     max_x = max(max(x1), max(x2))
-    plot_muts(ax, x1, y1, color=legend['references'], polyfit=False, max_x=max_x)
-    plot_muts(ax, x2, y2, color=legend['queries'])
-    legend_info = [mpatches.Patch(label=n, color=c) for n, c in legend.items()]
+    #legend_info = [mpatches.Patch(label=n, color=c) for n, c in legend.items()]
     """ http://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot"""
+    plot_muts(ax, x1, y1, label='queries', color=legend['references'], polyfit=False, max_x=max_x)
+    plot_muts(ax, x2, y2, label='references', color=legend['queries'])
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-
-    ax.legend(handles=legend_info, loc='center left', bbox_to_anchor=(1, 0.5))
+    #ax.legend(handles=legend_info, loc='center left', bbox_to_anchor=(1, 0.5))
+    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.xlabel("Years since Base reference")
     plt.ylabel("p-distance")
     if save_path:
         plt.savefig(save_path)
-    plt.show()
+    else: plt.show()
 
-def plot_muts(ax, x, y, color, dist=DISTRIBUTION, polyfit=False, max_x=None):
+def plot_muts(ax, x, y, color, label=None, dist=DISTRIBUTION, polyfit=False, max_x=None):
     #problem was didn't account for +b
     '''if norm distribution, probably have to scale (via passing loc= and scale=)'''
-    ax.scatter(x, y, color=color)
+    ax.scatter(x, y, color=color, label=label)
     if polyfit:
         ''' this forces a polyfit with y-intercept at zero, necessary because
         we necessarily start with 0 mutations from the query at year 0.'''
@@ -138,11 +138,3 @@ def main():
     process(refs, queries, out)
 
 if __name__ == '__main__': main()
-
-'''
-'Our Data Example'!A1:A2991,'Our Data Example'!B1:B2991, 'Our Data Example'!D1:D2991, 'Our Data Example'!E1:E2991
-'Our Data Example'!B1:B8, 'Our Data Example'!D1:D8, 'Our Data Example'!E1:E8
-
-'Our Data Example'!A1:A999,'Our Data Example'!B1:B999, 'Our Data Example'!D1:D999, 'Our Data Example'!E1:E999
-
-'''
