@@ -80,8 +80,8 @@ def do_plot(x1, y1, x2, y2, save_path=None):
     max_x = max(max(x1), max(x2))
     #legend_info = [mpatches.Patch(label=n, color=c) for n, c in legend.items()]
     """ http://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot"""
-    plot_muts(ax, x1, y1, label='queries', color=legend['references'], polyfit=False, max_x=max_x)
-    plot_muts(ax, x2, y2, label='references', color=legend['queries'])
+    plot_muts(ax, x1, y1, label='references', color=legend['references'], polyfit=True, max_x=max_x, dist=None)
+    plot_muts(ax, x2, y2, label='queries', color=legend['queries'], dist=None)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
     #ax.legend(handles=legend_info, loc='center left', bbox_to_anchor=(1, 0.5))
@@ -102,7 +102,7 @@ def plot_muts(ax, x, y, color, label=None, dist=DISTRIBUTION, polyfit=False, max
         x = np.array(x)[:,np.newaxis]
         m, _, _, _ = np.linalg.lstsq(x, y)
         x, y = np.linspace(0,max_x, 100), m*np.linspace(0,max_x, 100)
-        ax.plot(x, y, color='y')
+        ax.plot(x, y, color='y', label='Best Fit')
     if dist:
         """see  http://stackoverflow.com/a/14814711/3757222"""
         R = dist.interval(0.95, y)

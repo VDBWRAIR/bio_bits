@@ -18,6 +18,11 @@ Example
 The ``--out`` option is optional. If it is not provided, the plot will pop up on 
 the user's screen automatically. If this does not work, try saving the image using ``--out`` instead.
 
+Example Output
+--------------
+
+.. image:: ../_static/plot_muts.png
+
 Input File Requirements
 -----------------------
 
