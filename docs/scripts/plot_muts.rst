@@ -13,15 +13,15 @@ Example
 
 .. code-block:: bash
 
-    plot_muts --refs 0.refs.fas --query 0.queries.fas --out plot.png
+    plot_muts --refs tests/testinput/refs.fas --query tests/testinput/query.fas --out plot.png
 
 The ``--out`` option is optional. If it is not provided, the plot will pop up on 
-the user's screen automatically.
+the user's screen automatically. If this does not work, try saving the image using ``--out`` instead.
 
 Input File Requirements
 -----------------------
 
-The input must be fasta format.
+The input must be fasta format. Both the query and ref files can have any number of sequences.
 
 The year should be the last part of the ID, preceded by an underscore. e.g.::
 
