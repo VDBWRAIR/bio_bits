@@ -8,3 +8,7 @@ Scripts
     beast_checkpoint
     beast_wrapper
     group_references
+    degen
+    parallel_blast
+    degen_regions
+    plot_muts

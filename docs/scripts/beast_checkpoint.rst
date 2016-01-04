@@ -64,7 +64,7 @@ Now you can simply just re-run beast on the new xml using the same seed
 .. code-block:: bash
 
     $> cd run2
-    $> beast_checkpoint -seed $seed -beagle_SSE beast.xml
+    $> beast -seed $seed -beagle_SSE beast.xml
 
 Tracer
 ------
