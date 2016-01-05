@@ -10,3 +10,4 @@ funcy
 tabulate
 range_regex
 matplotlib
+dateparser
