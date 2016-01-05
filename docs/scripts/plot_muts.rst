@@ -28,10 +28,11 @@ Input File Requirements
 
 The input must be fasta format. Both the query and ref files can have any number of sequences.
 
-The year should be the last part of the ID, preceded by an underscore. e.g.::
+The year should be the last part of the ID, preceded by a quadruple underscore. e.g.::
 
-    >some|info|blah_blah_1995
-    >some_1995
+    >some|info|blah_blah____2001_09_2010
+    >some____1995
+    >some____09/09/2012
     
 If the ID uses '/' rather than underscore, plot_muts currently accepts the year 
 as the *fourth* field. e.g.::
