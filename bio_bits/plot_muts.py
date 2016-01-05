@@ -11,7 +11,6 @@ Help:
     All sequences must be the same length.
 '''
 from __future__ import print_function
-import matplotlib.patches as mpatches
 import numpy as np
 import range_regex
 from functools import partial
