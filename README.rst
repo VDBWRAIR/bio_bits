@@ -1,8 +1,8 @@
 bio_bits
 ==========
 
-.. image:: https://readthedocs.org/projects/bio-pieces/badge/?version=latest
-    :target: http://bio-pieces.readthedocs.org/en/latest/
+.. image:: https://readthedocs.org/projects/bio-bits/badge/?version=latest
+    :target: http://bio-bits.readthedocs.org/en/latest/
     :alt: Documentation Status
 
 .. image:: https://travis-ci.org/VDBWRAIR/bio_bits.svg

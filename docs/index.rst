@@ -1,4 +1,4 @@
-Bio Pieces
+Bio Bits
 ==========
 
 .. include:: ../README.rst
