@@ -15,6 +15,9 @@ ${expected} =   tests/expected/out.ha.png.csv
 *** Test Cases ***
 plot_muts test
 	${process_result} =             Run Process         plot_muts --query tests/testinput/ha/query.ha.fasta --refs tests/testinput/ha/refall.ha.fasta --out ${png}   shell=True
+        Log To Console       ${process_result.stdout}
+        Log To Console        ${process_result.stderr}
+        Should Be Equal As Integers         ${process_result.rc}        0 
         File Should Exist       ${png}
         File Should Not Be Empty        ${png}
         File Should Exist       ${csv}
