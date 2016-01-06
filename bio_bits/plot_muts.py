@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import docopt, schema
 from operator import itemgetter as get
 import csv
-import dateparser
+from dateutil import parser
 import datetime
 from time import mktime
 from funcy import compose
@@ -48,9 +48,10 @@ def extract_date(fasta_id):
         raise _e
     s = fasta_id.split('____')[-1]
     try:
-        dt = dateparser.parse(s)
+        dt = parser.parse(s.replace('_','/'))
         return dt
     except Exception as e:
+        print("Error parsing {0}".format(s))
         raise _e
 
 def get_seqs_and_dates(fn):

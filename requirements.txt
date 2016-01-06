@@ -9,4 +9,4 @@ sh
 funcy
 tabulate
 matplotlib
-dateparser
+python-dateutil
