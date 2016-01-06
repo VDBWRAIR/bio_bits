@@ -13,4 +13,4 @@ bio_bits
 
 Various bioinformatics scripts
 
-All documentation is hosted at http://bio-pieces.readthedocs.org/en/latest
+All documentation is hosted at http://bio-bits.readthedocs.org/en/latest
