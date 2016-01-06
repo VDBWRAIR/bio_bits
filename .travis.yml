@@ -11,6 +11,6 @@ install:
     - python setup.py develop
 script:
     - nosetests tests --with-coverage --cover-erase --cover-package=bio_bits -a '!download'
-    - pybot tests/*.robot; cat output.xml
+    - pybot tests/*.robot
 after_success:
     - coveralls 

@@ -12,7 +12,6 @@ Help:
 '''
 from __future__ import print_function
 import numpy as np
-import range_regex
 from functools import partial
 import operator
 import os, sys, re
@@ -24,6 +23,7 @@ import csv
 import dateparser
 import datetime
 from time import mktime
+from funcy import compose
 try:
     #below import is necessary for some reason
     from scipy.stats import poisson
@@ -31,10 +31,7 @@ try:
     DISTRIBUTION = scipy.stats.poisson
 except ImportError:
     DISTRIBUTION = None
-compose2 = lambda f,g: lambda *x: f(g(*x))
-compose = lambda *fs: reduce(compose2, fs)
-
-years = range_regex.range_regex.regex_for_range(1900, 2015)
+years = r'190\\d|19[1-9]\\d|200\\d|201[0-5]' #1900-2015
 year_regex = re.compile(years)
 hamming = compose(sum, partial(map, operator.ne))
 timestamp = lambda x: mktime(x.timetuple())
@@ -108,7 +105,7 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None):
     ref_info = zip(ref_names, x1, y1)
     query_info = zip(query_names, x2, y2)
     all_info = sorted(ref_info + query_info, key=lambda x: x[2], reverse=True)
-    
+
     if save_path:
         fh = open(save_path+'.csv', 'wb')
     else:
