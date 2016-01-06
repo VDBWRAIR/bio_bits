@@ -109,7 +109,7 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None):
     all_info = sorted(ref_info + query_info, key=lambda x: x[2], reverse=True)
 
     if save_path:
-        fh = open(save_path+'.csv', 'wb')
+        fh = open(save_path+'.csv', 'wt')
     else:
         fh = sys.stdout
     fh.write('name,dates,p-dist\n')
