@@ -1,6 +1,6 @@
 '''
 Usage:
-    plot_muts.py --query <query> --refs <refs> [--out <outfile>]
+    plot_muts.py --query <query> --refs <refs> [--out <outfile>] [--html]
 
 Options:
     --refs,-r=<refs>     Fasta file, sequence with earliest year is base reference
@@ -37,7 +37,6 @@ year_regex = re.compile(years)
 hamming = compose(sum, partial(map, operator.ne))
 timestamp = lambda x: mktime(x.timetuple())
 legend = {"queries": 'r', "references": 'b', "interval": 'g'}
-D3 = True
 #def pdist(s1, s2):
 #    assert len(s1) == len(s2), "All sequences must be the same length! %s %s" % (s1, s2)
 #    return hamming(s1, s2)/float(len(s1))
@@ -61,7 +60,7 @@ def get_seqs_and_dates(fn):
     dates = map(extract_date, ids)
     return seqs, dates, ids
 
-def process(refs_fn, query_fn, save_path=None):
+def process(refs_fn, query_fn, save_path=None, html=True):
     ref_seqs, ref_dates, ref_names = zip(*sorted(zip(*get_seqs_and_dates(refs_fn)), key=get(1)))
     #assert len(ref_seqs) > 1, "Need more than 1 reference sequence"
     ref_seqs = map(str.upper, ref_seqs)
@@ -75,10 +74,10 @@ def process(refs_fn, query_fn, save_path=None):
         return muts, dists, names
     ref_muts, ref_dists, ref_names =  get_relative_info(ref_seqs, ref_dates, ref_names)
     query_muts, query_dists, query_names = get_relative_info(*get_seqs_and_dates(query_fn))
-    do_plot(ref_dists, ref_muts, ref_names, query_dists, query_muts, query_names, save_path)
+    do_plot(ref_dists, ref_muts, ref_names, query_dists, query_muts, query_names, save_path, html)
     #map(compose(print, '{0}\t{1}'.format ), ref_dists, ref_muts)
 
-def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None):
+def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
     '''
     :param iterable x1: reference dates distances
     :param iterable y1: reference p-distances
@@ -115,17 +114,32 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None):
     outcsv = csv.writer(fh)
     map(outcsv.writerow, all_info)
 
-    plot_muts(ax, x1, y1, plotkwargs=dict(label='references', color=legend['references'], marker='s'), polyfit=True, max_x=max_x, dist=None)
-    plot_muts(ax, x2, y2, plotkwargs=dict(label='queries', color=legend['queries']), dist=None)
+    plot_muts(ax, x1, y1, plotkwargs=dict(label='references (blue)', color=legend['references'], marker='s'), polyfit=True, max_x=max_x, dist=None)
+    query_points = plot_muts(ax, x2, y2, plotkwargs=dict(label='queries (red)', color=legend['queries']), dist=None)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
     #ax.legend(handles=legend_info, loc='center left', bbox_to_anchor=(1, 0.5))
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    #ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), framealpha=0)
+    ax.legend(framealpha=0)
     plt.xlabel("days since Base reference")
     plt.ylabel("p-distance")
     if save_path:
         plt.savefig(save_path)
-        if D3:
+        if html:
+            css = '''.boxed {
+  border: 2px solid green ;
+  background: #FFFFFF;
+}  '''
+            htmls = map('<div class="boxed">{0}</div>'.format, query_names)
+            tooltip = mpld3.plugins.PointHTMLTooltip(query_points, htmls,
+                                               voffset=10, hoffset=10, css=css)
+            mpld3.plugins.connect(fig, tooltip)
+            # git+http://github.com/jakevdp/mpld3.git
+
+
+#            interactive_legend = mpld3.plugins.InteractiveLegendPlugin(query_points, ['refs', 'queries'], initial_selection=[True, False])
+#            mpld3.plugins.connect(fig, interactive_legend)
+
             with open(save_path + '.html', 'w') as d3out:
                 mpld3.save_html(fig, d3out)
     else: plt.show()
@@ -139,7 +153,7 @@ def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs
     '''
     if max_x and isinstance(max_x, datetime.datetime):
         max_x = timestamp(max_x)
-    ax.scatter(x, y, **plotkwargs)#color=color, label=label, marker=marker)
+    retval = ax.scatter(x, y, **plotkwargs)#color=color, label=label, marker=marker)
     if polyfit:
         ''' this forces a polyfit with y-intercept at zero, necessary because
         we necessarily start with 0 mutations from the query at date 0.'''
@@ -154,6 +168,7 @@ def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs
         interval_color = legend['interval']
         ax.plot(x, interval_left, color=interval_color)
         ax.plot(x, interval_right,color=interval_color)
+    return retval
 
 #def test_more():
 #    refs = range(25), range(25)
@@ -172,13 +187,14 @@ def main():
     scheme = schema.Schema(
         { '--query' : os.path.isfile,
           '--refs' : os.path.isfile,
-         schema.Optional('--out') : lambda x: True
+         schema.Optional('--out') : lambda x: True,
+         schema.Optional('--html') : lambda x: True
         # schema.Or(lambda x: x is None,  #check file can be created
         #                                      lambda x: os.access(os.path.dirname(x), os.W_OK))
          })
     args = docopt.docopt(__doc__, version='Version 1.0')
     scheme.validate(args)
     queries, refs, out = args['--query'], args['--refs'], args['--out']
-    process(refs, queries, out)
+    process(refs, queries, out, args['--html'])
 
 if __name__ == '__main__': main()
