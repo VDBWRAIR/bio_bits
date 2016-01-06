@@ -160,7 +160,8 @@ def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs
         x = np.array(x)[:,np.newaxis]
         m, _, _, _ = np.linalg.lstsq(x, y)
         x, y = np.linspace(0,max_x,100), m*np.linspace(0,max_x,100)
-        ax.plot(x, y, color='y', label='Best Fit', linewidth=2)
+        #ax.plot(x, y, color='y', label='Best Fit', linewidth=2)
+        ax.plot(x, y, color='y', linewidth=2)
     if dist:
         """see  http://stackoverflow.com/a/14814711/3757222"""
         R = dist.interval(0.95, y)
