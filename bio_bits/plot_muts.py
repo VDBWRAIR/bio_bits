@@ -17,6 +17,7 @@ import operator
 import os, sys, re
 from Bio import SeqIO
 import matplotlib.pyplot as plt
+import mpld3
 import docopt, schema
 from operator import itemgetter as get
 import csv
@@ -36,7 +37,7 @@ year_regex = re.compile(years)
 hamming = compose(sum, partial(map, operator.ne))
 timestamp = lambda x: mktime(x.timetuple())
 legend = {"queries": 'r', "references": 'b', "interval": 'g'}
-'''it seems like pdist gives results that are too small to be useful?'''
+D3 = True
 #def pdist(s1, s2):
 #    assert len(s1) == len(s2), "All sequences must be the same length! %s %s" % (s1, s2)
 #    return hamming(s1, s2)/float(len(s1))
@@ -124,6 +125,9 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None):
     plt.ylabel("p-distance")
     if save_path:
         plt.savefig(save_path)
+        if D3:
+            with open(save_path + '.html', 'w') as d3out:
+                mpld3.save_html(fig, d3out)
     else: plt.show()
 
 def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs=dict(marker='o')):

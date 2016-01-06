@@ -10,3 +10,4 @@ funcy
 tabulate
 matplotlib
 dateparser
+mpld3
