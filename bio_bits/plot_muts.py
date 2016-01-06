@@ -24,6 +24,7 @@ from dateutil import parser
 import datetime
 from time import mktime
 from funcy import compose
+from funcy.py2 import map
 try:
     #below import is necessary for some reason
     from scipy.stats import poisson
