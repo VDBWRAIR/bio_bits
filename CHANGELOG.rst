@@ -2,6 +2,11 @@
 CHANGELOG
 =========
 
+Version 1.3.0
+-------------
+
+* Added fasta script that removes newlines from fasta sequences
+
 Version 1.2.1
 -------------
 
