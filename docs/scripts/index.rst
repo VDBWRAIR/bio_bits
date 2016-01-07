@@ -12,3 +12,4 @@ Scripts
     parallel_blast
     degen_regions
     plot_muts
+    fasta

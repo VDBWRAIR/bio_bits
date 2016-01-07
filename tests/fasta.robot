@@ -41,3 +41,13 @@ fasta reads from file
     ${actual_contents} =            Get File                        ${actual}
     ${expected_contents} =          Get File                        ${expected}
     Should Be Equal As Strings      ${expected_contents}            ${actual_contents} 
+fasta used in shell pipeline
+    ${process_result} =             Run Process                     fasta ${in_fasta} | grep -v '>' | grep -Eo '[Aa]' | wc -l    shell=True
+
+    # Check system exited    correctly
+    Should Be Equal As Integers     ${process_result.rc}            0 
+    Log To Console                  ${process_result.stdout}
+    Log To Console                  ${process_result.stderr}
+
+    # Check output
+    Should Be Equal                 ${process_result.stdout}        160
