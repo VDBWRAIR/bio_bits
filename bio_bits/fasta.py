@@ -3,26 +3,27 @@ import sys
 import argparse
 
 from Bio.SeqIO import parse
+from Bio.SeqIO import FastaIO
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        '''Simplistic fasta manipulator'''
+        description='''Simplistic fasta manipulator'''
     )
     parser.add_argument(
-        'fasta', default='-',
+        'fasta',
         help='Fasta file path or - to read from standard input'
     )
     return parser.parse_args()
 
 def main():
-    in_fasta = sys.argv[1]
+    args = parse_args()
+    in_fasta = args.fasta
 
+    # Normalize input stream
     if in_fasta == '-':
         _input = sys.stdin
     else:
         _input = open(in_fasta)
 
-    for rec in parse(_input, 'fasta'):
-        sys.stdout.write('>{0}\n'.format(rec.description))
-        sys.stdout.write(str(rec.seq) + '\n')
-        sys.stdout.flush()
+    fasta_out = FastaIO.FastaWriter(sys.stdout, wrap=None)
+    fasta_out.write_file(parse(_input, 'fasta'))
