@@ -1,15 +1,28 @@
+from __future__ import print_function
 import sys
+import argparse
 
 from Bio.SeqIO import parse
 
-in_fasta = sys.argv[1]
+def parse_args():
+    parser = argparse.ArgumentParser(
+        '''Simplistic fasta manipulator'''
+    )
+    parser.add_argument(
+        'fasta', default='-',
+        help='Fasta file path or - to read from standard input'
+    )
+    return parser.parse_args()
 
-if in_fasta == '-':
-    _input = sys.stdin
-else:
-    _input = open(in_fasta)
+def main():
+    in_fasta = sys.argv[1]
 
-for rec in parse(_input, 'fasta'):
-    sys.stdout.write('>{0} {1}\n'.format(rec.id, rec.description))
-    sys.stdout.write(str(rec.seq) + '\n')
-    sys.stdout.flush()
+    if in_fasta == '-':
+        _input = sys.stdin
+    else:
+        _input = open(in_fasta)
+
+    for rec in parse(_input, 'fasta'):
+        sys.stdout.write('>{0}\n'.format(rec.description))
+        sys.stdout.write(str(rec.seq) + '\n')
+        sys.stdout.flush()

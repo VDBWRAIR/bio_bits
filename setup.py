@@ -25,7 +25,8 @@ setup(
             'parallel_blast = bio_bits.parallel_blast:main',
             'version = bio_bits.version:main',
             'degen = bio_bits.degen:main',
-            'plot_muts = bio_bits.plot_muts:main'
+            'plot_muts = bio_bits.plot_muts:main',
+            'fasta = bio_bits.fasta:main',
             #'sequence_concat = bio_bits.sequence_concat:main',
             #'sequence_files_concat = bio_bits.sequence_files_concat:main',
             #'sequence_split = bio_bits_old.sequence_split:main',
