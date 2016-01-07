@@ -9,5 +9,5 @@ sh
 funcy
 tabulate
 matplotlib
-dateparser
 mpld3
+python-dateutil

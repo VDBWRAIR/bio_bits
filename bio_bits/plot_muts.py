@@ -21,10 +21,11 @@ import mpld3
 import docopt, schema
 from operator import itemgetter as get
 import csv
-import dateparser
+from dateutil import parser
 import datetime
 from time import mktime
 from funcy import compose
+from funcy.py2 import map, zip
 try:
     #below import is necessary for some reason
     from scipy.stats import poisson
@@ -48,9 +49,10 @@ def extract_date(fasta_id):
         raise _e
     s = fasta_id.split('____')[-1]
     try:
-        dt = dateparser.parse(s)
+        dt = parser.parse(s.replace('_','/'))
         return dt
     except Exception as e:
+        print("Error parsing {0}".format(s))
         raise _e
 
 def get_seqs_and_dates(fn):
@@ -107,7 +109,7 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
     all_info = sorted(ref_info + query_info, key=lambda x: x[2], reverse=True)
 
     if save_path:
-        fh = open(save_path+'.csv', 'wb')
+        fh = open(save_path+'.csv', 'wt')
     else:
         fh = sys.stdout
     fh.write('name,dates,p-dist\n')

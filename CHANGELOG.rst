@@ -2,6 +2,13 @@
 CHANGELOG
 =========
 
+Version 1.2.1
+-------------
+
+* Fixed some python3 and python2.6 incompatability issues
+* Fixed some old bio_pieces references
+* Added some simple tests for plot_muts
+
 Version 1.2.0
 -------------
 
