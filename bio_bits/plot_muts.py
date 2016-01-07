@@ -1,11 +1,13 @@
 '''
 Usage:
-    plot_muts.py --query <query> --refs <refs> [--out <outfile>] [--html]
+    plot_muts.py  --query <query> --refs <refs> [--out <outfile>] [--html]
+    plot_muts.py  --2refs <alignment> [--out <outfile>] [--html]
 
 Options:
-    --refs,-r=<refs>     Fasta file, sequence with earliest year is base reference
-    --query,-q=<query>   Query sequences
-    --out,-o=<outfile>   Figure saved here
+    --2refs=<alignment>    Fasta alignment file. First two sequences are the references.
+    --refs,-r=<refs>       Fasta file, sequence with earliest year is base reference.
+    --query,-q=<query>     Query sequences.
+    --out,-o=<outfile>     Figure saved here.
 
 Help:
     All sequences must be the same length.
@@ -17,8 +19,6 @@ import operator
 import os, sys, re
 from Bio import SeqIO
 import matplotlib.pyplot as plt
-import bokeh.models as bkm
-import bokeh.plotting as bkp
 import docopt, schema
 from operator import itemgetter as get
 import csv
@@ -130,6 +130,9 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
     if save_path:
         plt.savefig(save_path)
         if html:
+            assert sys.version[:3] != '2.6', "Requires python 2.7 or higher to run bokeh."
+            import bokeh.models as bkm
+            import bokeh.plotting as bkp
             bokeh_tools = [bkm.WheelZoomTool(), bkm.PanTool(), bkm.BoxZoomTool(),
                  bkm.PreviewSaveTool(), bkm.ResetTool(), bkm.BoxSelectTool(),
                  bkm.ResizeTool()]
@@ -183,6 +186,13 @@ def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs
 #    default_y = range(0, 50, 2)
 #    plot_muts(default_x, default_y, 'r', True, scipy.stats.poisson, max_x=max(default_x))
 #    plt.show()
+def process2refs(alignment, out, html):
+    fasta = SeqIO.parse(fn, format="fasta")
+    ref1, ref2 = next(fasta), next(fasta)
+    x, y =
+    get_mutations = partial(hamming, super_ref_seq)
+    pass
+
 
 def main():
     #if sys.argv[1] == 'test': test_more()
@@ -195,6 +205,9 @@ def main():
         #                                      lambda x: os.access(os.path.dirname(x), os.W_OK))
          })
     args = docopt.docopt(__doc__, version='Version 1.0')
+    if args['--2refs']:
+        assert os.path.isfile(args['--2refs'])
+        process2refs(args['--2refs'], args['--out'], args['--html'])
     scheme.validate(args)
     queries, refs, out = args['--query'], args['--refs'], args['--out']
     process(refs, queries, out, args['--html'])

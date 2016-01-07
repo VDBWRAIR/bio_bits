@@ -15,7 +15,6 @@ ${expected} =   tests/expected/out.ha.png.csv
 
 *** Test Cases ***
 plot_muts_test  
-        [Tags]  py27+
 	${process_result} =             Run Process         plot_muts --query tests/testinput/ha/query.ha.fasta --refs tests/testinput/ha/refall.ha.fasta --out ${png}   shell=True
         Log To Console       ${process_result.stdout}
         Log To Console        ${process_result.stderr}
@@ -29,7 +28,7 @@ plot_muts_test
         Should Be Equal As Strings      ${expected_contents}            ${actual_contents} 
 
 plot_muts_html 
-        [Tags]  py27+
+        [Tags]  py27+ 
 	${process_result} =             Run Process         plot_muts --query tests/testinput/ha/query.ha.fasta --refs tests/testinput/ha/refall.ha.fasta --html --out ${png}   shell=True
         Log To Console       ${process_result.stdout}
         Log To Console        ${process_result.stderr}
