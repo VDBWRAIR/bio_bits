@@ -9,5 +9,5 @@ sh
 funcy
 tabulate
 matplotlib
-mpld3
+bokeh
 python-dateutil

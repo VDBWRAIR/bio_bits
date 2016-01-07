@@ -17,7 +17,8 @@ import operator
 import os, sys, re
 from Bio import SeqIO
 import matplotlib.pyplot as plt
-import mpld3
+import bokeh.models as bkm
+import bokeh.plotting as bkp
 import docopt, schema
 from operator import itemgetter as get
 import csv
@@ -91,6 +92,7 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
     assert len(y2) > 0, "No reference p-distances to use"
     assert len(x2) > 0, "No query dates to use"
     assert len(y2) > 0, "No query p-distances to use"
+    assert len(ref_names) == len(x1) and len(query_names) == len(x2)
     fig = plt.figure()
     ax = plt.subplot(111)
 #    from matplotlib.dates import YearLocator, MonthLocator, DateFormatter
@@ -128,22 +130,19 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
     if save_path:
         plt.savefig(save_path)
         if html:
-            css = '''.boxed {
-  border: 2px solid green ;
-  background: #FFFFFF;
-}  '''
-            htmls = map('<div class="boxed">{0}</div>'.format, query_names)
-            tooltip = mpld3.plugins.PointHTMLTooltip(query_points, htmls,
-                                               voffset=10, hoffset=10, css=css)
-            mpld3.plugins.connect(fig, tooltip)
-            # git+http://github.com/jakevdp/mpld3.git
-
-
-#            interactive_legend = mpld3.plugins.InteractiveLegendPlugin(query_points, ['refs', 'queries'], initial_selection=[True, False])
-#            mpld3.plugins.connect(fig, interactive_legend)
-
-            with open(save_path + '.html', 'w') as d3out:
-                mpld3.save_html(fig, d3out)
+            bokeh_tools = [bkm.WheelZoomTool(), bkm.PanTool(), bkm.BoxZoomTool(),
+                 bkm.PreviewSaveTool(), bkm.ResetTool(), bkm.BoxSelectTool(),
+                 bkm.ResizeTool()]
+            bkp.output_file(save_path + '.html')
+            ref_names = map('R: {0}'.format, ref_names)
+            query_names = map('Q: {0}'.format, query_names)
+            hover = bkm.HoverTool(tooltips=[("id", "@ids"),]) #   ("(days,muts)", "($x, $y)"),
+            source1 = bkm.ColumnDataSource(data=dict(x=x1, y=y1,  ids=ref_names))
+            source2 = bkm.ColumnDataSource(data=dict(x2=x2, y2=y2, ids=query_names))
+            p = bkp.figure(plot_width=400, plot_height=400, tools=[hover]+bokeh_tools, title="Mutations over time (days)")
+            p.circle('x', 'y', source=source1, line_color='gray', legend='reference')
+            p.square('x2', 'y2', source=source2, fill_color='red', legend='query')
+            bkp.show(p)
     else: plt.show()
 
 def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs=dict(marker='o')):
