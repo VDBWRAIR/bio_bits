@@ -1,8 +1,10 @@
 '''
 Usage:
-    plot_muts.py --query <query> --refs <refs> [--out <outfile>] [--html]
+    plot_muts.py --query <query> --refs <refs> [--out <outfile>] [--html] [--cluster]
 
 Options:
+    --cluster            Evaluate by comparing to the first two sequences in <refs> rather than by time
+    --html               Produce html output in addition to a static image
     --refs,-r=<refs>     Fasta file, sequence with earliest year is base reference
     --query,-q=<query>   Query sequences
     --out,-o=<outfile>   Figure saved here
@@ -80,7 +82,8 @@ def process(refs_fn, query_fn, save_path=None, html=True):
     do_plot(ref_dists, ref_muts, ref_names, query_dists, query_muts, query_names, save_path, html)
     #map(compose(print, '{0}\t{1}'.format ), ref_dists, ref_muts)
 
-def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
+def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True, \
+            title='Mutations over time (days)', x_axis_label='days', y_axis_label='bases'):
     '''
     :param iterable x1: reference dates distances
     :param iterable y1: reference p-distances
@@ -139,7 +142,8 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
             hover = bkm.HoverTool(tooltips=[("id", "@ids"),]) #   ("(days,muts)", "($x, $y)"),
             source1 = bkm.ColumnDataSource(data=dict(x=x1, y=y1,  ids=ref_names))
             source2 = bkm.ColumnDataSource(data=dict(x2=x2, y2=y2, ids=query_names))
-            p = bkp.figure(plot_width=400, plot_height=400, tools=[hover]+bokeh_tools, title="Mutations over time (days)")
+            p = bkp.figure(plot_width=400, plot_height=400, tools=[hover]+bokeh_tools, title=title, \
+                x_axis_label=x_axis_label, y_axis_label=y_axis_label)
             p.circle('x', 'y', source=source1, line_color='gray', legend='reference')
             p.square('x2', 'y2', source=source2, fill_color='red', legend='query')
             bkp.show(p)
@@ -184,19 +188,47 @@ def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs
 #    plot_muts(default_x, default_y, 'r', True, scipy.stats.poisson, max_x=max(default_x))
 #    plt.show()
 
+def extract_info(fasta):
+    objs = SeqIO.parse(fasta, format="fasta")
+    info = [(str(seq.seq), seq.id) for seq in objs]
+    seqs, ids = zip(*info)
+    return seqs, ids
+
+def get_clusters(refs, queries):
+    all_ref_seqs, all_ref_ids = extract_info(refs)
+    ref1, ref2 = all_ref_seqs[:2]
+    dists1, dists2 = partial(hamming, ref1), partial(hamming, ref2)
+    ref_seqs, ref_ids = all_ref_seqs[2:], all_ref_ids[2:]
+    ref_dists1, ref_dists2 = map(dists1, ref_seqs), map(dists2, ref_seqs)
+
+    query_seqs, query_ids = extract_info(queries)
+    query_dists1, query_dists2 = map(dists1, query_seqs), map(dists2, query_seqs)
+
+    return ref_dists1, ref_dists2, ref_ids, query_dists1, query_dists2, query_ids, all_ref_ids[0], all_ref_ids[1]
+
+def process_cluster(refs, queries, save_path=None, html=False):
+    ref_dists1, ref_dists2, ref_ids, query_dists1, query_dists2, query_ids, ref1_id, ref2_id = get_clusters(refs, queries)
+    do_plot(ref_dists1, ref_dists2, ref_ids, query_dists1, query_dists2, query_ids, \
+            save_path, html, title='Distances from base references', x_axis_label=ref1_id, y_axis_label=ref2_id)
+
+
 def main():
     #if sys.argv[1] == 'test': test_more()
     scheme = schema.Schema(
         { '--query' : os.path.isfile,
           '--refs' : os.path.isfile,
          schema.Optional('--out') : lambda x: True,
-         schema.Optional('--html') : lambda x: True
+         schema.Optional('--html') : lambda x: True,
+         schema.Optional('--cluster') : lambda x: True
         # schema.Or(lambda x: x is None,  #check file can be created
         #                                      lambda x: os.access(os.path.dirname(x), os.W_OK))
          })
     args = docopt.docopt(__doc__, version='Version 1.0')
     scheme.validate(args)
-    queries, refs, out = args['--query'], args['--refs'], args['--out']
-    process(refs, queries, out, args['--html'])
+    queries, refs, out, do_cluster = args['--query'], args['--refs'], args['--out'], args['--cluster']
+    if do_cluster:
+        process_cluster(refs, queries, out, args['--html'])
+    else:
+        process(refs, queries, out, args['--html'])
 
 if __name__ == '__main__': main()
