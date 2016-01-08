@@ -19,8 +19,6 @@ import operator
 import os, sys, re
 from Bio import SeqIO
 import matplotlib.pyplot as plt
-import bokeh.models as bkm
-import bokeh.plotting as bkp
 import docopt, schema
 from operator import itemgetter as get
 import csv
@@ -133,6 +131,9 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True, \
     if save_path:
         plt.savefig(save_path)
         if html:
+            assert sys.version[:3] != '2.6', "Requires python 2.7 or higher to run bokeh."
+            import bokeh.models as bkm
+            import bokeh.plotting as bkp
             bokeh_tools = [bkm.WheelZoomTool(), bkm.PanTool(), bkm.BoxZoomTool(),
                  bkm.PreviewSaveTool(), bkm.ResetTool(), bkm.BoxSelectTool(),
                  bkm.ResizeTool()]

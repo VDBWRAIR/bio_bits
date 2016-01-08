@@ -14,6 +14,6 @@ install:
     - python setup.py develop
 script:
     - nosetests tests --with-coverage --cover-erase --cover-package=bio_bits -a '!download'
-    - pybot tests/*.robot
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pybot --exclude py27+ tests/*.robot ; else pybot tests/*.robot; fi
 after_success:
     - coveralls 
