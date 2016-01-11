@@ -118,9 +118,8 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True, \
     fh.write('name,dates,p-dist\n')
     outcsv = csv.writer(fh)
     map(outcsv.writerow, all_info)
-
     plot_muts(ax, x1, y1, plotkwargs=dict(label='references (blue)', color=legend['references'], marker='s'), polyfit=True, max_x=max_x, dist=None)
-    query_points = plot_muts(ax, x2, y2, plotkwargs=dict(label='queries (red)', color=legend['queries']), dist=None)
+    plot_muts(ax, x2, y2, plotkwargs=dict(label='queries (red)', color=legend['queries']), dist=None)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
     #ax.legend(handles=legend_info, loc='center left', bbox_to_anchor=(1, 0.5))
@@ -130,25 +129,26 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True, \
     plt.ylabel("p-distance")
     if save_path:
         plt.savefig(save_path)
-        if html:
-            assert sys.version[:3] != '2.6', "Requires python 2.7 or higher to run bokeh."
-            import bokeh.models as bkm
-            import bokeh.plotting as bkp
-            bokeh_tools = [bkm.WheelZoomTool(), bkm.PanTool(), bkm.BoxZoomTool(),
-                 bkm.PreviewSaveTool(), bkm.ResetTool(), bkm.BoxSelectTool(),
-                 bkm.ResizeTool()]
-            bkp.output_file(save_path + '.html')
-            ref_names = map('R: {0}'.format, ref_names)
-            query_names = map('Q: {0}'.format, query_names)
-            hover = bkm.HoverTool(tooltips=[("id", "@ids"),]) #   ("(days,muts)", "($x, $y)"),
-            source1 = bkm.ColumnDataSource(data=dict(x=x1, y=y1,  ids=ref_names))
-            source2 = bkm.ColumnDataSource(data=dict(x2=x2, y2=y2, ids=query_names))
-            p = bkp.figure(plot_width=400, plot_height=400, tools=[hover]+bokeh_tools, title=title, \
-                x_axis_label=x_axis_label, y_axis_label=y_axis_label)
-            p.circle('x', 'y', source=source1, line_color='gray', legend='reference')
-            p.square('x2', 'y2', source=source2, fill_color='red', legend='query')
-            bkp.show(p)
     else: plt.show()
+    if html:
+        assert sys.version[:3] != '2.6', "Requires python 2.7 or higher to run bokeh."
+        import bokeh.models as bkm
+        import bokeh.plotting as bkp
+        bokeh_tools = [bkm.WheelZoomTool(), bkm.PanTool(), bkm.BoxZoomTool(),
+             bkm.PreviewSaveTool(), bkm.ResetTool(), bkm.BoxSelectTool(),
+             bkm.ResizeTool()]
+        ref_names = map('R: {0}'.format, ref_names)
+        query_names = map('Q: {0}'.format, query_names)
+        hover = bkm.HoverTool(tooltips=[("id", "@ids"),]) #   ("(days,muts)", "($x, $y)"),
+        source1 = bkm.ColumnDataSource(data=dict(x=x1, y=y1,  ids=ref_names))
+        source2 = bkm.ColumnDataSource(data=dict(x2=x2, y2=y2, ids=query_names))
+        p = bkp.figure(plot_width=400, plot_height=400, tools=[hover]+bokeh_tools, title="Mutations over time (days)")
+        p.circle('x', 'y', source=source1, line_color='gray', legend='reference')
+        p.square('x2', 'y2', source=source2, fill_color='red', legend='query')
+        if save_path:
+            bkp.output_file(save_path + '.html')
+            bkp.save(p)
+        else: bkp.show(p)
 
 def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs=dict(marker='o')):
     '''
