@@ -126,6 +126,7 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
     plt.ylabel("p-distance")
     if save_path:
         plt.savefig(save_path)
+    else: plt.show()
     if html:
         assert sys.version[:3] != '2.6', "Requires python 2.7 or higher to run bokeh."
         import bokeh.models as bkm
@@ -145,7 +146,6 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True):
             bkp.output_file(save_path + '.html')
             bkp.save(p)
         else: bkp.show(p)
-    else: plt.show()
 
 def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs=dict(marker='o')):
     '''
