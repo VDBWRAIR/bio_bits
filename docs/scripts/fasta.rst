@@ -1,11 +1,10 @@
 fasta
 =====
 
-fasta is a very simple script to help mangle fasta files. Currently it only supports
-the ability to convert fasta files that have sequences that span multiple new lines
-into single lines.
+fasta is a very simple script to help mangle fasta files. 
 
-Later on, it may be expanded more to include even more useful fasta features.
+* Supports converting multiline sequences into single line
+* Supports splitting fasta file into separate files each named after the identifier
 
 Usage
 -----
@@ -23,8 +22,8 @@ The following examples all use the test fasta file found under
 .. include:: ../../tests/testinput/col.fasta
     :literal:
 
-Read fasta input from standard input
-++++++++++++++++++++++++++++++++++++
+Convert column fasta into single lines
+++++++++++++++++++++++++++++++++++++++
 
 The following could output the fasta sequences as one line to your terminal(stdout)
 but reading from the pipe. This is useful if you want to use it in a pipeline.
@@ -33,15 +32,34 @@ but reading from the pipe. This is useful if you want to use it in a pipeline.
 
     $> cat tests/testinput/col.fasta | fasta -
 
-Read fasta input from file
-++++++++++++++++++++++++++
-
 The following could output the fasta sequences as one line to your terminal(stdout)
 as well, but reading straight from the file.
 
 .. code-block:: bash
 
     $> fasta tests/testinput/col.fasta
+
+Convert single line fasta into column fasta
++++++++++++++++++++++++++++++++++++++++++++
+
+The following would convert single line fasta sequences into column formatted
+fasta. It defaults to using 80 characters for each column
+
+.. code-block:: bash
+
+    $> fasta tests/testinput/col.fasta
+
+You can verify that it is wrapping correctly by simply piping the fasta command
+back into itself from ``convert-to-single | wrap`` and then comparing to the original
+input file.
+
+.. code-block:: bash
+
+    $> cat tests/testinput/col.fasta | fasta - | fasta --wrap - > newfile.fasta
+    $> diff tests/testinput/col.fasta newline.fasta
+
+There will be no output as there is no difference between ``newfile.fasta`` and
+``tests/testinput/col.fasta``
 
 Simple shell pipeline using fasta
 +++++++++++++++++++++++++++++++++
@@ -54,3 +72,29 @@ and only the first line of each sequence has ``A`` and there are 2 sequences.
 
     $> fasta tests/testinput/col.fasta | grep -v '>' | grep -Eo '[Aa]' | wc -l
     160
+
+Split fasta file into separate files named after identifiers
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The following example shows how you can split a fasta file into multiple fasta
+files each named after an identifier in the original
+
+.. code-block:: bash
+
+    $> fasta tests/testinput/col.fasta --split
+    $> ls -l *.fasta
+    sequence1.fasta
+    sequence2____________________________.fasta
+
+*Note* The reason sequence2 has such a long name is because it is replacing
+all punctionation characters with underscores. ``col.fasta`` is a test file
+that has a bunch of punctuation, hence all the underscores.
+
+Similar to above, you can use input from standard input as the fasta input file
+
+.. code-block:: bash
+
+    $> cat tests/testinput/col.fasta | fasta --split -
+    $> ls -l *.fasta
+    sequence1.fasta
+    sequence2____________________________.fasta
