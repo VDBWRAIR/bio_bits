@@ -118,18 +118,6 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True, \
     fh.write('name,dates,p-dist\n')
     outcsv = csv.writer(fh)
     map(outcsv.writerow, all_info)
-    plot_muts(ax, x1, y1, plotkwargs=dict(label='references (blue)', color=legend['references'], marker='s'), polyfit=True, max_x=max_x, dist=None)
-    plot_muts(ax, x2, y2, plotkwargs=dict(label='queries (red)', color=legend['queries']), dist=None)
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-    #ax.legend(handles=legend_info, loc='center left', bbox_to_anchor=(1, 0.5))
-    #ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), framealpha=0)
-    ax.legend(framealpha=0)
-    plt.xlabel("days since Base reference")
-    plt.ylabel("p-distance")
-    if save_path:
-        plt.savefig(save_path)
-    else: plt.show()
     if html:
         assert sys.version[:3] != '2.6', "Requires python 2.7 or higher to run bokeh."
         import bokeh.models as bkm
@@ -142,13 +130,27 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True, \
         hover = bkm.HoverTool(tooltips=[("id", "@ids"),]) #   ("(days,muts)", "($x, $y)"),
         source1 = bkm.ColumnDataSource(data=dict(x=x1, y=y1,  ids=ref_names))
         source2 = bkm.ColumnDataSource(data=dict(x2=x2, y2=y2, ids=query_names))
-        p = bkp.figure(plot_width=400, plot_height=400, tools=[hover]+bokeh_tools, title="Mutations over time (days)")
+        p = bkp.figure(plot_width=400, plot_height=400, tools=[hover]+bokeh_tools, title=title)
         p.circle('x', 'y', source=source1, line_color='gray', legend='reference')
         p.square('x2', 'y2', source=source2, fill_color='red', legend='query')
         if save_path:
             bkp.output_file(save_path + '.html')
             bkp.save(p)
         else: bkp.show(p)
+    else:
+        plot_muts(ax, x1, y1, plotkwargs=dict(label='references (blue)', color=legend['references'], marker='s'), polyfit=True, max_x=max_x, dist=None)
+        plot_muts(ax, x2, y2, plotkwargs=dict(label='queries (red)', color=legend['queries']), dist=None)
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        #ax.legend(handles=legend_info, loc='center left', bbox_to_anchor=(1, 0.5))
+        #ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), framealpha=0)
+        ax.legend(framealpha=0)
+        plt.xlabel("days since Base reference")
+        plt.ylabel("p-distance")
+        if save_path:
+            plt.savefig(save_path)
+        else:
+            plt.show()
 
 def plot_muts(ax, x, y, dist=DISTRIBUTION, polyfit=False, max_x=None, plotkwargs=dict(marker='o')):
     '''
@@ -200,7 +202,11 @@ def get_clusters(refs, queries):
     ref1, ref2 = all_ref_seqs[:2]
     dists1, dists2 = partial(hamming, ref1), partial(hamming, ref2)
     ref_seqs, ref_ids = all_ref_seqs[2:], all_ref_ids[2:]
-    ref_dists1, ref_dists2 = map(dists1, ref_seqs), map(dists2, ref_seqs)
+    if ref_seqs:
+        ref_dists1, ref_dists2 = map(dists1, ref_seqs), map(dists2, ref_seqs)
+    else:
+        ref_dists1 = ref_dists2 = [0,0]
+        ref_ids = ['','']
 
     query_seqs, query_ids = extract_info(queries)
     query_dists1, query_dists2 = map(dists1, query_seqs), map(dists2, query_seqs)
