@@ -59,7 +59,7 @@ class TestGetHostfile(unittest.TestCase):
     def test_detects_pbs(self):
         r = parallel_blast.get_hostfile()
         self.assertEqual('foo', r)
-    
+
     @mock.patch.dict('bio_bits.parallel_blast.os.environ', {'PE_HOSTFILE': 'foo'})
     def test_detects_sge(self):
         r = parallel_blast.get_hostfile()
@@ -81,7 +81,7 @@ class TestGenerateSSHLogins(unittest.TestCase):
         with mock.patch.dict('bio_bits.parallel_blast.os.environ', {'PBS_NODEFILE': self.hostfile}):
             r = parallel_blast.generate_sshlogins()
             self.assertListEqual(['--sshlogin', '2/:'], r)
-        
+
     def test_pbs_sshlogins(self):
         with open(self.hostfile, 'w') as fh:
             fh.write(PBS_MACHINEFILE)
@@ -138,7 +138,7 @@ class TestParallelBlast(MockSH):
             '-evalue 0.01 -otherblast arg'
         )
         r = self.mock_sh_cmd.return_value.call_args
-        # It seems that parallel needs 
+        # It seems that parallel needs
         self.assertEqual(r[1]['_in'], self.mock_open.return_value)
         self.assertEqual(r[1]['_out'], self.mock_open.return_value)
 
@@ -226,9 +226,9 @@ class TestParallelBlast(MockSH):
         self.mock_sh_which.return_value = '/path/to/blast'
         for arg in parallel_blast.STATIC_BLAST_ARGS:
             self.assertRaises(
-                ValueError, 
+                ValueError,
                 parallel_blast.parallel_blast,
-                self.infile, self.outfile, 5, '/path/to/blast', 'blastn', 'foox', 
+                self.infile, self.outfile, 5, '/path/to/blast', 'blastn', 'foox',
                 arg + ' foo'
             )
 
@@ -253,7 +253,7 @@ class TestParallelDiamond(MockSH):
             '-evalue 0.01 -otherblast arg'
         )
         r = self.mock_sh_cmd.return_value.call_args
-        # It seems that parallel needs 
+        # It seems that parallel needs
         self.assertEqual(r[1]['_in'], self.mock_open.return_value)
         self.assertEqual(r[1]['_out'], self.mock_open.return_value)
 
@@ -306,7 +306,7 @@ class TestParallelDiamond(MockSH):
         self.mock_sh_which.return_value = '/path/to/diamond'
         for arg in parallel_blast.STATIC_DIAMOND_ARGS:
             self.assertRaises(
-                ValueError, 
+                ValueError,
                 parallel_blast.parallel_diamond,
                 self.infile, self.outfile, 5, '/path/to/dmd', 'foox', arg + ' foo'
             )
