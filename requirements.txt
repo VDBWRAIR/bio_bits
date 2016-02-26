@@ -6,7 +6,7 @@ docopt
 schema
 pyvcf
 sh
-funcy
+funcy==1.6
 tabulate
 matplotlib
 bokeh
