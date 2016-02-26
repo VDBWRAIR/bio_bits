@@ -74,3 +74,4 @@ contig*.fastq
 tests/testoutput
 tests/out.samtext
 tests/out.fasta
+tests/output
