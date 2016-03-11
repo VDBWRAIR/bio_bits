@@ -10,6 +10,8 @@ ${in_fasta} =                       ${CURDIR}/testinput/col.fasta
 ${actual} =                         ${CURDIR}/out.fasta
 ${expected} =                       ${CURDIR}/expected/singleline.fasta
 ${test_directory} =                 ${CURDIR}/output
+${amb_fasta} =                      ${CURDIR}/testinput/ambiguous.fasta
+${disamb_fasta} =                   ${CURDIR}/testinput/disambiguous.fasta
 
 *** Test Cases ***
 fasta reads from stdin
@@ -80,3 +82,13 @@ fasta splits works with stdin
     \       ${contents} =    Get File    ${test_directory}/${id}.fasta
     \       ${numlines} =    Get Line Count  ${contents}
     \       Should Be Equal As Integers    2    ${numlines}
+fasta disambiguous
+    Create Directory                ${test_directory}
+    Empty Directory                 ${test_directory}
+    ${process_result} =             Run Process                     fasta --disambiguate ${amb_fasta}    shell=True    cwd=${test_directory}
+    #Log To Console                  ${process_result.stdout}
+
+    # Check system exited    correctly
+    Should Be Equal As Integers     ${process_result.rc}            0 
+    ${expected_contents} =          Get File                        ${disamb_fasta}
+    Should Be Equal As Strings      ${expected_contents}            ${process_result.stdout}\n
