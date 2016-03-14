@@ -6,8 +6,8 @@ import functools
 
 from Bio.SeqIO import parse, FastaIO
 
-import util
-import ctleptop 
+from . import util
+from . import ctleptop 
 
 def parse_args():
     parser = argparse.ArgumentParser(
