@@ -5,6 +5,7 @@ import string
 import functools
 
 from Bio.SeqIO import parse, FastaIO
+from Bio.Data import IUPACData
 
 from . import util
 from . import ctleptop 
@@ -61,9 +62,41 @@ def disambiguate(records):
         # Get the input sequence
         sequence = str(record.seq)
         # Generate all permutations of that sequence
-        perms = list(ctleptop.nearbyPermutations(sequence))
+        #perms = list(ctleptop.nearbyPermutations(sequence))
+        perms = permutate_ambiguous_sequence(sequence)
         all_records += map(make_rec, perms)
     return all_records
+
+def permutate_ambiguous_sequence(seq_str):
+    '''
+    '''
+    # Abiguous mapping table from BioPython
+    amb_values = IUPACData.ambiguous_dna_values
+    # Start ambiguous sequences with our input sequence
+    amb_seqs = [seq_str]
+    # i holds current position
+    for i in range(len(seq_str)):
+        # Skip all non-ambiguous bases
+        if len(amb_values[seq_str[i]]) == 1:
+            continue
+        #print("i: {0}".format(i))
+        # build up permutations for the current ambiguous base
+        cur_seqs = []
+        for seq in amb_seqs:
+            for j in range(i, len(seq)):
+                #print("j: {0}".format(j))
+                nt = seq[j]
+                #print("nt: {0}".format(nt))
+                amb_bases = amb_values[nt]
+                for base in amb_bases:
+                    #print("base: {0}".format(base))
+                    #print("seq[:j] + base + seq[j+1:]".format(seq[:j], base, seq[j+1:]))
+                    cur_seqs.append(seq[:j] + base + seq[j+1:])
+                    #print("cur_seqs: {0}".format(cur_seqs))
+                break
+        amb_seqs = cur_seqs
+        print("amb_seqs: {0}".format(amb_seqs))
+    return amb_seqs
 
 def main():
     args = parse_args()

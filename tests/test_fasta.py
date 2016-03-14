@@ -23,3 +23,20 @@ class TestDisambiguate(unittest.TestCase):
         all_seqrecs = map(util.make_seqrec, all_seqs)
         r = fasta.disambiguate([start_seq])
         self.assertSeqRecsEqual(self.sort_seqrecs(all_seqrecs), self.sort_seqrecs(r))
+
+class TestPermutateAmbiguousSequence(unittest.TestCase):
+    def test_works_no_ambig(self):
+        r = fasta.permutate_ambiguous_sequence('ATGC')
+        self.assertEqual(['ATGC'], r)
+
+    def test_works_all_ambig(self):
+        r = fasta.permutate_ambiguous_sequence('RRR')
+        self.assertEqual(
+            sorted(['AAA', 'AAG', 'AGA', 'GAA', 'AGG', 'GGA', 'GGG', 'GAG']), sorted(r)
+        )
+
+    def test_known_test(self):
+        r = fasta.permutate_ambiguous_sequence('ATGRB')
+        self.assertEqual(
+            sorted(['ATGAT', 'ATGAG', 'ATGAC', 'ATGGT', 'ATGGG', 'ATGGC']), sorted(r)
+        )
