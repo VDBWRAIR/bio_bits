@@ -1,7 +1,7 @@
 argparse
 future
 biopython
-pandas
+pandas<0.18.0
 docopt
 schema
 pyvcf
