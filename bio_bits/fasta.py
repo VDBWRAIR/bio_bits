@@ -63,39 +63,46 @@ def disambiguate(records):
         sequence = str(record.seq)
         # Generate all permutations of that sequence
         #perms = list(ctleptop.nearbyPermutations(sequence))
+        sys.stderr.write(record.id + '\n')
         perms = permutate_ambiguous_sequence(sequence)
-        all_records += map(make_rec, perms)
-    return all_records
+        for perm in perms:
+            yield make_rec(perm)
 
 def permutate_ambiguous_sequence(seq_str):
     '''
     '''
     # Abiguous mapping table from BioPython
     amb_values = IUPACData.ambiguous_dna_values
+    a_bases = []
+    total_perms = 1
+    for nt in seq_str:
+        amb_bases = amb_values.get(nt, nt)
+        if len(amb_bases) > 1:
+            a_bases.append(nt)
+            total_perms *= len(amb_bases)
+    sys.stderr.write("Sequence has {0} ambiguous bases over {1} total bases for a total of {2} permutations\n".format(len(a_bases), len(seq_str), total_perms))
     # Start ambiguous sequences with our input sequence
     amb_seqs = [seq_str]
     # i holds current position
     for i in range(len(seq_str)):
+        nt = seq_str[i]
+        amb_bases = amb_values.get(nt, nt)
         # Skip all non-ambiguous bases
-        if len(amb_values[seq_str[i]]) == 1:
+        if len(amb_values) == 1:
             continue
         #print("i: {0}".format(i))
-        # build up permutations for the current ambiguous base
         cur_seqs = []
+        # Go through each sequence again and and generate ambiguous bases
         for seq in amb_seqs:
-            for j in range(i, len(seq)):
-                #print("j: {0}".format(j))
-                nt = seq[j]
-                #print("nt: {0}".format(nt))
-                amb_bases = amb_values[nt]
-                for base in amb_bases:
-                    #print("base: {0}".format(base))
-                    #print("seq[:j] + base + seq[j+1:]".format(seq[:j], base, seq[j+1:]))
-                    cur_seqs.append(seq[:j] + base + seq[j+1:])
-                    #print("cur_seqs: {0}".format(cur_seqs))
-                break
+            #print("nt: {0}".format(nt))
+            # build up permutations for the current ambiguous base
+            for base in amb_bases:
+                #print("base: {0}".format(base))
+                #print("seq[:i] + base + seq[i+1:]".format(seq[:i], base, seq[i+1:]))
+                cur_seqs.append(seq[:i] + base + seq[i+1:])
+                #print("cur_seqs: {0}".format(cur_seqs))
         amb_seqs = cur_seqs
-        print("amb_seqs: {0}".format(amb_seqs))
+        #print("amb_seqs: {0}".format(amb_seqs))
     return amb_seqs
 
 def main():

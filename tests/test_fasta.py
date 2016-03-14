@@ -26,8 +26,8 @@ class TestDisambiguate(unittest.TestCase):
 
 class TestPermutateAmbiguousSequence(unittest.TestCase):
     def test_works_no_ambig(self):
-        r = fasta.permutate_ambiguous_sequence('ATGC')
-        self.assertEqual(['ATGC'], r)
+        r = fasta.permutate_ambiguous_sequence('ATG-C')
+        self.assertEqual(['ATG-C'], r)
 
     def test_works_all_ambig(self):
         r = fasta.permutate_ambiguous_sequence('RRR')
