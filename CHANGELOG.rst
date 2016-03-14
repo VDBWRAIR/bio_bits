@@ -2,6 +2,12 @@
 CHANGELOG
 =========
 
+Version 1.3.1
+-------------
+
+* plot_muts added --cluster and --html options
+* fasta added --split and --wrap options
+
 Version 1.3.0
 -------------
 

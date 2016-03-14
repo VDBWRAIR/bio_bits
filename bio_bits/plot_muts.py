@@ -68,8 +68,6 @@ def process(refs_fn, query_fn, save_path=None, html=True):
     #assert len(ref_seqs) > 1, "Need more than 1 reference sequence"
     ref_seqs = map(str.upper, ref_seqs)
     super_ref_seq, super_ref_date, super_ref_name = ref_seqs[0], ref_dates[0], ref_names[0]
-    print(super_ref_name)
-    print(super_ref_date)
     get_mutations = partial(hamming, super_ref_seq)
     def get_relative_info(seqs, dates, names):
         muts = map(get_mutations, seqs)
@@ -81,7 +79,7 @@ def process(refs_fn, query_fn, save_path=None, html=True):
     #map(compose(print, '{0}\t{1}'.format ), ref_dists, ref_muts)
 
 def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True, \
-            title='Mutations over time (days)', x_axis_label='days', y_axis_label='bases'):
+            title='Mutations over time (days)', x_axis_label='time since base reference', y_axis_label='p-distance'):
     '''
     :param iterable x1: reference dates distances
     :param iterable y1: reference p-distances
@@ -145,8 +143,8 @@ def do_plot(x1, y1, ref_names, x2, y2, query_names, save_path=None, html=True, \
         #ax.legend(handles=legend_info, loc='center left', bbox_to_anchor=(1, 0.5))
         #ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), framealpha=0)
         ax.legend(framealpha=0)
-        plt.xlabel("days since Base reference")
-        plt.ylabel("p-distance")
+        plt.xlabel(x_axis_label)
+        plt.ylabel(y_axis_label)
         if save_path:
             plt.savefig(save_path)
         else:
@@ -202,6 +200,8 @@ def get_clusters(refs, queries):
     ref1, ref2 = all_ref_seqs[:2]
     dists1, dists2 = partial(hamming, ref1), partial(hamming, ref2)
     ref_seqs, ref_ids = all_ref_seqs[2:], all_ref_ids[2:]
+    # There may only be 2 references to compare
+    # so we check here if that is the case and set distances to 0 if so
     if ref_seqs:
         ref_dists1, ref_dists2 = map(dists1, ref_seqs), map(dists2, ref_seqs)
     else:
@@ -216,14 +216,13 @@ def get_clusters(refs, queries):
 def process_cluster(refs, queries, save_path=None, html=False):
     ref_dists1, ref_dists2, ref_ids, query_dists1, query_dists2, query_ids, ref1_id, ref2_id = get_clusters(refs, queries)
     do_plot(ref_dists1, ref_dists2, ref_ids, query_dists1, query_dists2, query_ids, \
-            save_path, html, title='Distances from base references', x_axis_label=ref1_id, y_axis_label=ref2_id)
-
+            save_path, html, title='test', x_axis_label=ref1_id, y_axis_label=ref2_id)
 
 def main():
     #if sys.argv[1] == 'test': test_more()
     scheme = schema.Schema(
-        { '--query' : os.path.isfile,
-          '--refs' : os.path.isfile,
+        { '--query' : os.path.exists,
+          '--refs' : os.path.exists,
          schema.Optional('--out') : lambda x: True,
          schema.Optional('--html') : lambda x: True,
          schema.Optional('--cluster') : lambda x: True

@@ -14,7 +14,7 @@ Usage
     fasta --help
 
 Examples
-^^^^^^^^
+--------
 
 The following examples all use the test fasta file found under 
 ``tests/testinput/col.fasta``
@@ -25,15 +25,14 @@ The following examples all use the test fasta file found under
 Convert column fasta into single lines
 ++++++++++++++++++++++++++++++++++++++
 
-The following could output the fasta sequences as one line to your terminal(stdout)
-but reading from the pipe. This is useful if you want to use it in a pipeline.
+The following is a simple shell pipeline using fasta to ensure all sequences are
+on one line
 
 .. code-block:: bash
 
     $> cat tests/testinput/col.fasta | fasta -
 
-The following could output the fasta sequences as one line to your terminal(stdout)
-as well, but reading straight from the file.
+Or if you want to you can read straight from a fasta file
 
 .. code-block:: bash
 
@@ -50,8 +49,10 @@ fasta. It defaults to using 80 characters for each column
     $> fasta tests/testinput/col.fasta
 
 You can verify that it is wrapping correctly by simply piping the fasta command
-back into itself from ``convert-to-single | wrap`` and then comparing to the original
-input file.
+back into itself and then comparing to the original input file.
+
+Here you can see we do that and then use diff to show there is no difference between
+the original file(col.fasta) and the new one(newline.fasta)
 
 .. code-block:: bash
 
