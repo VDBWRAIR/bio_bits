@@ -4,6 +4,8 @@ plot_muts
 Plot mutations either by comparing two sequences or by comparing a bunch of sequences
 to another sequence.
 
+This command is still under a bit of development so bare with the nuances
+
 Usage
 -----
 
@@ -47,7 +49,7 @@ Plot muts also outputs a csv file named after the ``--out`` with .csv appended
     BaseRef_gi|499073354|gb|KC807170.1|_Ngewotan_virus_strain_JKT9982_complete_genome____1981,0,0
 
 Input File Requirements
------------------------
++++++++++++++++++++++++
 
 The input must be fasta format. Both the query and ref files can have any number of sequences.
 
@@ -62,3 +64,30 @@ as the *fourth* field. e.g.::
 
     >some/info/blah/1995
     >some/info/blah/1995/more/info
+
+Example using cluster method to use two references as x and y axis
+------------------------------------------------------------------
+
+This is useful when you only have two references and no dates as all the sequences
+will be compared against these two sequences to give you a 'clustered' view
+
+``--refs`` is a fasta file that contains two references. The first being the
+x-axis and the second representing the y-axis
+``--queries`` is a fasta file that contains multiple sequences that will be
+plotted against the ``--refs`` sequences
+
+.. code-block:: bash
+
+    plot_muts --query tests/testinput/ha/refall.ha.fasta --refs tests/testinput/ha/refall.ha.fasta --cluster --out cluster.png
+
+Example Output
+++++++++++++++
+
+.. image:: ../_static/plot_muts.cluster.png
+
+Generating html graphics that are interactive
+---------------------------------------------
+
+For both ``--cluster`` and non-cluster graphics you can optionally supply ``--html``
+which will utilize the bokeh python project to build an interactive html output that
+you can open in your web browser.
