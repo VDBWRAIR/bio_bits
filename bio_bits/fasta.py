@@ -10,6 +10,10 @@ from Bio.Data import IUPACData
 from . import util
 from . import ctleptop 
 
+# Maximum amount of permutations for ambiguous sequences that will
+# be generated
+MAX_PERMS = 100
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description='''Simplistic fasta manipulator'''
@@ -63,12 +67,12 @@ def disambiguate(records):
         sequence = str(record.seq)
         # Generate all permutations of that sequence
         #perms = list(ctleptop.nearbyPermutations(sequence))
-        sys.stderr.write(record.id + '\n')
-        perms = permutate_ambiguous_sequence(sequence)
+        perms = permutate_ambiguous_sequence(record.id, sequence)
         for perm in perms:
-            yield make_rec(perm)
+            if perm:
+                yield make_rec(perm)
 
-def permutate_ambiguous_sequence(seq_str):
+def permutate_ambiguous_sequence(seq_id, seq_str):
     '''
     '''
     # Abiguous mapping table from BioPython
@@ -80,7 +84,6 @@ def permutate_ambiguous_sequence(seq_str):
         if len(amb_bases) > 1:
             a_bases.append(nt)
             total_perms *= len(amb_bases)
-    sys.stderr.write("Sequence has {0} ambiguous bases over {1} total bases for a total of {2} permutations\n".format(len(a_bases), len(seq_str), total_perms))
     # Start ambiguous sequences with our input sequence
     amb_seqs = [seq_str]
     # i holds current position
@@ -102,6 +105,9 @@ def permutate_ambiguous_sequence(seq_str):
                 cur_seqs.append(seq[:i] + base + seq[i+1:])
                 #print("cur_seqs: {0}".format(cur_seqs))
         amb_seqs = cur_seqs
+        if len(amb_seqs) > MAX_PERMS:
+            sys.stderr.write("Sequence {0} has {1} ambiguous bases that would produce {2} permutations and was skipped\n".format(seq_id, len(a_bases), total_perms))
+            return []
         #print("amb_seqs: {0}".format(amb_seqs))
     return amb_seqs
 

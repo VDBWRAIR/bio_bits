@@ -1,6 +1,8 @@
+import sys
 from . import unittest
 
 from bio_bits import fasta, util
+import mock
 
 class TestDisambiguate(unittest.TestCase):
     def sort_seqrecs(self, recs):
@@ -26,17 +28,24 @@ class TestDisambiguate(unittest.TestCase):
 
 class TestPermutateAmbiguousSequence(unittest.TestCase):
     def test_works_no_ambig(self):
-        r = fasta.permutate_ambiguous_sequence('ATG-C')
+        r = fasta.permutate_ambiguous_sequence('foo', 'ATG-C')
         self.assertEqual(['ATG-C'], r)
 
     def test_works_all_ambig(self):
-        r = fasta.permutate_ambiguous_sequence('RRR')
+        r = fasta.permutate_ambiguous_sequence('foo', 'RRR')
         self.assertEqual(
             sorted(['AAA', 'AAG', 'AGA', 'GAA', 'AGG', 'GGA', 'GGG', 'GAG']), sorted(r)
         )
 
     def test_known_test(self):
-        r = fasta.permutate_ambiguous_sequence('ATGRB')
+        r = fasta.permutate_ambiguous_sequence('foo', 'ATGRB')
         self.assertEqual(
             sorted(['ATGAT', 'ATGAG', 'ATGAC', 'ATGGT', 'ATGGG', 'ATGGC']), sorted(r)
         )
+
+    def test_over_max_perms(self):
+        with mock.patch.object(sys, 'stderr') as m_stderr:
+            # Should generate 128 permutations
+            r = fasta.permutate_ambiguous_sequence('foo', 'R'*7)
+            m_stderr.write.assert_called_with('Sequence foo has 7 ambiguous bases that would produce 128 permutations and was skipped\n')
+            self.assertEqual([], r)
