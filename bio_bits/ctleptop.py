@@ -171,7 +171,7 @@ def create_args():
              the sequence',
         epilog = '%(prog)s -i tests/Den4_MAAPS_TestData16.fasta -o out_file.txt'
     )
-    g = parser.add_mutually_exclusive_group(required=True)
+    g = parser.add_mutually_exclusive_group(required=False)
     parser.add_argument("-i", type=str, help="Nucleotide fasta file", required=True)
     parser.add_argument("-o", type=str,  help="output file name", required=True)
     g.add_argument("--gb-file", type=str,  help="genbank file name")
@@ -180,7 +180,7 @@ def create_args():
     parser.add_argument('--cds', type=str, help="CDS start stop[start,stop]")
     return parser.parse_args()
 
-def mod_entry(entry, cds):
+def mod_entry(entry, cds=None):
     '''
     Find Gap positions and non-coding region positions
     :param entry: iterable of (seqid,nucindex,aaindex,nuclcodon,aacodon,genename)
@@ -190,10 +190,14 @@ def mod_entry(entry, cds):
     new_entry = list(entry)
     nuc_pos = entry[1]
     nt = entry[3]
-    if cds.start >= nuc_pos or cds.end <= nuc_pos:
-        new_entry[4] = 'NON-CODING'
+    if cds:
+        if cds.start >= nuc_pos or cds.end <= nuc_pos:
+            new_entry[4] = 'NON-CODING'
+        elif 'N' in nt:
+            new_entry[4] = 'GAPFOUND'
     elif 'N' in nt:
         new_entry[4] = 'GAPFOUND'
+
     return tuple(new_entry)
 
 def main():
@@ -205,32 +209,37 @@ def main():
         aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
 
         # Get Gene info
-        reference_genes, cds = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
-        overlapped_genes = degen.get_degen_list_overlap(reference_genes, nuc_idx)
 
         # Remove all non-mixed positions
         amb_aa_codon = filter(lambda x: '/' in x, aa)
         # get amino acid index list
         amb_aa_indx = map(lambda x: x//3 + 1, nuc_idx)
 
-        mixed_positions = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon, overlapped_genes)
         if args.cds:
+            reference_genes, cds = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
+            overlapped_genes = degen.get_degen_list_overlap(reference_genes, nuc_idx)
+            mixed_positions = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon, overlapped_genes)
             cds_start, cds_end = map(int, args.cds.split(','))
             cds = degen.Gene('CDS', cds_start, cds_end)
-
-        if cds is None:
-            print("No CDS information supplied via input file or on command line")
-            sys.exit(1)
-
-        # mark gaps and non-coding positions
-        mixed_positions= map(lambda x: mod_entry(x, cds), mixed_positions)
-        outf.write(
-            tabulate(
-                mixed_positions,
-                headers=[
+            mixed_positions= map(lambda x: mod_entry(x, cds), mixed_positions)
+            headers=[
                     'seq id', 'nt Position', 'aa position',
                     'nt composition', 'aa composition', 'gene name'
                 ]
+
+        else:
+            mixed_positions = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon)
+            mixed_positions = map(mod_entry, mixed_positions)
+            headers=[
+                    'seq id', 'nt Position', 'aa position',
+                    'nt composition', 'aa composition'
+                ]
+
+        # mark gaps and non-coding positions
+        outf.write(
+            tabulate(
+                mixed_positions,
+                headers=headers
             ) + "\n"
         )
 
