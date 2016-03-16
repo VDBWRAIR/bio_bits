@@ -208,19 +208,20 @@ def main():
     with open(outfile, 'w+') as outf:
         aa, nuc_idx, nucl_codon, seqids = access_mixed_aa(file_name)
 
-        # Get Gene info
-
         # Remove all non-mixed positions
         amb_aa_codon = filter(lambda x: '/' in x, aa)
         # get amino acid index list
         amb_aa_indx = map(lambda x: x//3 + 1, nuc_idx)
 
-        if args.cds:
+        if args.gb_file or args.tab_file or args.gb_id:
+            # cds might be None
             reference_genes, cds = degen.get_genes(args.gb_id, args.gb_file, args.tab_file)
             overlapped_genes = degen.get_degen_list_overlap(reference_genes, nuc_idx)
+            if args.cds:
+                cds_start, cds_end = map(int, args.cds.split(','))
+                cds = degen.Gene('CDS', cds_start, cds_end)
             mixed_positions = zip(seqids, nuc_idx, amb_aa_indx, nucl_codon, amb_aa_codon, overlapped_genes)
-            cds_start, cds_end = map(int, args.cds.split(','))
-            cds = degen.Gene('CDS', cds_start, cds_end)
+            assert cds, "No CDS info provided in file or commandline."
             mixed_positions= map(lambda x: mod_entry(x, cds), mixed_positions)
             headers=[
                     'seq id', 'nt Position', 'aa position',
