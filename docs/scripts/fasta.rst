@@ -5,6 +5,7 @@ fasta is a very simple script to help mangle fasta files.
 
 * Supports converting multiline sequences into single line
 * Supports splitting fasta file into separate files each named after the identifier
+* Supports disambiguating ambiguous sequences
 
 Usage
 -----
@@ -99,3 +100,23 @@ Similar to above, you can use input from standard input as the fasta input file
     $> ls -l *.fasta
     sequence1.fasta
     sequence2____________________________.fasta
+
+Disambiguate ambiguous sequences
+++++++++++++++++++++++++++++++++
+
+You can turn sequences that have ambiguous bases in them into all permutations
+of the same sequence with the ambiguous bases turned into non-ambiguous bases.
+
+There is an upper limit of 100 for how many sequences can be generated to avoid
+creating thousands of sequences or consuming all of your computer's RAM.
+
+If a sequence would generate more than 100 sequences, it will generate a message
+such as::
+
+    Sequence too_many has 7 ambiguous bases that would produce 128 permutations and was skipped
+
+and it will be skipped.
+
+.. code-block:: bash
+
+    $> fasta --disambiguate tests/testinput/ambiguous.fasta > disambiguous.fasta
