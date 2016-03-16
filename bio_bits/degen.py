@@ -127,7 +127,7 @@ def get_genes(ref_id=None, genbank_file=None, user_file=None):
     :param str genbank_file: filepath/filehandle for genbank file holding gene info
     :return: (iterable Gene objects with `start`, `end`, `name`, cds Gene)
     '''
-    assert  sum(map(bool, [ref_id, genbank_file, user_file])) == 1, "Must supply exactly one of accession id (%s) or gene_file (%s), or csv/tab-delimited file %s." % (ref_id, gene_file, tab_file)
+    assert  sum(map(bool, [ref_id, genbank_file, user_file])) == 1, "Must supply exactly one of accession id (%s) or genbank_file (%s), or csv/tab-delimited file %s." % (ref_id, genbank_file, user_file)
     if ref_id:
         genes = id_to_genes(ref_id)
     elif genbank_file:
