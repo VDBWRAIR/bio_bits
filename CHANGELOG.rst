@@ -2,6 +2,12 @@
 CHANGELOG
 =========
 
+Version 1.3.2
+-------------
+
+* fasta added --disambiguate option to turn ambiguous sequences into
+  all permutations possible
+
 Version 1.3.1
 -------------
 
