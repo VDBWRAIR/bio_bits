@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-ctleptop.py -i [FASTA FILE] > Out_file.txt
-
 Created by Dereje Jima on May 21, 2015
 """
 from __future__ import division
@@ -109,7 +107,7 @@ def access_mixed_aa(file_name):
     seqids = []
     for seq_record in SeqIO.parse(file_name, 'fasta'):
         seq_id = seq_record.id
-        seqline = str(seq_record.seq)
+        seqline = str(seq_record.seq).upper()
         seqline = seqline.replace("-", "N")
         n = 3
         codon_list = dict( (i + n , seqline[i:i + n]) for i in range(0, len(seqline), n))
