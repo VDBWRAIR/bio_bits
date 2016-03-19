@@ -11,3 +11,4 @@ tabulate
 matplotlib
 bokeh
 python-dateutil
+plumbum
