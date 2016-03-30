@@ -1,3 +1,6 @@
+.. image:: https://badge.waffle.io/VDBWRAIR/bio_bits.png?label=ready&title=Ready 
+ :target: https://waffle.io/VDBWRAIR/bio_bits
+ :alt: 'Stories in Ready'
 bio_bits
 ==========
 
