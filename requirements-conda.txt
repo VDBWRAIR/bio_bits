@@ -1,0 +1,5 @@
+pandas<0.18.0 #py2.6 support
+biopython
+matplotlib
+pyvcf
+bokeh

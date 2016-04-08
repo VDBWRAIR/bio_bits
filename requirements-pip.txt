@@ -1,14 +1,8 @@
 argparse
-future
-biopython
-pandas<0.18.0
 docopt
+future
 schema
-pyvcf
 sh
 funcy==1.6
 tabulate
-matplotlib
-bokeh
 python-dateutil
-plumbum
