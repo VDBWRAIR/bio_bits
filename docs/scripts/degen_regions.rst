@@ -70,6 +70,14 @@ position 1 is coding
 
     degen_regions -i tests/Den4_MAAPS_TestData16.fasta -o output.tsv --gb-file tests/testinput/sequence.gb --cds 1,1
 
+Without Gene Information
+------------------------
+The gene information is optional. If it is not provided the output file will not be annotated with the gene information; otherwise, the output will look the same (you will also lose the "non-coding region" flag.)
+
+.. code-block:: bash
+
+    degen_regions -i tests/Den4_MAAPS_TestData16.fasta -o output.tsv 
+
 Output
 ------
 

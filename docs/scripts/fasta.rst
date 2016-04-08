@@ -5,6 +5,7 @@ fasta is a very simple script to help mangle fasta files.
 
 * Supports converting multiline sequences into single line
 * Supports splitting fasta file into separate files each named after the identifier
+* Supports disambiguating ambiguous sequences
 
 Usage
 -----
@@ -14,7 +15,7 @@ Usage
     fasta --help
 
 Examples
-^^^^^^^^
+--------
 
 The following examples all use the test fasta file found under 
 ``tests/testinput/col.fasta``
@@ -25,15 +26,14 @@ The following examples all use the test fasta file found under
 Convert column fasta into single lines
 ++++++++++++++++++++++++++++++++++++++
 
-The following could output the fasta sequences as one line to your terminal(stdout)
-but reading from the pipe. This is useful if you want to use it in a pipeline.
+The following is a simple shell pipeline using fasta to ensure all sequences are
+on one line
 
 .. code-block:: bash
 
     $> cat tests/testinput/col.fasta | fasta -
 
-The following could output the fasta sequences as one line to your terminal(stdout)
-as well, but reading straight from the file.
+Or if you want to you can read straight from a fasta file
 
 .. code-block:: bash
 
@@ -50,8 +50,10 @@ fasta. It defaults to using 80 characters for each column
     $> fasta tests/testinput/col.fasta
 
 You can verify that it is wrapping correctly by simply piping the fasta command
-back into itself from ``convert-to-single | wrap`` and then comparing to the original
-input file.
+back into itself and then comparing to the original input file.
+
+Here you can see we do that and then use diff to show there is no difference between
+the original file(col.fasta) and the new one(newline.fasta)
 
 .. code-block:: bash
 
@@ -98,3 +100,23 @@ Similar to above, you can use input from standard input as the fasta input file
     $> ls -l *.fasta
     sequence1.fasta
     sequence2____________________________.fasta
+
+Disambiguate ambiguous sequences
+++++++++++++++++++++++++++++++++
+
+You can turn sequences that have ambiguous bases in them into all permutations
+of the same sequence with the ambiguous bases turned into non-ambiguous bases.
+
+There is an upper limit of 100 for how many sequences can be generated to avoid
+creating thousands of sequences or consuming all of your computer's RAM.
+
+If a sequence would generate more than 100 sequences, it will generate a message
+such as::
+
+    Sequence too_many has 7 ambiguous bases that would produce 128 permutations and was skipped
+
+and it will be skipped.
+
+.. code-block:: bash
+
+    $> fasta --disambiguate tests/testinput/ambiguous.fasta > disambiguous.fasta
