@@ -6,3 +6,7 @@ sh
 funcy==1.6
 tabulate
 python-dateutil
+nose
+mock
+tempdir
+python-coveralls
