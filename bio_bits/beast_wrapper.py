@@ -13,7 +13,7 @@ def hours_states_to_sec(line, chainlength):
     >>> hours_states_to_sec(line.replace('million','billion'), chainlength*1000)
     6101999
     '''
-    p = '^(\d+).*?((\d+(\.\d+)*)\shours/[mb]illion\sstates)$'
+    p = '^(\d+).*?((\d+\.\d+)\shours/[mb]illion\sstates)$'
     m = re.search(p, line)
     if not m:
         raise ValueError(line + ' is not a valid beast output line')
@@ -28,7 +28,7 @@ def hours_states_to_sec(line, chainlength):
 
     states_to_complete = (float(chainlength) - completed_states) / multiplier
     sec = states * states_to_complete * 3600
-    return int(sec) 
+    return int(sec)
 
 def sec_to_time(secs):
     '''
