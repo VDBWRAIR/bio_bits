@@ -1,7 +1,6 @@
 sudo: false
 language: python
 python:
-  - "2.6"
   - "2.7"
   - "3.4"
 before_install:
@@ -10,11 +9,10 @@ before_install:
 install:
     - ./install.sh miniconda
     - export PATH=$PWD/miniconda/bin:$PATH
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2 ordereddict counter; fi
     - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then pip install robotframework-python3; else pip install robotframework; fi
 script:
     - nosetests tests -v --with-coverage --cover-erase --cover-package=bio_bits -a '!download'
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pybot --exclude py27+ tests/*.robot ; else pybot tests/*.robot; fi
+    - pybot tests/*.robot
 after_success:
     - coveralls 
 notifications:
