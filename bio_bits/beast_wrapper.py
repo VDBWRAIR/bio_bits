@@ -28,7 +28,7 @@ def hours_states_to_sec(line, chainlength):
 
     states_to_complete = (float(chainlength) - completed_states) / multiplier
     sec = states * states_to_complete * 3600
-    return int(sec) 
+    return int(sec)
 
 def sec_to_time(secs):
     '''

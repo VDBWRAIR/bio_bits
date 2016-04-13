@@ -1,4 +1,0 @@
-nose
-mock
-tempdir
-python-coveralls
