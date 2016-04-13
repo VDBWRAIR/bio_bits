@@ -19,6 +19,7 @@ before_script:
 script:
     - nosetests tests -v --with-coverage --cover-erase --cover-package=bio_bits -a '!download'
     - pybot tests/*.robot
+    - cat /home/travis/build/VDBWRAIR/bio_bits/log.html
 after_success:
     - coveralls 
     - .travis/push_release_tag.sh
