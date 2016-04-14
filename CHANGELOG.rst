@@ -5,7 +5,7 @@ CHANGELOG
 Version 1.4.0
 -------------
 * Switched to conda install 
-* Added continuous delivery
+* Added continuous delivery 
 
 Version 1.3.2
 -------------
