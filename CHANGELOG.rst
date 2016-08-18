@@ -2,6 +2,11 @@
 CHANGELOG
 =========
 
+Version 1.4.0
+-------------
+
+* added genbank downloader script
+
 Version 1.3.2
 -------------
 
